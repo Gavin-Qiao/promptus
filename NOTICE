@@ -1,0 +1,27 @@
+This project is a PERSONAL-USE fork of blader/humanizer. It is not an official
+release of, or a substitute for, the upstream project.
+
+Upstream:   https://github.com/blader/humanizer
+Upstream license: MIT, Copyright (c) 2025 Siqi Chen
+This fork:  Copyright (c) 2026 Gavin-Qiao (https://github.com/Gavin-Qiao), MIT (same terms)
+
+The original work ("Part I": 29 patterns for detecting and removing signs of
+AI-generated writing, based on Wikipedia's "Signs of AI writing" guide) is
+retained in full. Per the MIT License, the original copyright and permission
+notice are preserved in LICENSE.
+
+Modifications in this fork
+--------------------------
+- Added "Part II — Positive Human Patterns" (P1-P14): what to ADD to make
+  writing read as genuinely human, not just which AI tics to remove.
+- Added human-factors-analysis.md: the analysis behind Part II, with verbatim
+  excerpts from a calibration corpus of pre-LLM writing and a removal-to-
+  addition cross-map.
+- Added a calibrated-confidence step, a positive pass, and a read-it-aloud
+  (spoken-language) test to the process.
+- Bumped the skill version to 2.7.0 and updated README.md and WARP.md.
+
+Part II is derived from acclaimed writing published before large language
+models existed (1945-2015), across biology, computer science, mathematics,
+economics, statistics, psychology, and philosophy of mind. Sources are listed
+in human-factors-analysis.md and in the SKILL.md calibration corpus.
