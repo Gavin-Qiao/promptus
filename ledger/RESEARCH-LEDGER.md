@@ -1,11 +1,11 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.1 — packaging hardened: Apache-2.0, CI/CD, hooks)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.1 — hardened + hybrid vocab; release-ready)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
 > `bun scripts/kb-add.ts --substrate ledger …` (the script owns the timestamp/id/placement).
-> A `★CORRECTION` supersedes a prior claim in place. Rewrite only the NOW-header, at `/checkpoint`.
+> Supersede a prior claim with `--supersedes <id>` (a `supersedes` relation marks it SUPERSEDED). Rewrite only the NOW-header, at `/checkpoint`.
 
 ## Mandate
 Package the operator's write-it-grounded-and-human methodology — humanizer + research-ledger +
@@ -22,38 +22,38 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 - Failure-first: dead-ends and mistakes earn the same care as wins.
 - Commits: `type(scope)` + flat bullet body, no `Co-Authored-By`. Don't merge without operator review.
 
-## NOW (v0.1 — packaging hardened, pre-release)
-On `feat/promptus-v1` (latest `a8730cf`, PR #1, **unmerged**), now release-ready. Relicensed to
-**Apache-2.0** (humanizer Part I stays MIT in `LICENSE-humanizer`), author Mohan Qiao. **CI/CD**
-green on the PR: `ci.yml` (bun test + offline `validate-plugin` + pre-commit hygiene) and
-`release.yml` (tag `v*` → assert tag==manifest + a non-empty CHANGELOG section → publish notes).
-`.pre-commit-config.yaml` drives the operator's shared git hooks (the pre-push gate now really
-runs). Added four guarded Claude Code **hooks** (SessionStart/PreToolUse/PostToolUse/SessionEnd),
-a `/promptus:help` command, `CHANGELOG.md` + `CONTRIBUTING.md` + `RELEASING.md`, and a rewritten README.
+## NOW (v0.1 — packaging hardened + hybrid vocab, pre-release)
+On `feat/promptus-v1` (PR #1, **unmerged**), release-ready. Apache-2.0 (humanizer Part I stays MIT),
+author Mohan Qiao. **CI/CD** green: `ci.yml` (bun test + offline `validate-plugin` + pre-commit
+hygiene) and `release.yml` (tag `v*` → assert tag==manifest + a non-empty CHANGELOG section →
+publish). `.pre-commit-config.yaml` drives the shared git hooks (pre-push gate runs). Four guarded
+**hooks** (SessionStart/PreToolUse/PostToolUse/SessionEnd), `/promptus:help`, CHANGELOG/CONTRIBUTING/
+RELEASING, rewritten README. **Hybrid vocab (schema v3)** landed: KIND/STATUS/RELATION facets,
+permissive ledger + strict library, DEADEND-is-a-KIND, supersession-is-a-relation, plus `kb-export`
+(CiTO/PROV-O JSON-LD) — research-grounded (see [[the-gate]]). `bun test` 20 pass.
 
 ## Open frontier
-- [ ] OPEN — ledger vocab strict vs permissive: real Probatio/Psi ledgers use a free KIND/STATUS set, and the dogfood hit the strict gate twice (DEADEND, then FIX-as-status). Recommendation on file: **permissive ledger** (warn-not-block), keep finding/lit/memory strict. (→ [[the-gate]])
 - [ ] **Cut v0.1.0** — merge PR #1 to `main`, then `git tag v0.1.0 && git push origin v0.1.0` (release.yml does the rest). Pre-staged: plugin.json is 0.1.0 and CHANGELOG has a dated `[0.1.0]`.
-- [ ] **Migrate Probatio / Psi** — their `AGENTS.md` still call the removed global `ledger-append.mjs` and bare `/checkpoint`; adopt the plugin (they can opt into the pre-commit config + hooks too).
+- [ ] **Migrate Probatio / Psi** — their `AGENTS.md` still call the removed global `ledger-append.mjs` and bare `/checkpoint`; adopt the plugin (the permissive ledger now fits their free vocab; plus the hooks).
 - [ ] overnight-handoff renderer — partly realized by the SessionStart hook; a dedicated terse renderer is still scaffolded. (grannie is built.)
 
 ## Next actions
 1. Operator reviews PR #1; on approval, merge to `main` and tag `v0.1.0` to release.
-2. Resolve the strict-vs-permissive ledger-vocab question (the one open design call).
-3. Migrate Probatio / Psi to the plugin.
+2. Migrate Probatio / Psi to the plugin (their free-vocab ledgers now fit the permissive gate).
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus v0.1 is on `feat/promptus-v1` (latest `a8730cf`, PR #1, **unmerged**), packaging hardened:
-Apache-2.0, CI/CD green, four guarded hooks, `/promptus:help`, CHANGELOG/CONTRIBUTING/RELEASING, and a
-comprehensive README. `bun run check` green; `claude plugin validate` clean. The release is
-**pre-staged** — merge PR #1, then `git tag v0.1.0 && git push origin v0.1.0`. The new hooks need
-`/reload-plugins` to activate in a running session. Legacy globals are backed up at
-`~/.claude/_promptus-legacy-backup/`. The one open design call is the **ledger vocab** (permissive vs
-strict). Read `TELOS.md`, then this header, then the Log below. Do not merge without the operator.
+Promptus v0.1 is on `feat/promptus-v1` (PR #1, **unmerged**): packaging hardened (Apache-2.0, CI/CD
+green, four hooks, `/promptus:help`, CHANGELOG/CONTRIBUTING/RELEASING, README) AND the **hybrid vocab**
+is implemented (schema v3 — KIND/STATUS/RELATION facets, permissive ledger + strict library,
+DEADEND-as-KIND, supersedes-as-relation, `kb-export` to CiTO/PROV-O). `bun run check` green (20 tests);
+`claude plugin validate` clean. The vocab decision is now **CLOSED**. Release is pre-staged — merge
+PR #1, then `git tag v0.1.0 && git push origin v0.1.0`. New hooks need `/reload-plugins` to activate.
+Legacy globals backed up at `~/.claude/_promptus-legacy-backup/`. Read `TELOS.md`, then this header,
+then the Log. Do not merge without the operator.
 
 ## Glossary
 - `substrate:status` — every unit's tag (`ledger`/`finding`/`lit`/`memory` : its status).
-- `the gate` — `kb-add` refusing an off-vocab write with the allowed set.
+- `the gate` — `kb-add` enforcing the vocab: strict for the library (finding/lit/memory), permissive (warn) for the ledger.
 - `header-first` — retrieval reads the card-catalog of hand-written headers, not vectors.
 
 ## Log
@@ -108,5 +108,8 @@ Added CI (bun test + an offline validate-plugin + a pre-commit hygiene job) and 
 
 ### [2026-06-28 12:59:11] RESULT/VALIDATED — Four guarded Claude Code hooks added
 SessionStart injects the ledger NOW-header to orient a resuming agent; PreToolUse blocks freehand '### [ts]' log edits and .promptus/ writes while allowing NOW-header edits; PostToolUse re-indexes after a kb-add; SessionEnd nudges to /checkpoint. Each no-ops outside a Promptus repo. Tested all paths locally. Activate in a running session with /reload-plugins.
+
+### [2026-06-28 13:50:23] DECISION/VALIDATED — Adopted the hybrid vocab (facets + permissive ledger + relations + export)
+Implemented the research-recommended hybrid vocab (schema v3): split KIND (the act) / STATUS (the claim's epistemic state) / RELATION (a typed link) into separate facets; the ledger is permissive (off-vocab kind/status warns but writes) while finding/lit/memory stay strict; dropped DEADEND from STATUS (it is a KIND) and turned CORRECTION into a supersedes relation, fixing the occurrent/continuant facet collision. Added typed relations (supersedes/refutes/challenges/supports/extends/fixes) and kb-export, which emits the relation graph as CiTO/PROV-O JSON-LD. 20 tests pass. Grounds: [[vocab-grounding-no-single-standard-recommend-a-hybrid-gate]], [[the-gate]].
 
 <!-- kb:append-point -->
