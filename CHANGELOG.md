@@ -52,6 +52,10 @@ First public release — the store/keep/retrieve/render spine, packaged as a Cla
 - **Project automation.** Continuous integration (lint + `bun test` + an offline plugin
   validator), a tag-driven release workflow with a changelog sanity gate, and a
   `.pre-commit-config.yaml` that the operator's shared git hooks pick up automatically.
+- **Hooks.** Four guarded Claude Code hooks, each a no-op outside a Promptus repo:
+  SessionStart injects the ledger's NOW-header to orient a resuming agent; a PreToolUse guard
+  keeps freehand writes off the ledger log and `.promptus/`; PostToolUse re-indexes after a
+  `kb-add`; SessionEnd nudges to `/checkpoint`.
 - **Documentation.** `README.md`, `TELOS.md` (north star + the invariant), `AGENTS.md` /
   `WARP.md` (working cadence), `docs/report.md` (the design report), `docs/adoption.md` (the
   manual migration checklist), `CONTRIBUTING.md`, and `RELEASING.md`.

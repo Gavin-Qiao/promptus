@@ -121,6 +121,21 @@ Both turn on only at the papers-scale crossing (see [`docs/report.md`](docs/repo
 Plus the **`grounded-writing-reviewer`** agent — audits a draft for AI-writing tells *and* for
 unsourced or over-confident claims, checking each against the store.
 
+## Hooks (optional)
+
+When the plugin is enabled, four hooks activate — each a strict no-op outside a
+Promptus-initialized repo (no `TELOS.md` / ledger), so other projects are untouched:
+
+- **SessionStart** injects the ledger's NOW-header, so a resuming agent wakes up oriented.
+- **PreToolUse** blocks freehand writes that add a `### [ts]` log line or touch `.promptus/`,
+  pointing at `kb-add` — the gate, enforced. Editing the NOW-header (at `/promptus:checkpoint`)
+  stays allowed.
+- **PostToolUse** re-runs `kb-index` after a `kb-add`, so the derived catalog never drifts.
+- **SessionEnd** nudges you to `/promptus:checkpoint`.
+
+To disable any of them, remove its entry from [`hooks/hooks.json`](hooks/hooks.json), or turn
+off the plugin's hooks in your Claude Code settings.
+
 ## Layout
 
 ```
@@ -129,6 +144,7 @@ schema/     kb-vocab.json — the controlled vocab the gate validates against
 skills/     promptus (orchestrator) · humanizer · recall · grannie · research-ledger · telos
 commands/   help · checkpoint · promptus-init
 agents/     grounded-writing-reviewer
+hooks/      session-start · protect-gate · auto-index · checkpoint-nudge (+ hooks.json)
 templates/  the per-project four-store scaffolds
 docs/       Promptus's own knowledge (report, adoption)
 ```

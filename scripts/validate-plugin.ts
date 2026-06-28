@@ -83,6 +83,26 @@ for (const s of entries("skills")) {
 // 4. Controlled vocabulary must parse.
 if (readJSON("schema/kb-vocab.json")) pass("schema/kb-vocab.json");
 
+// 5. Hooks (optional) — the manifest parses and every referenced script exists.
+if (existsSync(join(root, "hooks", "hooks.json"))) {
+  const hk = readJSON("hooks/hooks.json");
+  if (hk && hk.hooks && typeof hk.hooks === "object") {
+    let count = 0;
+    for (const event of Object.keys(hk.hooks)) {
+      for (const group of hk.hooks[event] || []) {
+        for (const h of group.hooks || []) {
+          count++;
+          const m = typeof h.command === "string" && h.command.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"\s]+)/);
+          if (m && !existsSync(join(root, m[1]))) fail(`hooks.json references missing ${m[1]}`);
+        }
+      }
+    }
+    pass(`hooks.json (${Object.keys(hk.hooks).length} event(s), ${count} hook(s))`);
+  } else if (hk) {
+    fail("hooks.json has no hooks object");
+  }
+}
+
 console.log("");
 if (problems.length) {
   console.error(`${problems.length} problem(s) found.`);
