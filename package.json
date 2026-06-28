@@ -1,0 +1,16 @@
+{
+  "name": "promptus",
+  "private": true,
+  "type": "module",
+  "description": "Dev tooling for the Promptus Claude Code plugin. The plugin manifest is .claude-plugin/plugin.json (the single source of the version).",
+  "scripts": {
+    "test": "bun test",
+    "validate": "bun scripts/validate-plugin.ts",
+    "index": "bun scripts/kb-index.ts",
+    "changelog:check": "bun scripts/changelog.ts check",
+    "check": "bun run validate && bun test"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  }
+}
