@@ -6,10 +6,10 @@
  * Usage: kb-index [--root <dir>] [--strict]
  *
  *   1. Walk all four stores' markdown under the project root.
- *   2. Parse each unit's header/frontmatter (frontmatter.ts) and links (links.ts).
+ *   2. Parse each unit's header/frontmatter (frontmatter.ts), [[links]], and typed relations.
  *   3. Rebuild .promptus/CATALOG.md — one line per unit (the card-catalog the model reads).
- *   4. Rebuild .promptus/graph.json — adjacency from [[links]].
- *   5. Resolve page supersedes (a finding/lit with `supersedes: <id>` marks the target SUPERSEDED).
+ *   4. Rebuild .promptus/graph.json — [[link]] adjacency + typed relation edges (with CiTO/PROV IRIs).
+ *   5. Apply relation inverse_status (a `supersedes`/`fixes` target is marked SUPERSEDED in place).
  *   6. Lint + report: orphans (no links in/out) and unresolved links (target not a file).
  *   7. Idempotent. With --strict, exit non-zero when lint finds problems (gates /checkpoint).
  */
@@ -18,7 +18,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join, relative } from "node:path";
 import { parseFrontmatter } from "./lib/frontmatter.ts";
 import { extractLinks } from "./lib/links.ts";
-import { loadVocab, type Vocab } from "./lib/vocab.ts";
+import { loadVocab, type Relation, type Vocab } from "./lib/vocab.ts";
 import { derivedDir, findProjectRoot } from "./lib/paths.ts";
 
 interface Unit {
@@ -28,11 +28,16 @@ interface Unit {
   slug: string | null; // page units are link targets; ledger entries are not
   relPath: string;
   links: string[];
+  relations: Relation[];
   id?: string;
-  supersedes?: string;
 }
 
 const rel = (root: string, p: string) => relative(root, p).replace(/\\/g, "/");
+
+function parseRel(s: string): Relation | null {
+  const c = s.indexOf(":");
+  return c > 0 && c < s.length - 1 ? { type: s.slice(0, c), target: s.slice(c + 1).trim() } : null;
+}
 
 function mdFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -51,9 +56,10 @@ function parseLedger(root: string, store: string): Unit[] {
   while ((m = re.exec(text)) !== null) heads.push({ ts: m[1], ks: m[2].trim(), title: m[3].trim(), idx: m.index });
   return heads.map((h, i) => {
     const body = text.slice(h.idx, i + 1 < heads.length ? heads[i + 1].idx : undefined);
-    const status = h.ks.split("/").pop()!.replace(/^[★⚠]/, "");
+    const status = h.ks.split("/").pop()!.replace(/^[★⚠↩]/, "");
+    const relations = [...body.matchAll(/^↳ (\S+) (.+)$/gm)].map((x) => ({ type: x[1], target: x[2].trim() }));
     // anchor must be space-free so the catalog's `· path ·` columns stay parseable
-    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.ts.replace(/ /g, "T")}`, links: extractLinks(body) };
+    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.ts.replace(/ /g, "T")}`, links: extractLinks(body), relations };
   });
 }
 
@@ -63,6 +69,8 @@ function parsePage(root: string, substrate: string, file: string): Unit {
   const slug = file.replace(/\\/g, "/").split("/").pop()!.replace(/\.md$/, "");
   const h1 = /^#\s+(.+)$/m.exec(body);
   const links = Array.from(new Set([...(Array.isArray(data.links) ? data.links : []), ...extractLinks(body)]));
+  const relations = (Array.isArray(data.relations) ? data.relations : []).map(parseRel).filter((r): r is Relation => r !== null);
+  if (typeof data.supersedes === "string") relations.push({ type: "supersedes", target: data.supersedes }); // back-compat
   return {
     substrate,
     status: String(data.status ?? "?"),
@@ -70,8 +78,8 @@ function parsePage(root: string, substrate: string, file: string): Unit {
     slug,
     relPath: rel(root, file),
     links,
+    relations,
     id: typeof data.id === "string" ? data.id : undefined,
-    supersedes: typeof data.supersedes === "string" ? data.supersedes : undefined,
   };
 }
 
@@ -90,9 +98,17 @@ function main(argv: string[]): number {
   const vocab = loadVocab(root);
   const units = collect(root, vocab);
 
-  // page supersedes → mark the target SUPERSEDED in place
+  // relation inverse_status: a `supersedes`/`fixes` target is marked SUPERSEDED in place.
   const byId = new Map(units.filter((u) => u.id).map((u) => [u.id!, u]));
-  for (const u of units) if (u.supersedes && byId.has(u.supersedes)) byId.get(u.supersedes)!.status = "SUPERSEDED";
+  const relEdges: Array<{ from: string; type: string; to: string; cito?: string; prov?: string }> = [];
+  for (const u of units) {
+    const from = u.id ?? u.slug ?? u.relPath;
+    for (const r of u.relations) {
+      const spec = vocab.relations[r.type] ?? {};
+      if (spec.inverse_status && byId.has(r.target)) byId.get(r.target)!.status = spec.inverse_status;
+      relEdges.push({ from, type: r.type, to: r.target, ...(spec.cito ? { cito: spec.cito } : {}), ...(spec.prov ? { prov: spec.prov } : {}) });
+    }
+  }
 
   const nodes = new Set(units.filter((u) => u.slug).map((u) => u.slug!));
   const out: Record<string, string[]> = {};
@@ -114,9 +130,9 @@ function main(argv: string[]): number {
     join(dir, "CATALOG.md"),
     `# Promptus card-catalog (DERIVED — rebuilt by kb-index; safe to delete)\n\n> ${units.length} units · read this first; load only the bodies you need.\n\n${lines.join("\n")}\n`,
   );
-  writeFileSync(join(dir, "graph.json"), `${JSON.stringify({ nodes: [...nodes], out, inDeg }, null, 2)}\n`);
+  writeFileSync(join(dir, "graph.json"), `${JSON.stringify({ nodes: [...nodes], out, inDeg, relations: relEdges }, null, 2)}\n`);
 
-  console.log(`kb-index: ${units.length} units → .promptus/CATALOG.md + graph.json`);
+  console.log(`kb-index: ${units.length} units, ${relEdges.length} relations → .promptus/CATALOG.md + graph.json`);
   if (unresolved.length) {
     console.log(`  unresolved links (${unresolved.length}) — a typo or an intentional concept-handle:`);
     for (const e of unresolved.slice(0, 25)) console.log(`    ${e.from} → [[${e.to}]]`);

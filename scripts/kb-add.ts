@@ -8,17 +8,23 @@
  * Usage:
  *   kb-add --substrate <ledger|finding|lit|memory> --kind <K> --status <S>
  *          --title "<t>" [--source "<src#anchor>"] [--links "a,b"] [--reuse <r>]
- *          [--desc "<one-line>"] [--supersedes <id|ref>] [--root <dir>] [--dry-run]  < body.md
+ *          [--desc "<one-line>"] [--rel <type:target> ...] [--supersedes <id|ref>]
+ *          [--root <dir>] [--dry-run]  < body.md
  *
- * Envelope is substrate-aware (the local-convention fix the cloud lacked):
- *   ledger  → `### [YYYY-MM-DD HH:MM:SS] KIND/STATUS — title` (local time) before the sentinel
- *   finding → docs/<slug>.md         : frontmatter + `# title` + body + `Related:` footer
- *   lit     → docs/lit/<slug>.md      : same, requires --source
+ * Facets: KIND (the act), STATUS (the claim's epistemic state), RELATION (a typed
+ * link: --rel supersedes:<id>, refutes:<id>, supports:<id>, extends:<id>, …;
+ * --supersedes <id> is sugar for --rel supersedes:<id>).
+ *
+ * Envelope is substrate-aware:
+ *   ledger  → `### [YYYY-MM-DD HH:MM:SS] KIND/STATUS — title` (local) before the sentinel,
+ *             with any relations as `↳ <type> <target>` footer lines.
+ *   finding → docs/<slug>.md          : frontmatter (incl. relations) + `# title` + body
+ *   lit     → docs/lit/<slug>.md       : same, requires --source
  *   memory  → memory/<slug>.md + a `- [title](slug.md) — hook` line in memory/MEMORY.md
  *
- * The validation gate refuses any off-vocab substrate/kind/status, a lit unit with
- * no --source, or an empty title — printing the allowed set (commit-msg-hook style).
- * Low friction is a hard requirement — friction is what made the old append script drift.
+ * The gate refuses an off-vocab unit on a STRICT substrate (finding/lit/memory) and
+ * WARNS-but-writes on the PERMISSIVE ledger — printing the allowed set, commit-msg-hook
+ * style. Low friction is a hard requirement — friction is what made the old script drift.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -27,7 +33,7 @@ import { nowISO, stampUTC, nowLocalStamp } from "./lib/clock.ts";
 import { mintId, slugify } from "./lib/ids.ts";
 import { extractLinks } from "./lib/links.ts";
 import { serializeFrontmatter, type Frontmatter } from "./lib/frontmatter.ts";
-import { loadVocab, validate, type UnitInput, type Vocab } from "./lib/vocab.ts";
+import { loadVocab, validate, type Relation, type UnitInput, type Vocab } from "./lib/vocab.ts";
 import { derivedDir, findProjectRoot, indexPath, insertBeforeSentinel, storePath } from "./lib/paths.ts";
 
 type Args = Record<string, string | boolean>;
@@ -42,6 +48,23 @@ function parseArgs(argv: string[]): Args {
     else (a[key] = next), i++;
   }
   return a;
+}
+
+/** Relations can repeat, so collect them straight from argv (parseArgs keeps only the last). */
+function parseRelations(argv: string[]): Relation[] {
+  const rels: Relation[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--rel" && argv[i + 1] && !argv[i + 1].startsWith("--")) {
+      const v = argv[i + 1];
+      const c = v.indexOf(":");
+      if (c > 0 && c < v.length - 1) rels.push({ type: v.slice(0, c), target: v.slice(c + 1) });
+      i++;
+    } else if (argv[i] === "--supersedes" && argv[i + 1] && !argv[i + 1].startsWith("--")) {
+      rels.push({ type: "supersedes", target: argv[i + 1] });
+      i++;
+    }
+  }
+  return rels;
 }
 
 function str(a: Args, k: string): string | undefined {
@@ -82,6 +105,7 @@ function main(argv: string[]): number {
   const a = parseArgs(argv);
   const root = findProjectRoot(str(a, "root") ?? process.cwd());
   const vocab = loadVocab(root);
+  const relations = parseRelations(argv);
 
   const unit: UnitInput = {
     substrate: str(a, "substrate") ?? "",
@@ -89,11 +113,14 @@ function main(argv: string[]): number {
     status: str(a, "status") ?? "",
     title: (str(a, "title") ?? "").trim(),
     source: str(a, "source"),
+    reuse: str(a, "reuse"),
     links: str(a, "links")?.split(",").map((s) => s.trim()).filter(Boolean),
+    relations,
   };
 
   const v = validate(vocab, unit);
   if (!v.ok) fail(v.error, v.allowed);
+  for (const w of v.warnings) console.error(`kb-add: warning: ${w}`);
 
   const sub = vocab.substrates[unit.substrate];
   const dry = a["dry-run"] === true;
@@ -101,23 +128,22 @@ function main(argv: string[]): number {
   const id = mintId(sub.prefix, stampUTC(nowISO()), unit.title);
   const slug = slugify(unit.title);
   const links = Array.from(new Set([...(unit.links ?? []), ...extractLinks(body)]));
-  const supersedes = str(a, "supersedes");
 
   let assembled: string;
   let unitFile: string;
   const writes: Array<[string, string]> = []; // [path, content] for the non-dry pass
 
   if (sub.envelope === "log") {
-    const corr = supersedes ? `\n★CORRECTION to ${supersedes}.` : "";
-    assembled = `### [${nowLocalStamp()}] ${unit.kind}/${statusDisplay(vocab, unit.status)} — ${unit.title}\n${body}${corr}\n`;
+    const relFooter = relations.length ? `\n${relations.map((r) => `↳ ${r.type} ${r.target}`).join("\n")}` : "";
+    assembled = `### [${nowLocalStamp()}] ${unit.kind}/${statusDisplay(vocab, unit.status)} — ${unit.title}\n${body}${relFooter}\n`;
     unitFile = storePath(root, vocab, unit.substrate);
     if (!existsSync(unitFile)) fail(`ledger not found: ${rel(root, unitFile)} — run /promptus-init first`);
     writes.push([unitFile, insertBeforeSentinel(readFileSync(unitFile, "utf8"), assembled, vocab.sentinel)]);
   } else if (sub.envelope === "page") {
     const fm: Frontmatter = { id, substrate: unit.substrate, kind: unit.kind, status: unit.status, created: nowLocalStamp() };
     if (unit.source) fm.source = unit.source;
-    if (str(a, "reuse")) fm.reuse = str(a, "reuse")!;
-    if (supersedes) fm.supersedes = supersedes;
+    if (unit.reuse) fm.reuse = unit.reuse;
+    if (relations.length) fm.relations = relations.map((r) => `${r.type}:${r.target}`);
     if (links.length) fm.links = links;
     const related = links.length ? `\n\nRelated: ${links.map((l) => `[[${l}]]`).join(" · ")}` : "";
     assembled = `${serializeFrontmatter(fm)}# ${unit.title}\n\n${body}${related}\n`;

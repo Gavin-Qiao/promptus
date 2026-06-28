@@ -1,29 +1,39 @@
 {
-  "version": 2,
+  "version": 3,
+  "_doc": "Hybrid vocab: three orthogonal facets (KIND = the act/event, STATUS = the claim's epistemic state, RELATION = a typed link). Each substrate has a closed `core` plus a `extended` set of blessed terms; `policy` decides what happens to anything off-vocab — `permissive` warns and writes (the lab-notebook ledger), `strict` refuses (the curated library: finding/lit/memory). Grounded in PROV-O / BFO (act vs. claim), CiTO (relations), and the null-results + hedging literature. See docs/vocab-grounding-no-single-standard-recommend-a-hybrid-gate.md.",
   "substrates": {
     "ledger": {
       "prefix": "event",
       "store": "ledger/RESEARCH-LEDGER.md",
       "placement": "sentinel",
       "envelope": "log",
-      "kinds": ["PLAN", "EXP", "RESULT", "FINDING", "MISTAKE", "FIX", "IDEA", "DEADEND", "RESEARCH", "DECISION", "RESUME"],
-      "statuses": ["OPEN", "RESOLVED", "WONTFIX", "CONJECTURED", "VALIDATED", "REFUTED", "DEADEND", "CORRECTION", "CONFOUNDED"]
+      "policy": "permissive",
+      "kinds": {
+        "core": ["PLAN", "EXP", "RESULT", "FINDING", "DECISION", "RESEARCH", "RESUME"],
+        "extended": ["IDEA", "MISTAKE", "FIX", "DEADEND"]
+      },
+      "statuses": {
+        "core": ["CONJECTURED", "VALIDATED", "REFUTED", "CONFOUNDED", "SUPERSEDED"],
+        "extended": ["OPEN", "RESOLVED", "WONTFIX"]
+      }
     },
     "finding": {
       "prefix": "finding",
       "store": "docs",
       "placement": "file",
       "envelope": "page",
-      "kinds": ["RESULT", "METHOD", "CLAIM", "CONCEPT"],
-      "statuses": ["CONJECTURED", "VALIDATED", "REFUTED", "SUPERSEDED"]
+      "policy": "strict",
+      "kinds": { "core": ["RESULT", "METHOD", "CLAIM", "CONCEPT"], "extended": [] },
+      "statuses": { "core": ["CONJECTURED", "VALIDATED", "REFUTED", "CONFOUNDED", "SUPERSEDED"], "extended": [] }
     },
     "lit": {
       "prefix": "lit",
       "store": "docs/lit",
       "placement": "file",
       "envelope": "page",
-      "kinds": ["PAPER", "NOTE", "QUOTE"],
-      "statuses": ["CITE", "BACKGROUND", "CONTESTED"],
+      "policy": "strict",
+      "kinds": { "core": ["PAPER", "NOTE", "QUOTE"], "extended": [] },
+      "statuses": { "core": ["CITE", "BACKGROUND", "CONTESTED"], "extended": [] },
       "requires": ["source"]
     },
     "memory": {
@@ -32,12 +42,33 @@
       "placement": "file",
       "envelope": "memory",
       "index": "memory/MEMORY.md",
-      "kinds": ["user", "feedback", "project", "reference"],
-      "statuses": ["validated", "provisional", "retired"]
+      "policy": "strict",
+      "kinds": { "core": ["user", "feedback", "project", "reference"], "extended": [] },
+      "statuses": { "core": ["validated", "provisional", "retired"], "extended": [] }
     }
   },
-  "link_classes": ["supports", "refutes", "supersedes", "derives-from", "relates-to", "cites"],
-  "lit_reuse": ["CITE", "DO-NOT-REBUILD", "REUSE", "NOVEL"],
-  "status_glyphs": { "CORRECTION": "★CORRECTION", "CONFOUNDED": "⚠CONFOUNDED" },
+  "relations": {
+    "supersedes": { "inverse_status": "SUPERSEDED", "cito": "cito:corrects", "prov": "prov:wasRevisionOf" },
+    "fixes": { "inverse_status": "SUPERSEDED", "cito": "cito:corrects", "prov": "prov:wasRevisionOf" },
+    "refutes": { "cito": "cito:refutes" },
+    "challenges": { "cito": "cito:disputes" },
+    "supports": { "cito": "cito:supports" },
+    "extends": { "cito": "cito:extends" },
+    "derives-from": { "prov": "prov:wasDerivedFrom" },
+    "cites": { "cito": "cito:cites" },
+    "relates-to": { "cito": "cito:relatesTo" }
+  },
+  "lit_reuse": {
+    "CITE": "cito:cites",
+    "DO-NOT-REBUILD": "cito:usesMethodIn",
+    "REUSE": "cito:reusesDataFrom",
+    "NOVEL": "cito:extends"
+  },
+  "status_glyphs": { "CONFOUNDED": "⚠CONFOUNDED", "SUPERSEDED": "↩SUPERSEDED" },
+  "export_context": {
+    "cito": "http://purl.org/spar/cito/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "promptus": "https://github.com/Gavin-Qiao/promptus#"
+  },
   "sentinel": "<!-- kb:append-point -->"
 }

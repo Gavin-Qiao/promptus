@@ -58,11 +58,20 @@ test("kb-add writes finding → docs/<slug>.md and lit → docs/lit/<slug>.md", 
   expect(readFileSync(lit, "utf8")).toContain("arXiv:2409.13731#abstract");
 });
 
-test("kb-add rejects an unknown --status, printing the allowed set", () => {
-  const r = add(scaffold(), ["--substrate", "ledger", "--kind", "RESULT", "--status", "BOGUS", "--title", "x"]);
+test("kb-add rejects an unknown --status on a STRICT substrate, printing the allowed set", () => {
+  const r = add(scaffold(), ["--substrate", "finding", "--kind", "CLAIM", "--status", "BOGUS", "--title", "x"]);
   expect(r.status).toBe(1);
   expect(r.stderr).toContain("allowed:");
   expect(r.stderr).toContain("VALIDATED");
+});
+
+test("kb-add WARNS but writes an off-vocab status on the PERMISSIVE ledger", () => {
+  const root = scaffold();
+  const r = add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "SURPRISING", "--title", "Odd result"], "huh");
+  expect(r.status).toBe(0);
+  expect(r.stderr).toContain("warning");
+  expect(r.stderr).toContain("SURPRISING");
+  expect(read(root, "ledger", "RESEARCH-LEDGER.md")).toMatch(/RESULT\/SURPRISING — Odd result/);
 });
 
 test("kb-add rejects a lit unit with no --source", () => {
@@ -131,15 +140,31 @@ test("kb-find returns the right units with substrate:status + path", () => {
 
 test("kb-find retrieves a ledger entry and slices by status (anchor stays parseable)", () => {
   const root = scaffold();
-  add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "DEADEND", "--title", "Graph DB overkill"], "dropped it");
+  // DEADEND is now a KIND (the act of abandoning), not a STATUS (the claim's epistemic state)
+  add(root, ["--substrate", "ledger", "--kind", "DEADEND", "--status", "REFUTED", "--title", "Graph DB overkill"], "dropped it");
   add(root, ["--substrate", "ledger", "--kind", "DECISION", "--status", "VALIDATED", "--title", "Chose header-first"], "picked it");
   index(root);
-  const dead = find(root, ["", "--status", "DEADEND"]);
-  expect(dead.stdout).toContain("ledger:DEADEND · Graph DB overkill");
+  const dead = find(root, ["", "--status", "REFUTED"]);
+  expect(dead.stdout).toContain("ledger:REFUTED · Graph DB overkill");
   expect(dead.stdout).not.toContain("Chose header-first");
   const all = find(root, ["", "--substrate", "ledger"]);
   expect(all.stdout).toContain("Graph DB overkill"); // both events show even if
   expect(all.stdout).toContain("Chose header-first"); // they share a same-second timestamp
+});
+
+test("kb-add records a typed relation; kb-index graphs it; kb-export emits CiTO JSON-LD", () => {
+  const root = scaffold();
+  add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", "Base claim"], "base");
+  const id = /id:\s*(\S+)/.exec(read(root, "docs", "base-claim.md"))![1];
+  add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", "Refuter", "--rel", `refutes:${id}`], "nope");
+  expect(read(root, "docs", "refuter.md")).toContain(`refutes:${id}`);
+  index(root);
+  const g = JSON.parse(read(root, ".promptus", "graph.json"));
+  expect(g.relations.some((e: { type: string; cito?: string }) => e.type === "refutes" && e.cito === "cito:refutes")).toBe(true);
+  const ex = run("kb-export.ts", ["--root", root]);
+  expect(ex.status).toBe(0);
+  expect(ex.stdout).toContain("cito:refutes");
+  expect(ex.stdout).toContain("@graph");
 });
 
 test("kb-add memory → one file per fact + a MEMORY.md index pointer", () => {
