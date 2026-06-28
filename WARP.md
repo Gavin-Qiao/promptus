@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 **Promptus** — a file-based research knowledge system for Claude Code: store / keep /
 retrieve a project's knowledge as gated markdown, and render it for an audience. The
-[`humanizer`](skills/humanizer/SKILL.md) writing skill (a fork of blader/humanizer, MIT) is
+[`humanizer`](skills/humanizer/SKILL.md) writing skill (a fork of blader/humanizer) is
 one renderer in the box. See [`TELOS.md`](TELOS.md) for the north star + the invariant and
 [`README.md`](README.md) for the overview.
 
@@ -43,5 +43,5 @@ bun scripts/kb-find.ts "<query>"        # retrieve header-first
 - Never `--no-verify`. Forward-slash paths. Don't commit or push unless asked.
 - Scripts: TypeScript on bun (`#!/usr/bin/env bun`); stdlib-first; `bun:sqlite` only past a
   measured threshold (see the invariant in `TELOS.md`).
-- Promptus is Apache-2.0 (© 2026 Mohan Qiao); the forked humanizer Part I stays MIT
-  (© 2025 Siqi Chen) in `LICENSE-humanizer`. Preserve both, and the `NOTICE`.
+- Promptus is GPL-3.0 (© 2026 Mohan Qiao). The `skills/humanizer` fork incorporates Part I from
+  blader/humanizer (© 2025 Siqi Chen, MIT); that upstream MIT notice is preserved in `NOTICE`.

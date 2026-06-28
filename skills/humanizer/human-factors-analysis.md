@@ -241,7 +241,7 @@ The positive patterns grew from eleven to fourteen, and the calibration corpus f
 
 ## What changed in the skill
 
-The enriched `SKILL.md` (v2.7.0) adds, on top of the existing 29 removal patterns:
+The enriched `SKILL.md` adds, on top of the existing 29 removal patterns:
 
 1. A **"Positive Human Patterns" section** with fourteen factors (P1–P14), each carrying a verbatim model excerpt so the skill ships with its own examples of good prose.
 2. A **calibrated-confidence step**, since reflexive de-hedging can flatten a text as badly as the hedging did.

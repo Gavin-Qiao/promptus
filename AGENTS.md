@@ -31,8 +31,8 @@ the toolbox and using it.
 - Never `--no-verify`. Forward-slash paths everywhere.
 - Scripts are **TypeScript on bun** (`#!/usr/bin/env bun`); tests via `bun test`.
   `bun:sqlite` only past a measured threshold (see the invariant).
-- License: Apache-2.0 (© 2026 Mohan Qiao); humanizer Part I stays MIT (© 2025 Siqi Chen) in
-  `LICENSE-humanizer`. Preserve both + the `NOTICE` attribution.
+- License: GPL-3.0 (© 2026 Mohan Qiao). The `skills/humanizer` fork includes Part I from
+  blader/humanizer (© 2025 Siqi Chen, MIT); that upstream notice is preserved in `NOTICE`.
 - Don't commit or push unless asked.
 
 ## Layout

@@ -6,7 +6,7 @@
     "name": "Mohan Qiao",
     "url": "https://github.com/Gavin-Qiao"
   },
-  "license": "Apache-2.0",
+  "license": "GPL-3.0-only",
   "homepage": "https://github.com/Gavin-Qiao/promptus",
   "repository": "https://github.com/Gavin-Qiao/promptus",
   "keywords": ["research", "knowledge-base", "ledger", "writing", "humanizer"]
