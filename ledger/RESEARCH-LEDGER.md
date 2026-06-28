@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.1.0 — RELEASED)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.1.1 — releasing)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -22,8 +22,16 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 - Failure-first: dead-ends and mistakes earn the same care as wins.
 - Commits: `type(scope)` + flat bullet body, no `Co-Authored-By`. Don't merge without operator review.
 
-## NOW (v0.1.0 — RELEASED)
-**Shipped.** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved, not
+## NOW (v0.1.1 — cut; release workflow publishing)
+**v0.1.1 (patch).** Relicensed Apache-2.0 → GPL-3.0; rewrote the README design-philosophy-first
+(with a prior-art credit to Karpathy's llm-wiki); removed the humanizer's own version/license
+system; and ran the KAG deep-research dogfood — Promptus implements KAG's *epistemic spine* (the
+store, the typed graph, status-calibrated grounding), not its scale engine, with the llm-wiki as
+its true ancestor (`lit` notes added for llm-wiki/GraphRAG/HippoRAG/RAPTOR; the Karpathy
+over-attribution corrected). Tagged `v0.1.1`; `release.yml` publishing the GitHub release. `main`
+branch-protected right after.
+
+**v0.1.0 (shipped).** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved, not
 squashed); tagged `v0.1.0`; `release.yml` published the GitHub release after re-running the validator
 + 22 tests, asserting tag==`plugin.json`, and confirming a non-empty `[0.1.0]` CHANGELOG section (notes
 drawn from the changelog). Live at github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0; installs via
@@ -43,15 +51,15 @@ repos: itself, Psi (172 units), Probatio (248 units).
 2. Build the overnight-handoff renderer when there's room.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.1.0 is RELEASED** — `main` is at merge commit `3f46375`, tag `v0.1.0`, the GitHub release
-is live (github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0) and marketplace-installable
-(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). v0.1.0 carries the
-store spine, Apache-2.0, CI/CD with a tag-driven release + changelog gate, four guarded hooks, the hybrid
-vocab (KIND/STATUS/RELATION; permissive ledger + strict library; `kb-export` to CiTO/PROV-O), and
-`/promptus:help`. `bun test` 22 pass; `claude plugin validate` clean. Dogfooded on itself, Psi (172
-units), and Probatio (248 units) — those two are migrated **in their own working trees, uncommitted**,
-awaiting operator review. The last scaffolded piece is the overnight-handoff renderer. Read `TELOS.md`,
-then this header, then the Log.
+Promptus **v0.1.1 is cut** — `main` carries the GPL-3.0 relicense (was Apache-2.0), the
+design-philosophy-first README (with a prior-art credit to Karpathy's llm-wiki), the removal of the
+humanizer's own version system, and the KAG deep-research dogfood (Promptus = KAG's *epistemic spine*,
+not its scale engine; the llm-wiki is the true ancestor; `lit` notes for llm-wiki/GraphRAG/HippoRAG/RAPTOR;
+the Karpathy over-attribution corrected). Tagged `v0.1.1`; `release.yml` publishes the GitHub release on
+the tag — **verify it landed**. `main` is now **branch-protected** (PR + CI required: `test + validate`,
+`pre-commit (hygiene)`). `bun test` 22 pass; validator clean. v0.1.0 remains live and marketplace-installable
+(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). The last scaffolded
+piece is the overnight-handoff renderer. Read `TELOS.md`, then this header, then the Log.
 
 ## Glossary
 - `substrate:status` — every unit's tag (`ledger`/`finding`/`lit`/`memory` : its status).
@@ -128,5 +136,19 @@ Probatio surfaced two real adoption gaps, now fixed: (1) findProjectRoot keyed o
 
 ### [2026-06-28 14:38:28] RESULT/VALIDATED — Released Promptus v0.1.0 (PR #1 merged, tagged, GitHub release published)
 Merged PR #1 to main as a merge commit (3f46375 — conventional history preserved, not squashed), tagged v0.1.0 on it, and release.yml published the GitHub release: it re-ran the validator + 22 tests, asserted tag==plugin.json version, confirmed a non-empty [0.1.0] CHANGELOG section, and created the release with notes from the changelog. Live at https://github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0; installable via `/plugin marketplace add Gavin-Qiao/promptus` + `/plugin install promptus@promptus`. Earned the release by dogfooding on three real repos: itself, Psi (172 units), Probatio (248 units).
+
+### [2026-06-28 14:59:14] RESEARCH/VALIDATED — Deep-research dogfood: audited Promptus against KAG (arXiv:2409.13731)
+Ran a deep-research agent on KAG (arXiv:2409.13731, Ant Group / OpenSPG) and the wider Graph-RAG family, then ingested the sources as lit: [[karpathy-llm-wiki]], [[graphrag]], [[hipporag]], [[raptor]]. Verdict ([[promptus-vs-kag-coverage]]): Promptus implements KAG's epistemic spine -- a persistent status-tagged store, a typed wikilink graph, and citation-grounded STATUS-calibrated generation -- plus the whole Karpathy llm-wiki pattern, but defers the scale engine (embeddings, PPR, GraphRAG community summaries, RAPTOR tiers, KG extraction, the KAG-Model) behind the measured-threshold invariant.
+↳ relates-to promptus-vs-kag-coverage
+
+### [2026-06-28 14:59:14] MISTAKE/RESOLVED — Our KAG note over-attributed the llm-wiki/KAG link to Karpathy
+The KAG lit note claimed Promptus implements "the Karpathy LLM-wiki pattern" as "the local-first version of KAG". Research refuted the attribution: Karpathy's llm-wiki gist makes no knowledge-graph or KAG claim, and the llm-wiki <-> KAG equation is a third-party gloss, not his. Corrected the note in place. The research-ledger skill's "Karpathy wiki-layering (raw -> log -> wiki -> schema)" line is similarly mis-framed (his "schema" is the up-front AGENTS.md, not a final stage) and is flagged for a v0.1.1 doc fix. The tool caught its own store committing the over-attribution it exists to prevent.
+↳ relates-to promptus-vs-kag-coverage
+
+### [2026-06-28 15:41:18] DECISION/VALIDATED — Relicensed to GPL-3.0; removed the humanizer version system; reworked the README
+Relicensed from Apache-2.0 to GPL-3.0 -- copyleft, so redistributing Promptus or a derivative must share source. Removed LICENSE-humanizer (MIT); the upstream humanizer Part I notice ((c) 2025 Siqi Chen) now lives in NOTICE as MIT requires, and the fork is acknowledged in the README. Dropped the humanizer skill's own version/license frontmatter -- Promptus has one version and one license. Rewrote the README design-philosophy-first.
+
+### [2026-06-28 19:08:33] RESULT/VALIDATED — Cut v0.1.1 (GPL-3.0 relicense, README rework, humanizer de-versioned, KAG audit)
+Patch release. plugin.json -> 0.1.1; CHANGELOG renamed [Unreleased] to [0.1.1]. Ships the GPL-3.0 relicense (was Apache-2.0), the design-philosophy-first README with a prior-art credit to Karpathy's llm-wiki, removal of the humanizer's own version/license system, and the KAG deep-research dogfood (Promptus = KAG's epistemic spine, not its scale engine; lit notes for llm-wiki/GraphRAG/HippoRAG/RAPTOR; corrected the Karpathy over-attribution). Tagged v0.1.1; release.yml re-runs the validator + 22 tests, asserts tag==plugin.json, and publishes the GitHub release from the [0.1.1] notes. main set branch-protected (PR + CI required) right after.
 
 <!-- kb:append-point -->

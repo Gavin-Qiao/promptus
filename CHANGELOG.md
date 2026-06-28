@@ -17,6 +17,31 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-28
+
+### Added
+
+- **KAG coverage audit.** `docs/promptus-vs-kag-coverage.md` and `lit` notes (KAG, GraphRAG,
+  HippoRAG, RAPTOR, Karpathy's llm-wiki) — the audit finds Promptus implements KAG's epistemic
+  spine (store, typed graph, status-calibrated grounding) and defers the scale machinery behind the
+  invariant.
+
+### Changed
+
+- **Relicensed from Apache-2.0 to GPL-3.0.** Promptus is now copyleft: distributing it or any
+  derivative requires sharing the source under GPL-3.0. `LICENSE` is the GNU GPL v3.0 text.
+- **Rewrote the README** — design-philosophy first, then quick start; modern layout; corrected the
+  `humanizer` description (it is pure style; grounding lives in `recall` + the reviewer); added a
+  prior-art credit to Karpathy's llm-wiki pattern.
+
+### Removed
+
+- **`LICENSE-humanizer` (MIT).** The upstream humanizer Part I is MIT-licensed; that copyright and
+  permission notice is now preserved in `NOTICE` (as MIT requires) rather than as a separate
+  license file. The fork is acknowledged in the README.
+- **The humanizer skill's own version system.** The skill no longer carries `version:` / `license:`
+  frontmatter or in-text version stamps — Promptus has one version and one license.
+
 ## [0.1.0] - 2026-06-28
 
 First public release — the store/keep/retrieve/render spine, packaged as a Claude Code plugin.
@@ -40,8 +65,8 @@ First public release — the store/keep/retrieve/render spine, packaged as a Cla
   supersession is a relation, not a status.
 - **Typed relations + interop.** Relations (`supersedes`/`refutes`/`challenges`/`supports`/
   `extends`/`fixes`) are first-class edges; `kb-export` emits them as CiTO/PROV-O JSON-LD.
-- **Skills.** `promptus` (orchestrator and map), `humanizer` (the writing renderer, with a
-  *ground* mode that cites and calibrates against the store), `recall` (retrieval reasoning:
+- **Skills.** `promptus` (orchestrator and map), `humanizer` (the writing renderer — paper voice,
+  pure style), `recall` (retrieval reasoning, where grounding lives:
   decompose → retrieve → confidence-gate → verify → synthesize), `grannie` (plain-language
   ELI90 renderer), `telos` (scaffold a project's four stores), and `research-ledger` (the
   store-as-you-go recording habit).
@@ -50,7 +75,7 @@ First public release — the store/keep/retrieve/render spine, packaged as a Cla
 - **Agent.** `grounded-writing-reviewer` — audits a draft for AI-writing tells *and* for
   unsourced or over-confident claims, checking each factual claim against the store.
 - **Humanizer Part II.** 14 positive "human factor" patterns plus `human-factors-analysis.md`,
-  layered on the upstream's 29 removal patterns (carried from the skill's v2.7.0).
+  layered on the upstream's 29 removal patterns.
 - **Templates.** Per-project four-store scaffolds that `/promptus-init` drops in.
 - **Plugin packaging.** `.claude-plugin/plugin.json` + `marketplace.json`; skills, commands,
   and templates resolve the bundled `scripts/` via `${CLAUDE_PLUGIN_ROOT}`, so installing the
@@ -87,5 +112,6 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0
