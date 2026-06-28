@@ -34,7 +34,8 @@ permissive ledger + strict library, DEADEND-is-a-KIND, supersession-is-a-relatio
 
 ## Open frontier
 - [ ] **Cut v0.1.0** — merge PR #1 to `main`, then `git tag v0.1.0 && git push origin v0.1.0` (release.yml does the rest). Pre-staged: plugin.json is 0.1.0 and CHANGELOG has a dated `[0.1.0]`.
-- [ ] **Migrate Probatio / Psi** — their `AGENTS.md` still call the removed global `ledger-append.mjs` and bare `/checkpoint`; adopt the plugin (the permissive ledger now fits their free vocab; plus the hooks).
+- [x] **Psi migrated** (additive, uncommitted): schema + sentinel + AGENTS.md + `/.promptus/`; kb-index indexed 172 units, retrieval works, the permissive gate fits its free vocab.
+- [ ] **Migrate Probatio** — adopt the plugin the same way (it has no `ledger-append.mjs` dependency either).
 - [ ] overnight-handoff renderer — partly realized by the SessionStart hook; a dedicated terse renderer is still scaffolded. (grannie is built.)
 
 ## Next actions
@@ -111,5 +112,11 @@ SessionStart injects the ledger NOW-header to orient a resuming agent; PreToolUs
 
 ### [2026-06-28 13:50:23] DECISION/VALIDATED — Adopted the hybrid vocab (facets + permissive ledger + relations + export)
 Implemented the research-recommended hybrid vocab (schema v3): split KIND (the act) / STATUS (the claim's epistemic state) / RELATION (a typed link) into separate facets; the ledger is permissive (off-vocab kind/status warns but writes) while finding/lit/memory stay strict; dropped DEADEND from STATUS (it is a KIND) and turned CORRECTION into a supersedes relation, fixing the occurrent/continuant facet collision. Added typed relations (supersedes/refutes/challenges/supports/extends/fixes) and kb-export, which emits the relation graph as CiTO/PROV-O JSON-LD. 20 tests pass. Grounds: [[vocab-grounding-no-single-standard-recommend-a-hybrid-gate]], [[the-gate]].
+
+### [2026-06-28 14:08:45] RESULT/VALIDATED — Migrated Psi to Promptus (dogfood): 172 units indexed, retrieval works, permissive gate fits the free vocab
+Converted the Psi research repo (Gauging-Ψ) to Promptus, additively and without committing (Psi has uncommitted work): copied the hybrid vocab to schema/, appended the kb:append-point sentinel, added a plugin-wired AGENTS.md cadence, and /.promptus/ to .gitignore. kb-index indexed 172 real units (the 1795-line free-vocab ledger + docs + docs/lit); kb-find retrieves over them; the permissive ledger accepts Psi's free KIND/STATUS tags (DECISION/PLAN, VERDICT, BUILD, ★CORRECTION + RESULT, …) with a warning, never blocking. Psi had no ledger-append.mjs dependency. See [[the-gate]].
+
+### [2026-06-28 14:08:45] FIX/VALIDATED — kb-find parses free-form compound statuses (the Psi dogfood surfaced it)
+The Psi migration exposed a real gap: the catalog line `substrate:status · title · path` assumed a single-token status, so a free-form compound status with spaces (★CORRECTION + RESULT, or a spaced FINDING / RESULT yielding a leading-space status) was written to the catalog but SKIPPED by kb-find's (\S+) matcher — written yet unretrievable, so the permissive ledger only half-delivered. Fixed: kb-find splits the catalog line on the ' · ' delimiter (space-robust), and kb-index trims the parsed status. Regression test added (21 pass). Now free vocab both writes AND reads.
 
 <!-- kb:append-point -->
