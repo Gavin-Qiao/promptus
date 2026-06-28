@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.1 — installed locally)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.1 — packaging hardened: Apache-2.0, CI/CD, hooks)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -22,30 +22,34 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 - Failure-first: dead-ends and mistakes earn the same care as wins.
 - Commits: `type(scope)` + flat bullet body, no `Co-Authored-By`. Don't merge without operator review.
 
-## NOW (v0.1 — installed & dogfooded)
-Committed `14386a0` on `feat/promptus-v1` (plugin packaging + the three demo-found fixes + dogfood),
-pushed to PR #1, **unmerged**. **Installed locally** as `promptus@promptus` v0.1.0 (a Directory-source
-marketplace = this repo) and verified it loads — `promptus:*` skills + the reviewer agent are live,
-`bun test` 18 pass, `claude plugin validate` clean. Legacy global skills/command removed and backed up
-at `~/.claude/_promptus-legacy-backup/`.
+## NOW (v0.1 — packaging hardened, pre-release)
+On `feat/promptus-v1` (latest `a8730cf`, PR #1, **unmerged**), now release-ready. Relicensed to
+**Apache-2.0** (humanizer Part I stays MIT in `LICENSE-humanizer`), author Mohan Qiao. **CI/CD**
+green on the PR: `ci.yml` (bun test + offline `validate-plugin` + pre-commit hygiene) and
+`release.yml` (tag `v*` → assert tag==manifest + a non-empty CHANGELOG section → publish notes).
+`.pre-commit-config.yaml` drives the operator's shared git hooks (the pre-push gate now really
+runs). Added four guarded Claude Code **hooks** (SessionStart/PreToolUse/PostToolUse/SessionEnd),
+a `/promptus:help` command, `CHANGELOG.md` + `CONTRIBUTING.md` + `RELEASING.md`, and a rewritten README.
 
 ## Open frontier
-- [ ] OPEN — ledger vocab strict vs permissive: real Probatio/Psi ledgers use a free KIND/STATUS set, and the dogfood itself hit the strict gate twice (DEADEND, then FIX-as-status). Recommendation on file: **permissive ledger** (warn-not-block), keep finding/lit/memory strict. (→ [[the-gate]])
-- [ ] grannie + overnight-handoff renderers (scaffolded, not built).
-- [ ] **Migrate Probatio / Psi** — now urgent: their `AGENTS.md` still call the removed global `ledger-append.mjs` and bare `/checkpoint`, which break until they adopt the plugin.
+- [ ] OPEN — ledger vocab strict vs permissive: real Probatio/Psi ledgers use a free KIND/STATUS set, and the dogfood hit the strict gate twice (DEADEND, then FIX-as-status). Recommendation on file: **permissive ledger** (warn-not-block), keep finding/lit/memory strict. (→ [[the-gate]])
+- [ ] **Cut v0.1.0** — merge PR #1 to `main`, then `git tag v0.1.0 && git push origin v0.1.0` (release.yml does the rest). Pre-staged: plugin.json is 0.1.0 and CHANGELOG has a dated `[0.1.0]`.
+- [ ] **Migrate Probatio / Psi** — their `AGENTS.md` still call the removed global `ledger-append.mjs` and bare `/checkpoint`; adopt the plugin (they can opt into the pre-commit config + hooks too).
+- [ ] overnight-handoff renderer — partly realized by the SessionStart hook; a dedicated terse renderer is still scaffolded. (grannie is built.)
 
 ## Next actions
-1. Resolve the strict-vs-permissive ledger-vocab question (the one open design call).
-2. Operator tests the plugin in a fresh session (`/promptus:humanizer`, `/promptus:checkpoint`, …).
-3. Migrate Probatio / Psi to the plugin (their old refs are now broken).
+1. Operator reviews PR #1; on approval, merge to `main` and tag `v0.1.0` to release.
+2. Resolve the strict-vs-permissive ledger-vocab question (the one open design call).
+3. Migrate Probatio / Psi to the plugin.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus v0.1 is on `feat/promptus-v1` (commit `14386a0`, PR #1, **unmerged**) and **installed locally**
-as a Directory-source plugin (`${CLAUDE_PLUGIN_ROOT}` = this repo). Store spine + skills/commands + the
-plugin all work (`bun test` 18 pass; `claude plugin validate` clean; reload shows `promptus:*` live).
-Legacy globals were removed and backed up at `~/.claude/_promptus-legacy-backup/` (recover `ledger-append.mjs`
-there if Probatio/Psi need it before migration). The one open design call is the **ledger vocab**
-(permissive vs strict). Read `TELOS.md`, then this header, then the Log below. Do not merge without the operator.
+Promptus v0.1 is on `feat/promptus-v1` (latest `a8730cf`, PR #1, **unmerged**), packaging hardened:
+Apache-2.0, CI/CD green, four guarded hooks, `/promptus:help`, CHANGELOG/CONTRIBUTING/RELEASING, and a
+comprehensive README. `bun run check` green; `claude plugin validate` clean. The release is
+**pre-staged** — merge PR #1, then `git tag v0.1.0 && git push origin v0.1.0`. The new hooks need
+`/reload-plugins` to activate in a running session. Legacy globals are backed up at
+`~/.claude/_promptus-legacy-backup/`. The one open design call is the **ledger vocab** (permissive vs
+strict). Read `TELOS.md`, then this header, then the Log below. Do not merge without the operator.
 
 ## Glossary
 - `substrate:status` — every unit's tag (`ledger`/`finding`/`lit`/`memory` : its status).
@@ -92,5 +96,17 @@ Removed the global research-ledger skill, humanizer skill, and checkpoint comman
 
 ### [2026-06-28 12:07:00] RESULT/VALIDATED — Installed Promptus as a local plugin and verified it loads
 Added the repo as a Directory-source marketplace and installed promptus@promptus v0.1.0 (user scope, enabled). A reload shows 8 skills plus the grounded-writing-reviewer agent live as promptus:* skills. The bundled scripts run; the plugin-root variable resolves to the repo dir, with a trailing slash so script refs show a harmless double slash.
+
+### [2026-06-28 12:59:11] DECISION/VALIDATED — Apache-2.0 for the patent grant; humanizer stays MIT
+Chose Apache-2.0 over MIT for Promptus: same commercial-use + attribution, but it adds an express patent license, the clause that matters for commercialization. The forked humanizer Part I stays MIT (Apache-2.0 is one-way MIT-compatible) in LICENSE-humanizer; NOTICE rewritten.
+
+### [2026-06-28 12:59:11] FINDING/VALIDATED — Operator global pre-commit shim was dormant until pre-commit was installed
+The operator's global git hooks delegate to 'uv run pre-commit' only when a repo checks in a .pre-commit-config.yaml, but pre-commit was not installed for uv, so that path had never actually run in any repo. Installed it with 'uv tool install pre-commit'; Promptus is the first repo to exercise it. The pre-push gate now runs the validator + bun test.
+
+### [2026-06-28 12:59:11] DECISION/VALIDATED — CI plus tag-driven release with a changelog sanity gate
+Added CI (bun test + an offline validate-plugin + a pre-commit hygiene job) and a release workflow on tag v* that asserts tag==manifest and a non-empty CHANGELOG section before publishing notes from the changelog. .pre-commit-config.yaml drives the operator's shared hooks (hygiene on commit, validate+test on push). SemVer + Keep a Changelog documented in RELEASING.md. CI verified green on PR #1.
+
+### [2026-06-28 12:59:11] RESULT/VALIDATED — Four guarded Claude Code hooks added
+SessionStart injects the ledger NOW-header to orient a resuming agent; PreToolUse blocks freehand '### [ts]' log edits and .promptus/ writes while allowing NOW-header edits; PostToolUse re-indexes after a kb-add; SessionEnd nudges to /checkpoint. Each no-ops outside a Promptus repo. Tested all paths locally. Activate in a running session with /reload-plugins.
 
 <!-- kb:append-point -->
