@@ -29,6 +29,6 @@ clobber an existing store; report and stop instead.
 Hand off to the `research-ledger` skill so recording starts immediately, and drop the
 standing cadence into the project's `AGENTS.md` (template: `templates/AGENTS.md`). Then store
 the first unit — the operator's mandate — as `kb-add --substrate ledger --kind DECISION`, and
-run `bun scripts/kb-index.ts` to prove the loop closes.
+run `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-index.ts"` to prove the loop closes.
 
 Pairs with the `/promptus-init` command, which runs this end to end against the current repo.

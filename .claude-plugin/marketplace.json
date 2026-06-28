@@ -1,5 +1,6 @@
 {
   "name": "promptus",
+  "description": "Promptus — a file-based research knowledge system for Claude Code: store / keep / retrieve a project's knowledge as gated markdown, and render it for an audience (humanizer, grannie).",
   "owner": {
     "name": "Gavin-Qiao",
     "url": "https://github.com/Gavin-Qiao"
@@ -8,7 +9,7 @@
     {
       "name": "promptus",
       "source": "./",
-      "description": "Store / keep / retrieve a research project's knowledge as gated markdown, and render it (humanizer, grannie). DRAFT scaffold."
+      "description": "Store / keep / retrieve a research project's knowledge as gated markdown, and render it (humanizer for style, grannie for plain-language explanation)."
     }
   ]
 }

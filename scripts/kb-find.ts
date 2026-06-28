@@ -55,17 +55,19 @@ function main(argv: string[]): number {
   const score = (c: Card) =>
     terms.reduce((s, t) => s + (c.title.toLowerCase().includes(t) ? 2 : 0) + (c.path.toLowerCase().includes(t) ? 1 : 0), 0);
 
+  // key by full card identity, not path — ledger entries share the ledger file path
+  const key = (c: Card) => `${c.substrate}\t${c.status}\t${c.title}\t${c.path}`;
   const picked = new Map<string, { c: Card; s: number }>();
   for (const c of cards) {
     const s = score(c);
-    if (terms.length === 0 || s > 0) picked.set(c.path, { c, s });
+    if (terms.length === 0 || s > 0) picked.set(key(c), { c, s });
   }
   // sub-header recall: grep the bodies the headers didn't advertise
   if (terms.length) {
     for (const c of cards) {
-      if (picked.has(c.path)) continue;
+      if (picked.has(key(c))) continue;
       const f = join(root, c.path.split("#")[0]);
-      if (existsSync(f) && terms.some((t) => readFileSync(f, "utf8").toLowerCase().includes(t))) picked.set(c.path, { c, s: 1 });
+      if (existsSync(f) && terms.some((t) => readFileSync(f, "utf8").toLowerCase().includes(t))) picked.set(key(c), { c, s: 1 });
     }
   }
   // graph-walk for associative neighbours
@@ -79,7 +81,7 @@ function main(argv: string[]): number {
       for (const n of frontier) for (const t of g.out[n] ?? []) if (!seen.has(t)) (seen.add(t), next.push(t));
       frontier = next;
     }
-    for (const c of cards) if (seen.has(slugOf(c.path)) && !picked.has(c.path)) picked.set(c.path, { c, s: 0 });
+    for (const c of cards) if (seen.has(slugOf(c.path)) && !picked.has(key(c))) picked.set(key(c), { c, s: 0 });
   }
 
   const hits = [...picked.values()].sort((a, b) => b.s - a.s);

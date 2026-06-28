@@ -16,16 +16,17 @@ initialized (a `TELOS.md` exists), report what's there and don't clobber.
    sentinel), `docs/` + `docs/lit/` (with `INDEX.md`), and `memory/MEMORY.md`.
 2. **Wire the cadence.** Copy `templates/AGENTS.md` → `AGENTS.md` (filling the project name),
    so the store-as-you-go habit is always in context. Add `/.promptus/` to `.gitignore`.
-3. **Confirm the scripts resolve the new root.** From the repo, `bun scripts/kb-find.ts --root .`
+3. **Confirm the scripts resolve the new root.** From the repo, `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-find.ts" --root .`
    should find `TELOS.md` and report an empty (or freshly-seeded) catalog rather than erroring.
 4. **Seed + smoke-test.** Store the operator's mandate as the first unit
    (`kb-add --substrate ledger --kind DECISION --status VALIDATED --title "Mandate: …"`), then
-   `bun scripts/kb-index.ts` — confirm `.promptus/CATALOG.md` lists it as `ledger:VALIDATED`.
+   `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-index.ts"` — confirm `.promptus/CATALOG.md` lists it as `ledger:VALIDATED`.
 5. **Print next steps**: how to `kb-add` the next unit, when to `kb-index`, and to run
    `/checkpoint` before compaction.
 
-## Note on shipping the scripts
+## How the scripts are found
 
-The `scripts/` (kb-add / kb-index / kb-find + `lib/`) must be reachable from the target repo.
-Until Promptus is installed as a plugin, either vendor `scripts/` into the project or call them
-by absolute path. Record which you chose in the project's `TELOS.md` so future sessions know.
+Promptus is a Claude Code plugin: installing it bundles `scripts/` (kb-add / kb-index / kb-find
++ `lib/`), and the skills, commands, and templates call them via `${CLAUDE_PLUGIN_ROOT}/scripts/…`
+— so they resolve from any project with nothing copied in. (For raw development *inside* the
+Promptus repo itself, the scripts are just `bun scripts/…` relative to the repo root.)

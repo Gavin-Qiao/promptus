@@ -13,9 +13,12 @@
 export function extractLinks(text: string): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
+  // ignore [[...]] inside code (fenced blocks or inline spans): those are mentions of the
+  // syntax, not graph edges — e.g. documenting `[[concept-handle]]` in prose.
+  const prose = text.replace(/```[\s\S]*?```/g, " ").replace(/`[^`]*`/g, " ");
   const re = /\[\[([^\]]+)\]\]/g;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
+  while ((m = re.exec(prose)) !== null) {
     const target = m[1].split("|")[0].trim();
     if (target && !seen.has(target)) {
       seen.add(target);

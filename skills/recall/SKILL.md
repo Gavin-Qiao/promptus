@@ -16,7 +16,7 @@ store, check it rather than asserting from memory.
    ("does our method beat the baseline on the hard cases?") splits into facts you can look up.
 2. **Retrieve header-first.** For each sub-question:
    ```
-   bun scripts/kb-find.ts "<sub-question>" [--substrate ledger|finding|lit|memory] [--status <S>] [--hops <n>]
+   bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-find.ts" "<sub-question>" [--substrate ledger|finding|lit|memory] [--status <S>] [--hops <n>]
    ```
    The card-catalog is the index; read the returned headers, then open only the bodies you need.
    Widen `--hops` (1–2) when you need associative neighbours, not just direct keyword hits.

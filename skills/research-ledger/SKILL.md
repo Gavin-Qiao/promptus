@@ -23,7 +23,7 @@ the compaction-safe core a resuming agent reads instead of the whole file) and a
 During real work, watch for the moments worth keeping and write each the moment it happens:
 
 ```
-echo "<prose body>" | bun scripts/kb-add.ts \
+echo "<prose body>" | bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" \
   --substrate ledger --kind <KIND> --status <STATUS> --title "<short imperative title>" [--links "a,b"] [--supersedes <id>]
 ```
 
@@ -69,5 +69,5 @@ finding`). When the Log passes a few thousand lines, archive older sections to
 
 > Maintain the research ledger: append a unit after every completed unit of work — including
 > mistakes, fixes, dead-ends, and brainstorms, not only successes — with
-> `bun scripts/kb-add.ts --substrate ledger …` (never hand-type `### [ts]`). Refresh the
+> `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate ledger …` (never hand-type `### [ts]`). Refresh the
 > NOW-header and run `/checkpoint` before compaction.

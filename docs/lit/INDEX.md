@@ -1,4 +1,4 @@
-# Literature — <PROJECT NAME>
+# Literature — Promptus
 
 > External / deep-research notes, one file per source (`docs/lit/<slug>.md`),
 > written via `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate lit --source "<src#anchor>"`.

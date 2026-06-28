@@ -13,11 +13,11 @@ This skill is the map: pick the verb, run the piece.
 
 | You are about to… | Verb | Do |
 |---|---|---|
-| record a decision / run / observation / dead-end / finding | STORE | `bun scripts/kb-add.ts --substrate ledger …` (or the `research-ledger` skill for the habit) |
+| record a decision / run / observation / dead-end / finding | STORE | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate ledger …` (or the `research-ledger` skill for the habit) |
 | distill a settled finding into a concept page | STORE | `kb-add --substrate finding …` (one concept per file, `[[linked]]`) |
 | capture external prior art you read | STORE | `kb-add --substrate lit --source "<src#anchor>" …` |
 | remember a durable, cross-session fact | STORE | `kb-add --substrate memory …` |
-| make the index current after writes | BOOK-KEEP | `bun scripts/kb-index.ts` |
+| make the index current after writes | BOOK-KEEP | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-index.ts"` |
 | flush a session before compaction | BOOK-KEEP | `/checkpoint` |
 | answer "what did we decide / find / read about X" | RETRIEVE | the `recall` skill (drives `kb-find`) |
 | write something the project already knows | RETRIEVE → RENDER | `recall` first, then `humanizer` |

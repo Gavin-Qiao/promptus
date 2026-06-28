@@ -7,8 +7,8 @@ automatically against another repo.
 
 1. **Initialize.** `/promptus-init` (or run the `telos` skill) to scaffold the four stores,
    Telos first. Fill `TELOS.md` with the project's north star and its own rules-that-never-bend.
-2. **Make the scripts reachable.** Until Promptus is installed as a plugin, either vendor
-   `scripts/` into the project or call them by absolute path. Record the choice in `TELOS.md`.
+2. **Install the Promptus plugin** so the skills, commands, and templates resolve its bundled
+   `scripts/` via `${CLAUDE_PLUGIN_ROOT}` — nothing to vendor or copy in.
 3. **Backfill the ledger — selectively.** Don't re-type the whole history; capture what you'd
    hate to lose. `kb-add --substrate ledger` the key past `DECISION`s, `RESULT`s, and the
    instructive `DEADEND`s. The NOW-header gets written by hand from the current state.

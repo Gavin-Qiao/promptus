@@ -4,7 +4,7 @@
 **Timezone:** <e.g. America/Montreal (UTC-4)> — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry. Units enter through
-> `bun scripts/kb-add.ts --substrate ledger …` — the script owns the timestamp, id,
+> `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate ledger …` — the script owns the timestamp, id,
 > and placement (the drift fix). A `★CORRECTION` supersedes a prior claim in place.
 > Rewrite only the **NOW-header** below, at `/checkpoint`; keep it to ~a screenful.
 

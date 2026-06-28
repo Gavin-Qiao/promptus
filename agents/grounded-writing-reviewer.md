@@ -21,7 +21,7 @@ register allows). Reference `skills/humanizer/SKILL.md` for the full pattern set
 Extract every **checkable factual claim** (a number, a named result, an attribution, a
 comparative). For each, run:
 ```
-bun scripts/kb-find.ts "<claim terms>" [--substrate …]
+bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-find.ts" "<claim terms>" [--substrate …]
 ```
 and judge:
 - **Unsupported** — nothing in the store backs it. Flag it; the writer must store the evidence

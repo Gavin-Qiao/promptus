@@ -129,6 +129,19 @@ test("kb-find returns the right units with substrate:status + path", () => {
   expect(r.stdout).not.toContain("Maybe rust later");
 });
 
+test("kb-find retrieves a ledger entry and slices by status (anchor stays parseable)", () => {
+  const root = scaffold();
+  add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "DEADEND", "--title", "Graph DB overkill"], "dropped it");
+  add(root, ["--substrate", "ledger", "--kind", "DECISION", "--status", "VALIDATED", "--title", "Chose header-first"], "picked it");
+  index(root);
+  const dead = find(root, ["", "--status", "DEADEND"]);
+  expect(dead.stdout).toContain("ledger:DEADEND · Graph DB overkill");
+  expect(dead.stdout).not.toContain("Chose header-first");
+  const all = find(root, ["", "--substrate", "ledger"]);
+  expect(all.stdout).toContain("Graph DB overkill"); // both events show even if
+  expect(all.stdout).toContain("Chose header-first"); // they share a same-second timestamp
+});
+
 test("kb-add memory → one file per fact + a MEMORY.md index pointer", () => {
   const root = scaffold();
   const r = add(root, ["--substrate", "memory", "--kind", "preference", "--status", "validated", "--title", "Prefers bun", "--desc", "uses bun + uv"], "The operator prefers bun and uv.");

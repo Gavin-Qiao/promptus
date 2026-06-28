@@ -7,7 +7,7 @@
       "placement": "sentinel",
       "envelope": "log",
       "kinds": ["PLAN", "EXP", "RESULT", "FINDING", "MISTAKE", "FIX", "IDEA", "DEADEND", "RESEARCH", "DECISION", "RESUME"],
-      "statuses": ["OPEN", "RESOLVED", "WONTFIX", "CONJECTURED", "VALIDATED", "REFUTED", "CORRECTION", "CONFOUNDED"]
+      "statuses": ["OPEN", "RESOLVED", "WONTFIX", "CONJECTURED", "VALIDATED", "REFUTED", "DEADEND", "CORRECTION", "CONFOUNDED"]
     },
     "finding": {
       "prefix": "finding",

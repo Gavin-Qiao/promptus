@@ -52,7 +52,8 @@ function parseLedger(root: string, store: string): Unit[] {
   return heads.map((h, i) => {
     const body = text.slice(h.idx, i + 1 < heads.length ? heads[i + 1].idx : undefined);
     const status = h.ks.split("/").pop()!.replace(/^[★⚠]/, "");
-    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.ts}`, links: extractLinks(body) };
+    // anchor must be space-free so the catalog's `· path ·` columns stay parseable
+    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.ts.replace(/ /g, "T")}`, links: extractLinks(body) };
   });
 }
 
