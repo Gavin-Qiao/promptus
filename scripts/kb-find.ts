@@ -20,12 +20,19 @@ import { derivedDir, findProjectRoot } from "./lib/paths.ts";
 interface Card { substrate: string; status: string; title: string; path: string; links: string[] }
 
 function parseCatalog(text: string): Card[] {
+  // Split on the ` · ` delimiter rather than a token regex, so a free-form status
+  // with spaces (e.g. a psi-style "CORRECTION + RESULT") still parses.
   const cards: Card[] = [];
   for (const raw of text.split(/\r?\n/)) {
-    const m = /^(\w+):(\S+) · (.+?) · (\S+)(?: · (.+))?$/.exec(raw.trim());
-    if (!m) continue;
-    const links = m[5] ? Array.from(m[5].matchAll(/\[\[([^\]]+)\]\]/g)).map((x) => x[1]) : [];
-    cards.push({ substrate: m[1], status: m[2], title: m[3], path: m[4], links });
+    const parts = raw.trim().split(" · ");
+    if (parts.length < 3) continue;
+    const ci = parts[0].indexOf(":");
+    if (ci < 1) continue;
+    const substrate = parts[0].slice(0, ci);
+    const status = parts[0].slice(ci + 1).trim();
+    if (!substrate || !status) continue;
+    const links = parts[3] ? Array.from(parts[3].matchAll(/\[\[([^\]]+)\]\]/g)).map((x) => x[1]) : [];
+    cards.push({ substrate, status, title: parts[1], path: parts[2], links });
   }
   return cards;
 }

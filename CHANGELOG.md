@@ -70,8 +70,10 @@ First public release — the store/keep/retrieve/render spine, packaged as a Cla
 
 Hardening found by dogfooding before release:
 
-- Accept `DEADEND` as a ledger status — the real research ledgers use `RESULT/DEADEND`
-  constantly, and the gate had rejected it.
+- Parse free-form compound statuses — a permissive-ledger entry whose status contains spaces
+  (e.g. `CORRECTION + RESULT`) is written to the catalog *and* retrievable by `kb-find` (the
+  catalog is split on its delimiter, not matched by a single-token regex). Surfaced by migrating
+  the Psi project.
 - Make the ledger's catalog anchor space-free so ledger entries are retrievable by `kb-find`.
 - Key `kb-find` results by full card identity rather than path, so two entries written in the
   same second no longer collapse into one.

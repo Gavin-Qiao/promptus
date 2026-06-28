@@ -167,6 +167,19 @@ test("kb-add records a typed relation; kb-index graphs it; kb-export emits CiTO 
   expect(ex.stdout).toContain("@graph");
 });
 
+test("kb-find handles a free-form compound status with spaces (the psi case)", () => {
+  const root = scaffold();
+  // a permissive-ledger entry whose status has spaces, e.g. psi's "CORRECTION + RESULT"
+  const r = add(root, ["--substrate", "ledger", "--kind", "MISTAKE", "--status", "CORRECTION + RESULT", "--title", "compound status entry"], "body");
+  expect(r.status).toBe(0); // permissive: warns but writes
+  index(root);
+  expect(read(root, ".promptus", "CATALOG.md")).toContain("ledger:CORRECTION + RESULT · compound status entry");
+  const found = find(root, ["compound"]);
+  expect(found.stdout).toContain("compound status entry");
+  const sliced = find(root, ["", "--status", "CORRECTION + RESULT"]);
+  expect(sliced.stdout).toContain("compound status entry");
+});
+
 test("kb-add memory → one file per fact + a MEMORY.md index pointer", () => {
   const root = scaffold();
   const r = add(root, ["--substrate", "memory", "--kind", "preference", "--status", "validated", "--title", "Prefers bun", "--desc", "uses bun + uv"], "The operator prefers bun and uv.");
