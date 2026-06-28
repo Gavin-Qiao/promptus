@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.1 — hardened + hybrid vocab; release-ready)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.1.0 — RELEASED)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -22,35 +22,36 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 - Failure-first: dead-ends and mistakes earn the same care as wins.
 - Commits: `type(scope)` + flat bullet body, no `Co-Authored-By`. Don't merge without operator review.
 
-## NOW (v0.1 — packaging hardened + hybrid vocab, pre-release)
-On `feat/promptus-v1` (PR #1, **unmerged**), release-ready. Apache-2.0 (humanizer Part I stays MIT),
-author Mohan Qiao. **CI/CD** green: `ci.yml` (bun test + offline `validate-plugin` + pre-commit
-hygiene) and `release.yml` (tag `v*` → assert tag==manifest + a non-empty CHANGELOG section →
-publish). `.pre-commit-config.yaml` drives the shared git hooks (pre-push gate runs). Four guarded
-**hooks** (SessionStart/PreToolUse/PostToolUse/SessionEnd), `/promptus:help`, CHANGELOG/CONTRIBUTING/
-RELEASING, rewritten README. **Hybrid vocab (schema v3)** landed: KIND/STATUS/RELATION facets,
-permissive ledger + strict library, DEADEND-is-a-KIND, supersession-is-a-relation, plus `kb-export`
-(CiTO/PROV-O JSON-LD) — research-grounded (see [[the-gate]]). `bun test` 20 pass.
+## NOW (v0.1.0 — RELEASED)
+**Shipped.** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved, not
+squashed); tagged `v0.1.0`; `release.yml` published the GitHub release after re-running the validator
++ 22 tests, asserting tag==`plugin.json`, and confirming a non-empty `[0.1.0]` CHANGELOG section (notes
+drawn from the changelog). Live at github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0; installs via
+`/plugin marketplace add Gavin-Qiao/promptus` + `/plugin install promptus@promptus`. v0.1.0 = the store
+spine, Apache-2.0, CI/CD, four guarded hooks, the **hybrid vocab** (KIND/STATUS/RELATION; permissive
+ledger + strict library; `kb-export` to CiTO/PROV-O), `/promptus:help`. Earned it by dogfooding three
+repos: itself, Psi (172 units), Probatio (248 units).
 
 ## Open frontier
-- [ ] **Cut v0.1.0** — merge PR #1 to `main`, then `git tag v0.1.0 && git push origin v0.1.0` (release.yml does the rest). Pre-staged: plugin.json is 0.1.0 and CHANGELOG has a dated `[0.1.0]`.
-- [x] **Psi migrated** (additive, uncommitted): schema + sentinel + AGENTS.md + `/.promptus/`; kb-index indexed 172 units, retrieval works, the permissive gate fits its free vocab.
-- [x] **Probatio migrated** (additive, uncommitted): custom schema (ledger=`docs/research-ledger.md`) + sentinel + AGENTS.md (fixed its broken `ledger-append.mjs` call) + `/.promptus/`; 248 units indexed, free compound vocab fits. Surfaced two adoption fixes (root-via-schema, no double-index).
-- [ ] overnight-handoff renderer — partly realized by the SessionStart hook; a dedicated terse renderer is still scaffolded. (grannie is built.)
+- [x] **v0.1.0 RELEASED** — PR #1 merged (`3f46375`), tagged, GitHub release published, marketplace-installable.
+- [x] **Psi + Probatio migrated** (both additive, in their own working trees, **uncommitted**) — awaiting the operator's review + commit in those repos.
+- [ ] overnight-handoff renderer — the last scaffolded piece; partly realized by the SessionStart hook, but no dedicated terse renderer yet. (grannie is built.)
+- [ ] (post-1.0) per-project vocab tuning (promote each repo's house tags into the `extended` sets); backfill frontmatter on legacy `docs/lit` notes; consider recursive doc indexing.
 
 ## Next actions
-1. Operator reviews PR #1; on approval, merge to `main` and tag `v0.1.0` to release.
-2. Migrate Probatio / Psi to the plugin (their free-vocab ledgers now fit the permissive gate).
+1. Operator: review + commit the Psi and Probatio working-tree changes when ready; optionally delete the merged `feat/promptus-v1` branch.
+2. Build the overnight-handoff renderer when there's room.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus v0.1 is on `feat/promptus-v1` (PR #1, **unmerged**): packaging hardened (Apache-2.0, CI/CD
-green, four hooks, `/promptus:help`, CHANGELOG/CONTRIBUTING/RELEASING, README) AND the **hybrid vocab**
-is implemented (schema v3 — KIND/STATUS/RELATION facets, permissive ledger + strict library,
-DEADEND-as-KIND, supersedes-as-relation, `kb-export` to CiTO/PROV-O). `bun run check` green (20 tests);
-`claude plugin validate` clean. The vocab decision is now **CLOSED**. Release is pre-staged — merge
-PR #1, then `git tag v0.1.0 && git push origin v0.1.0`. New hooks need `/reload-plugins` to activate.
-Legacy globals backed up at `~/.claude/_promptus-legacy-backup/`. Read `TELOS.md`, then this header,
-then the Log. Do not merge without the operator.
+Promptus **v0.1.0 is RELEASED** — `main` is at merge commit `3f46375`, tag `v0.1.0`, the GitHub release
+is live (github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0) and marketplace-installable
+(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). v0.1.0 carries the
+store spine, Apache-2.0, CI/CD with a tag-driven release + changelog gate, four guarded hooks, the hybrid
+vocab (KIND/STATUS/RELATION; permissive ledger + strict library; `kb-export` to CiTO/PROV-O), and
+`/promptus:help`. `bun test` 22 pass; `claude plugin validate` clean. Dogfooded on itself, Psi (172
+units), and Probatio (248 units) — those two are migrated **in their own working trees, uncommitted**,
+awaiting operator review. The last scaffolded piece is the overnight-handoff renderer. Read `TELOS.md`,
+then this header, then the Log.
 
 ## Glossary
 - `substrate:status` — every unit's tag (`ledger`/`finding`/`lit`/`memory` : its status).
@@ -124,5 +125,8 @@ Converted Probatio (the Lean proof lab) additively, no commit (it has major park
 
 ### [2026-06-28 14:22:01] FIX/VALIDATED — Adoption fixes for non-default layouts (Probatio dogfood)
 Probatio surfaced two real adoption gaps, now fixed: (1) findProjectRoot keyed only on a root TELOS.md and threw otherwise, but Probatio's direction is docs/telos.md — it now also accepts schema/kb-vocab.json as the root marker; (2) when the ledger lives inside the finding store dir (Probatio: ledger=docs/research-ledger.md, finding=docs), kb-index double-indexed it as both a log and a page — collect() now skips sentinel-store files. Integration test added (22 pass).
+
+### [2026-06-28 14:38:28] RESULT/VALIDATED — Released Promptus v0.1.0 (PR #1 merged, tagged, GitHub release published)
+Merged PR #1 to main as a merge commit (3f46375 — conventional history preserved, not squashed), tagged v0.1.0 on it, and release.yml published the GitHub release: it re-ran the validator + 22 tests, asserted tag==plugin.json version, confirmed a non-empty [0.1.0] CHANGELOG section, and created the release with notes from the changelog. Live at https://github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0; installable via `/plugin marketplace add Gavin-Qiao/promptus` + `/plugin install promptus@promptus`. Earned the release by dogfooding on three real repos: itself, Psi (172 units), Probatio (248 units).
 
 <!-- kb:append-point -->
