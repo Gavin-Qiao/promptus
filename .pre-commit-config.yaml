@@ -1,0 +1,37 @@
+# Promptus repository checks.
+#
+# On the operator's machine the shared global Git hooks (core.hooksPath) auto-run this
+# config — the pre-commit-stage hooks on `git commit`, the pre-push-stage hooks on
+# `git push`. Do NOT run `pre-commit install` there: it would overwrite the shared hooks.
+# External contributors enable it with:
+#   pre-commit install --hook-type pre-commit --hook-type pre-push
+# CI runs the same hooks (see .github/workflows/ci.yml).
+minimum_pre_commit_version: "3.5.0"
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md] # keep markdown hard line breaks
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-yaml
+
+  - repo: local
+    hooks:
+      - id: validate-plugin
+        name: validate plugin (manifests + components)
+        entry: bun scripts/validate-plugin.ts
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+      - id: bun-test
+        name: bun test (store spine)
+        entry: bun test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

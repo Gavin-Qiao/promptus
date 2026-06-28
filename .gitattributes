@@ -1,0 +1,11 @@
+# Normalize line endings to LF in the repo and on checkout, so Linux CI and Windows
+# local see identical bytes and the hygiene hooks don't thrash on CRLF.
+* text=auto eol=lf
+
+# Binary assets — never normalize.
+*.png binary
+*.gif binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
