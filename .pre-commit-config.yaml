@@ -28,10 +28,12 @@ repos:
         entry: bun scripts/validate-plugin.ts
         language: system
         pass_filenames: false
+        always_run: true # run on every push, not only when a matching file changed
         stages: [pre-push]
       - id: bun-test
         name: bun test (store spine)
         entry: bun test
         language: system
         pass_filenames: false
+        always_run: true
         stages: [pre-push]
