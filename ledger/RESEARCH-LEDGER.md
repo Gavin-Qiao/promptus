@@ -35,7 +35,7 @@ permissive ledger + strict library, DEADEND-is-a-KIND, supersession-is-a-relatio
 ## Open frontier
 - [ ] **Cut v0.1.0** — merge PR #1 to `main`, then `git tag v0.1.0 && git push origin v0.1.0` (release.yml does the rest). Pre-staged: plugin.json is 0.1.0 and CHANGELOG has a dated `[0.1.0]`.
 - [x] **Psi migrated** (additive, uncommitted): schema + sentinel + AGENTS.md + `/.promptus/`; kb-index indexed 172 units, retrieval works, the permissive gate fits its free vocab.
-- [ ] **Migrate Probatio** — adopt the plugin the same way (it has no `ledger-append.mjs` dependency either).
+- [x] **Probatio migrated** (additive, uncommitted): custom schema (ledger=`docs/research-ledger.md`) + sentinel + AGENTS.md (fixed its broken `ledger-append.mjs` call) + `/.promptus/`; 248 units indexed, free compound vocab fits. Surfaced two adoption fixes (root-via-schema, no double-index).
 - [ ] overnight-handoff renderer — partly realized by the SessionStart hook; a dedicated terse renderer is still scaffolded. (grannie is built.)
 
 ## Next actions
@@ -118,5 +118,11 @@ Converted the Psi research repo (Gauging-Ψ) to Promptus, additively and without
 
 ### [2026-06-28 14:08:45] FIX/VALIDATED — kb-find parses free-form compound statuses (the Psi dogfood surfaced it)
 The Psi migration exposed a real gap: the catalog line `substrate:status · title · path` assumed a single-token status, so a free-form compound status with spaces (★CORRECTION + RESULT, or a spaced FINDING / RESULT yielding a leading-space status) was written to the catalog but SKIPPED by kb-find's (\S+) matcher — written yet unretrievable, so the permissive ledger only half-delivered. Fixed: kb-find splits the catalog line on the ' · ' delimiter (space-robust), and kb-index trims the parsed status. Regression test added (21 pass). Now free vocab both writes AND reads.
+
+### [2026-06-28 14:22:01] RESULT/VALIDATED — Migrated Probatio to Promptus (dogfood): 248 units, custom ledger path, free vocab fits
+Converted Probatio (the Lean proof lab) additively, no commit (it has major parked WIP): a custom schema/kb-vocab.json pointing the ledger substrate at docs/research-ledger.md (finding stays docs), the kb:append-point sentinel, /.promptus/ in .gitignore, and an AGENTS.md cadence rewritten to kb-add — it had called the now-removed global ledger-append.mjs (the breakage the ledger warned about). kb-index indexed 248 units (the 823-line ledger + 46 docs); kb-find retrieves; the permissive gate accepts Probatio's free compound vocab (MISTAKE+FINDING/CRITICAL, RESULT+FIX/IN-PROGRESS, BUILT, SHIPPED, CHECKPOINT, …). See [[the-gate]].
+
+### [2026-06-28 14:22:01] FIX/VALIDATED — Adoption fixes for non-default layouts (Probatio dogfood)
+Probatio surfaced two real adoption gaps, now fixed: (1) findProjectRoot keyed only on a root TELOS.md and threw otherwise, but Probatio's direction is docs/telos.md — it now also accepts schema/kb-vocab.json as the root marker; (2) when the ledger lives inside the finding store dir (Probatio: ledger=docs/research-ledger.md, finding=docs), kb-index double-indexed it as both a log and a page — collect() now skips sentinel-store files. Integration test added (22 pass).
 
 <!-- kb:append-point -->
