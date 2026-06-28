@@ -1,4 +1,4 @@
-# Derived, disposable knowledge index — rebuilt by scripts/kb-index.mjs
+# Derived, disposable knowledge index — rebuilt by scripts/kb-index.ts
 /.promptus/
 
 # Node / bun

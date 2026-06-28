@@ -1,7 +1,37 @@
 # Research Ledger — <PROJECT NAME>
 
-> Append-only. Never hand-edit. Units enter through `bun scripts/kb-add.ts`
-> (the script owns the timestamp, id, and placement). A `★CORRECTION` supersedes
-> a prior unit in place. New units are inserted immediately **above** the sentinel.
+**Updated:** <YYYY-MM-DD HH:MM TZ>  ·  **Operator:** <name>  ·  **Agent:** <model>
+**Timezone:** <e.g. America/Montreal (UTC-4)> — all timestamps below use it.
+
+> Append-only. Never hand-edit a `### [ts] …` entry. Units enter through
+> `bun scripts/kb-add.ts --substrate ledger …` — the script owns the timestamp, id,
+> and placement (the drift fix). A `★CORRECTION` supersedes a prior claim in place.
+> Rewrite only the **NOW-header** below, at `/checkpoint`; keep it to ~a screenful.
+
+## Mandate
+<The operator's directive, quoted verbatim, with date. The invariant the work serves.>
+
+## Thesis / approach
+<One paragraph: the method or claim being built.>
+
+## Guardrails
+- <Standing rules: what not to optimize for; what never bends.>
+
+## NOW
+<3–6 lines: what is true today.>
+
+## Open frontier
+- [ ] <OPEN question / next lever>
+
+## Next actions
+1. <the single most important next step>
+
+## <<< RESUME HERE AFTER COMPACTION >>>
+<One paragraph: exactly where to pick up — which files matter, what was in flight.>
+
+## Glossary
+- `<term>` — <one-line definition>
+
+## Log
 
 <!-- kb:append-point -->

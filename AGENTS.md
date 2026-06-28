@@ -13,7 +13,7 @@ the toolbox and using it.
 2. **Store as you go.** Don't hand-edit the ledger or `docs/`. Every unit goes in
    through the gated writer-jig:
    ```
-   echo "<prose body>" | bun scripts/kb-add.ts --substrate ledger --kind EVENT --status VALIDATED --title "…"
+   echo "<prose body>" | bun scripts/kb-add.ts --substrate ledger --kind RESULT --status VALIDATED --title "…"
    ```
    The script owns the timestamp, the id, the placement, and the catalog update.
    This is the drift fix — freehand appends are how the old ledger lost a day.

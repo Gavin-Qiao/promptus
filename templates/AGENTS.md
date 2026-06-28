@@ -7,7 +7,7 @@
 1. **Read `TELOS.md` first** — the direction and the rules that never bend.
 2. **Store as you go.** Don't hand-edit the ledger or `docs/`. Append through the gate:
    ```
-   echo "<prose body>" | bun scripts/kb-add.ts --substrate ledger --kind EVENT --status VALIDATED --title "…"
+   echo "<prose body>" | bun scripts/kb-add.ts --substrate ledger --kind RESULT --status VALIDATED --title "…"
    ```
 3. **Re-index after writes** — `bun scripts/kb-index.ts`.
 4. **Retrieve header-first** — `bun scripts/kb-find.ts "<query>"` (or the `recall` skill).

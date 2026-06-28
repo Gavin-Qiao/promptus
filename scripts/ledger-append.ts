@@ -8,12 +8,18 @@
  *   ledger-append --kind <K> --status <S> --title "<t>" [...]  < body.md
  *     ≡ kb-add --substrate ledger --kind <K> --status <S> --title "<t>" [...]
  *
- * STUB — implement as a forwarder to kb-add.ts.
+ * Note (migration): the original `ledger-append.mjs` (node) took `--ledger <path>`;
+ * this resolves the ledger from the project root (nearest TELOS.md) instead. Update
+ * any AGENTS.md that still calls `node …/ledger-append.mjs --ledger …` when you
+ * adopt Promptus in a repo (see docs/adoption.md).
  */
 
-function main(_argv: string[]): number {
-  console.error("ledger-append: not yet implemented — forwards to kb-add --substrate ledger.");
-  return 1;
-}
+import { spawnSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-process.exit(main(process.argv.slice(2)));
+const here = dirname(fileURLToPath(import.meta.url));
+const r = spawnSync("bun", [join(here, "kb-add.ts"), "--substrate", "ledger", ...process.argv.slice(2)], {
+  stdio: "inherit",
+});
+process.exit(r.status ?? 1);

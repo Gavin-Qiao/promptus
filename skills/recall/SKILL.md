@@ -5,27 +5,36 @@ description: Retrieve what a project already knows, with provenance and status, 
 
 # recall — retrieval reasoning
 
-> **Status: STUB.** Contract below; body `TODO`.
+Turn a question into grounded, cited knowledge. This is the reasoning layer over
+`scripts/kb-find.ts` — and where grounding lives (the humanizer stays pure style). It is
+**auto-invoked by judgement**: if a claim under discussion could be checked against the
+store, check it rather than asserting from memory.
 
-## What this skill should do
+## Procedure
 
-Turn a question into grounded, cited knowledge — the reasoning layer over
-`scripts/kb-find.ts`:
+1. **Decompose.** Break the question into retrievable sub-questions. A multi-hop question
+   ("does our method beat the baseline on the hard cases?") splits into facts you can look up.
+2. **Retrieve header-first.** For each sub-question:
+   ```
+   bun scripts/kb-find.ts "<sub-question>" [--substrate ledger|finding|lit|memory] [--status <S>] [--hops <n>]
+   ```
+   The card-catalog is the index; read the returned headers, then open only the bodies you need.
+   Widen `--hops` (1–2) when you need associative neighbours, not just direct keyword hits.
+3. **Confidence-gate on status** — this is the calibration source:
+   - `ledger:CONJECTURED`, `finding:CONJECTURED`, `memory:provisional` → **weak**; hedge.
+   - `finding:VALIDATED`, `ledger:VALIDATED`, `memory:validated` → **firm**; state plainly.
+   - `lit:CITE` → citable prior art; attribute it by name.
+   - `ledger:DEADEND`, `finding:REFUTED`, `finding:SUPERSEDED` → say it failed / was overturned.
+4. **Verify.** Open each unit's `source#anchor` (or its body) — do **not** pass through a unit
+   you didn't read. If the store doesn't back the claim, say *unsupported*, don't invent.
+5. **Synthesize.** Answer in the form the caller (humanizer, grannie, a reviewer) can render
+   honestly: each point carries its `substrate:status` and its citation.
 
-1. **Decompose** the query into retrievable sub-questions.
-2. **Retrieve** header-first: `bun scripts/kb-find.ts "<sub-q>" [--substrate …] [--status …] [--hops …]`.
-3. **Confidence-gate** on status: `event:CONJECTURED` is weak, `finding:VALIDATED`
-   / `memory:validated` is firm, `lit:CITE` is citable prior art.
-4. **Verify** each claim against its `source#anchor` — don't pass through a unit
-   you didn't open.
-5. **Synthesize** a calibrated answer that carries the substrate:status and the
-   citation, so the caller (e.g. humanizer, grannie, a reviewer) can render it honestly.
+## Output shape
 
-This is where grounding lives (humanizer stays pure style). It is **auto-invoked
-by judgement**: if a claim under discussion could be checked against the store, check it.
+```
+<claim> — <substrate:status> — <source#anchor or path>
+```
 
-## TODO
-
-- [ ] Decomposition heuristics; when to widen `--hops`.
-- [ ] Confidence-gate mapping from status → how firmly to state it.
-- [ ] Output shape that downstream renderers consume (claim · status · source#anchor).
+If nothing is found, say so plainly and suggest storing it once it's known. Retrieval that
+invents coverage is worse than retrieval that admits a gap.

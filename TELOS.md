@@ -20,7 +20,7 @@ grounded, and navigable.
 | **Knowledge** | `docs/` (findings) + `docs/lit/` (literature) | ground a claim in prior art / our findings |
 | **Memory** | `memory/MEMORY.md` (per-project) | not relearn what was settled |
 
-Every retrievable unit carries a **substrate + status** (`event:DEADEND`,
+Every retrievable unit carries a **substrate + status** (`ledger:DEADEND`,
 `lit:CITE`, `finding:VALIDATED`, `memory:validated`). The `[[wikilink]]` graph
 spans all four.
 
@@ -52,6 +52,8 @@ not before.)
 
 ## Memory
 
-Memory is **per-project**: `kb-add --substrate memory` writes to `memory/MEMORY.md`
-in the project root (before its sentinel), kept current and reconciled at
-`/checkpoint`. It is not a global store — each project owns what it has settled.
+Memory is **per-project**, in your real one-file-per-fact format: `kb-add --substrate
+memory` writes one file per fact (`memory/<slug>.md`, with `name` / `description` / `type`
+frontmatter) and adds a pointer line to the `memory/MEMORY.md` index — not a single append
+blob. Kept current and reconciled at `/checkpoint`. Each project owns what it has settled; a
+global `~/.claude/.../memory` store, if you keep one, is reconciled up to at checkpoint.

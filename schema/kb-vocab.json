@@ -1,37 +1,43 @@
 {
-  "version": 1,
+  "version": 2,
   "substrates": {
     "ledger": {
       "prefix": "event",
       "store": "ledger/RESEARCH-LEDGER.md",
       "placement": "sentinel",
-      "kinds": ["EVENT", "DECISION", "RUN", "OBSERVATION", "CORRECTION"],
-      "statuses": ["CONJECTURED", "VALIDATED", "DEADEND", "CORRECTION", "OPEN"]
+      "envelope": "log",
+      "kinds": ["PLAN", "EXP", "RESULT", "FINDING", "MISTAKE", "FIX", "IDEA", "DEADEND", "RESEARCH", "DECISION", "RESUME"],
+      "statuses": ["OPEN", "RESOLVED", "WONTFIX", "CONJECTURED", "VALIDATED", "REFUTED", "CORRECTION", "CONFOUNDED"]
     },
     "finding": {
       "prefix": "finding",
       "store": "docs",
       "placement": "file",
-      "kinds": ["RESULT", "METHOD", "CLAIM"],
+      "envelope": "page",
+      "kinds": ["RESULT", "METHOD", "CLAIM", "CONCEPT"],
       "statuses": ["CONJECTURED", "VALIDATED", "REFUTED", "SUPERSEDED"]
     },
     "lit": {
       "prefix": "lit",
       "store": "docs/lit",
       "placement": "file",
+      "envelope": "page",
       "kinds": ["PAPER", "NOTE", "QUOTE"],
       "statuses": ["CITE", "BACKGROUND", "CONTESTED"],
       "requires": ["source"]
     },
     "memory": {
       "prefix": "memory",
-      "store": "memory/MEMORY.md",
-      "placement": "sentinel",
-      "kinds": ["FACT", "PREFERENCE", "CONVENTION"],
+      "store": "memory",
+      "placement": "file",
+      "envelope": "memory",
+      "index": "memory/MEMORY.md",
+      "kinds": ["user", "feedback", "project", "reference"],
       "statuses": ["validated", "provisional", "retired"]
     }
   },
   "link_classes": ["supports", "refutes", "supersedes", "derives-from", "relates-to", "cites"],
-  "lit_reuse": ["quote", "paraphrase", "background", "method", "data"],
+  "lit_reuse": ["CITE", "DO-NOT-REBUILD", "REUSE", "NOVEL"],
+  "status_glyphs": { "CORRECTION": "★CORRECTION", "CONFOUNDED": "⚠CONFOUNDED" },
   "sentinel": "<!-- kb:append-point -->"
 }

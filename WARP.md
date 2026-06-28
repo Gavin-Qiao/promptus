@@ -3,57 +3,44 @@
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
 
 ## What this repo is
-This repository is a **Claude Code skill** implemented entirely as Markdown. It is a fork of [blader/humanizer](https://github.com/blader/humanizer) (MIT) extended with positive "human factor" patterns.
 
-The "runtime" artifact is `SKILL.md`: Claude Code reads the YAML frontmatter (metadata + allowed tools) and the prompt/instructions that follow.
+**Promptus** — a file-based research knowledge system for Claude Code: store / keep /
+retrieve a project's knowledge as gated markdown, and render it for an audience. The
+[`humanizer`](skills/humanizer/SKILL.md) writing skill (a fork of blader/humanizer, MIT) is
+one renderer in the box. See [`TELOS.md`](TELOS.md) for the north star + the invariant and
+[`README.md`](README.md) for the overview.
 
-`README.md` is for humans: installation, usage, and a compact overview of the patterns.
+## Source of truth
 
-`human-factors-analysis.md` is the research write-up behind Part II of the skill (the positive patterns).
+- **Behavior** lives in two places: the `scripts/` (the KAG mechanics — TypeScript on bun)
+  and the `skills/` + `commands/` + `agents/` (the markdown that tells the agent how to use
+  them). `schema/kb-vocab.json` is the controlled vocab the writer-jig validates against.
+- **Markdown is the only source of truth** for stored knowledge; `.promptus/` (the catalog +
+  graph) is derived, gitignored, and rebuilt by `kb-index` — never hand-edit it.
 
-## Key files (and how they relate)
-- `SKILL.md`
-  - The actual skill definition and the source of truth for behavior.
-  - Starts with YAML frontmatter (`---` ... `---`) containing `name`, `version`, `description`, and `allowed-tools`.
-  - After the frontmatter: Part I (29 removal patterns, with before/after) and Part II (14 positive human patterns, P1-P14, each with a verbatim model excerpt), followed by the process and a full worked example.
-- `README.md`
-  - Installation and usage instructions.
-  - A summarized table of the 29 removal patterns and the 14 positive patterns, plus a version history.
-- `human-factors-analysis.md`
-  - The analysis behind Part II: methodology, the calibration corpus, each factor with excerpts, and a cross-map from removal patterns to positive patterns.
-- `LICENSE` / `NOTICE`
-  - MIT license retaining the upstream copyright (Siqi Chen) and adding this fork's copyright. `NOTICE` records provenance and the list of modifications.
+## Key files
 
-When changing behavior/content, treat `SKILL.md` as the source of truth, and update `README.md` (and, for Part II changes, `human-factors-analysis.md`) to stay consistent.
+- `scripts/kb-add.ts` — the gated writer-jig (the ONE way knowledge enters a project).
+- `scripts/kb-index.ts` — rebuild the derived card-catalog + graph; lint.
+- `scripts/kb-find.ts` — header-first retrieval.
+- `scripts/lib/` — clock / ids / links / frontmatter / vocab / paths.
+- `scripts/test/` — `bun test` (lib unit tests + store-spine integration tests).
+- `skills/`, `commands/`, `agents/` — the reasoning layer (see `skills/promptus/SKILL.md` for the map).
+- `templates/` — the per-project four-store scaffolds (`/promptus-init` drops these in).
 
 ## Common commands
-### Install the skill into Claude Code
-Recommended (clone directly into Claude Code skills directory):
+
 ```bash
-mkdir -p ~/.claude/skills
-git clone https://github.com/Gavin-Qiao/humanizer.git ~/.claude/skills/humanizer
+bun test                                # run the test suite
+bun scripts/kb-add.ts --substrate … …   # store a unit (body on stdin)
+bun scripts/kb-index.ts                 # rebuild .promptus/CATALOG.md + graph.json
+bun scripts/kb-find.ts "<query>"        # retrieve header-first
 ```
 
-Manual install/update (only the skill file):
-```bash
-mkdir -p ~/.claude/skills/humanizer
-cp SKILL.md ~/.claude/skills/humanizer/
-```
+## Conventions
 
-## How to "run" it (Claude Code)
-Invoke the skill:
-- `/humanizer` then paste text
-
-## Making changes safely
-### Versioning (keep in sync)
-- `SKILL.md` has a `version:` field in its YAML frontmatter.
-- `README.md` has a "Version History" section.
-
-If you bump the version, update both.
-
-### Editing `SKILL.md`
-- Preserve valid YAML frontmatter formatting and indentation.
-- Keep the Part I pattern numbering (1-29) and the Part II numbering (P1-P14) stable unless you are intentionally re-numbering, since the README and the analysis doc reference the same numbering.
-
-### Documenting non-obvious fixes
-If you change the prompt to handle a tricky failure mode, add a short note to `README.md`'s version history describing what was fixed and why.
+- Conventional Commits `type(scope):` + a flat `-` bullet body; **omit** `Co-Authored-By`.
+- Never `--no-verify`. Forward-slash paths. Don't commit or push unless asked.
+- Scripts: TypeScript on bun (`#!/usr/bin/env bun`); stdlib-first; `bun:sqlite` only past a
+  measured threshold (see the invariant in `TELOS.md`).
+- Preserve upstream attribution in `LICENSE` / `NOTICE` (Siqi Chen + Gavin-Qiao).

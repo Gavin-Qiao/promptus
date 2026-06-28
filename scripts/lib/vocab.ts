@@ -9,23 +9,23 @@
  * Contract:
  *   loadVocab(root):       parse <root>/schema/kb-vocab.json into a typed Vocab.
  *   validate(vocab, unit): { ok: true } | { ok: false, error, allowed? }
- *     reject, with a message naming the allowed values:
- *       - unknown substrate
- *       - kind not in substrate.kinds
- *       - status not in substrate.statuses
- *       - a substrate.requires field missing on the unit (e.g. lit.source)
- *       - empty/whitespace title
- *
- * STUB — implement against the contract above.
  */
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export interface SubstrateSpec {
   prefix: string;
   store: string;
   placement: "sentinel" | "file";
+  /** how kb-add assembles the unit: "log" (### [ts] KIND/STATUS — title),
+   *  "page" (# title + frontmatter), or "memory" (memory frontmatter + index). */
+  envelope: "log" | "page" | "memory";
   kinds: string[];
   statuses: string[];
   requires?: string[];
+  /** for "file" placement that also maintains an index file (memory). */
+  index?: string;
 }
 
 export interface Vocab {
@@ -33,6 +33,7 @@ export interface Vocab {
   substrates: Record<string, SubstrateSpec>;
   link_classes: string[];
   lit_reuse: string[];
+  status_glyphs?: Record<string, string>;
   sentinel: string;
 }
 
@@ -49,10 +50,29 @@ export type ValidateResult =
   | { ok: true }
   | { ok: false; error: string; allowed?: string[] };
 
-export function loadVocab(_root: string): Vocab {
-  throw new Error("not implemented: loadVocab");
+export function loadVocab(root: string): Vocab {
+  return JSON.parse(readFileSync(join(root, "schema", "kb-vocab.json"), "utf8")) as Vocab;
 }
 
-export function validate(_vocab: Vocab, _unit: UnitInput): ValidateResult {
-  throw new Error("not implemented: validate");
+export function validate(vocab: Vocab, unit: UnitInput): ValidateResult {
+  const sub = vocab.substrates[unit.substrate];
+  if (!sub) {
+    return { ok: false, error: `unknown substrate "${unit.substrate}"`, allowed: Object.keys(vocab.substrates) };
+  }
+  if (!unit.title || !unit.title.trim()) {
+    return { ok: false, error: "empty title" };
+  }
+  if (!sub.kinds.includes(unit.kind)) {
+    return { ok: false, error: `kind "${unit.kind}" not allowed for substrate "${unit.substrate}"`, allowed: sub.kinds };
+  }
+  if (!sub.statuses.includes(unit.status)) {
+    return { ok: false, error: `status "${unit.status}" not allowed for substrate "${unit.substrate}"`, allowed: sub.statuses };
+  }
+  for (const req of sub.requires ?? []) {
+    const val = (unit as Record<string, unknown>)[req];
+    if (typeof val !== "string" || val.trim() === "") {
+      return { ok: false, error: `substrate "${unit.substrate}" requires --${req}` };
+    }
+  }
+  return { ok: true };
 }

@@ -5,27 +5,40 @@ description: Orchestrator and map for the Promptus research knowledge system. Us
 
 # Promptus — orchestrator
 
-> **Status: STUB.** Contract below; body `TODO`.
+Promptus stores / keeps / retrieves what a research project knows as gated markdown, and
+renders it for an audience. Read `TELOS.md` for the canonical statement and the invariant.
+This skill is the map: pick the verb, run the piece.
 
-## What this skill should do
+## Decision table — intent → do this
 
-Be the map. When a user is doing research book-keeping, route them to the right
-piece and explain the shape, then hand off:
+| You are about to… | Verb | Do |
+|---|---|---|
+| record a decision / run / observation / dead-end / finding | STORE | `bun scripts/kb-add.ts --substrate ledger …` (or the `research-ledger` skill for the habit) |
+| distill a settled finding into a concept page | STORE | `kb-add --substrate finding …` (one concept per file, `[[linked]]`) |
+| capture external prior art you read | STORE | `kb-add --substrate lit --source "<src#anchor>" …` |
+| remember a durable, cross-session fact | STORE | `kb-add --substrate memory …` |
+| make the index current after writes | BOOK-KEEP | `bun scripts/kb-index.ts` |
+| flush a session before compaction | BOOK-KEEP | `/checkpoint` |
+| answer "what did we decide / find / read about X" | RETRIEVE | the `recall` skill (drives `kb-find`) |
+| write something the project already knows | RETRIEVE → RENDER | `recall` first, then `humanizer` |
+| explain a stored concept plainly | RENDER | `grannie` (`/grannie explain <concept>`) |
+| audit a draft for AI-tells + unsourced claims | RENDER | the `grounded-writing-reviewer` agent |
+| initialize Promptus in a repo | — | `/promptus-init` (runs the `telos` skill) |
 
-- **STORE** something happened/was found/was read → `bun scripts/kb-add.ts …`
-  (or the `research-ledger` skill for the proactive habit).
-- **BOOK-KEEP** → `bun scripts/kb-index.ts` (rebuild the derived index) and
-  `/checkpoint` (lossless flush before compaction).
-- **RETRIEVE** → the `recall` skill (which drives `kb-find`).
-- **RENDER** → `humanizer` (style), `grannie` (explain).
+## The four stores
 
-Hold the four stores and the **invariant** (markdown is truth · index is derived ·
-writes go through a gated script · prefer a script over a server · add machinery
-only past a measured threshold). Point at `TELOS.md` for the canonical statement.
+Telos (`TELOS.md`, direction) · Ledger (`ledger/RESEARCH-LEDGER.md`, events) · Knowledge
+(`docs/` findings + `docs/lit/` literature) · Memory (`memory/`, durable facts). Every unit
+is tagged `substrate:status` — `ledger:DEADEND`, `finding:VALIDATED`, `lit:CITE`,
+`memory:validated`.
 
-## TODO
+## The invariant (do not break)
 
-- [ ] Decision table: intent → verb → exact command/skill.
-- [ ] The "auto-invoke store lookup by judgement" rule (when to reach for `recall`
-      without being asked).
-- [ ] When NOT to use Promptus (trivial/throwaway work).
+markdown is the only source of truth · the index is derived & disposable · writes go through
+a gated script, never freehand · prefer a script over a server · add machinery only past a
+threshold you've **measured**.
+
+## When NOT to use Promptus
+
+Throwaway scratch work, a one-off answer, or anything you would not want to resume after a
+compaction. Storing noise is as bad as losing signal — record what you'd hate to lose.

@@ -3,7 +3,7 @@
  * The store-spine round-trip cases live in kb.test.ts as todos. Run: `bun test`.
  */
 import { test, expect } from "bun:test";
-import { nowISO, stampUTC } from "../lib/clock.ts";
+import { nowISO, stampUTC, nowLocalStamp } from "../lib/clock.ts";
 import { slugify, mintId } from "../lib/ids.ts";
 import { extractLinks } from "../lib/links.ts";
 
@@ -15,6 +15,11 @@ test("nowISO returns a parseable ISO-8601 Z instant", () => {
 
 test("stampUTC compacts an ISO instant", () => {
   expect(stampUTC("2026-06-28T00:12:34.000Z")).toBe("20260628T001234Z");
+});
+
+test("nowLocalStamp formats local YYYY-MM-DD HH:MM:SS (the ledger header stamp)", () => {
+  expect(nowLocalStamp(new Date(2026, 5, 27, 21, 40, 12))).toBe("2026-06-27 21:40:12");
+  expect(nowLocalStamp()).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
 });
 
 test("slugify lowercases, hyphenates, strips punctuation, caps length", () => {
