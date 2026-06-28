@@ -8,9 +8,10 @@ description: Proactively record a research project into Promptus as work happens
 A research ledger is the lab notebook for a long investigation: what you tried, what
 happened, what broke, what you fixed, what you abandoned and why. It makes the work
 **compounding and compaction-safe** — a fresh (or post-compaction) session resumes from
-the file alone with nothing important lost. This follows Karpathy's wiki-layering
-(raw → log → wiki → schema), adapted as a lab notebook where the **append-only log is the
-spine** and the wiki is distilled *from* it at `/checkpoint`.
+the file alone with nothing important lost. It is in the spirit of Karpathy's llm-wiki (raw sources + an LLM-maintained wiki +
+an `AGENTS.md` "schema", plus an append-only log), adapted as a lab notebook where the
+**append-only log is the spine** and the wiki is distilled *from* it at `/checkpoint` — a
+deliberate inversion of the gist's coequal layers, ours and not Karpathy's own ordering.
 
 ## Two parts of the ledger
 
