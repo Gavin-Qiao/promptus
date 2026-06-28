@@ -1,0 +1,6 @@
+# Derived, disposable knowledge index — rebuilt by scripts/kb-index.ts
+/.promptus/
+
+# Node / bun
+node_modules/
+*.log

@@ -1,0 +1,64 @@
+#!/usr/bin/env bun
+/**
+ * PreToolUse hook — protect the gate. Knowledge enters through kb-add, not freehand.
+ * Blocks:
+ *   - any Write/Edit under .promptus/ (the derived index; kb-index owns it)
+ *   - overwriting the ledger, or an Edit that hand-adds a `### [ts] …` log entry
+ * Allows everything else, including NOW-header edits at /checkpoint. No-op outside a
+ * Promptus repo.
+ */
+import { resolve, relative, sep } from "node:path";
+import { readHookInput, projectRoot, isPromptusRepo } from "./_lib.ts";
+
+const input = await readHookInput();
+const root = projectRoot(input);
+if (!isPromptusRepo(root)) process.exit(0);
+
+const tool: string = input.tool_name || "";
+const ti = input.tool_input || {};
+const filePath: string = ti.file_path || ti.path || "";
+if (!filePath) process.exit(0);
+
+const rel = relative(root, resolve(root, filePath)).split(sep).join("/");
+
+function deny(reason: string): never {
+  process.stdout.write(
+    JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: reason,
+      },
+    }),
+  );
+  process.exit(0);
+}
+
+const KB_ADD =
+  'echo "<body>" | bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-add.ts" --substrate <s> --kind <K> --status <S> --title "…"';
+
+// 1. The derived index is never hand-edited.
+if (rel === ".promptus" || rel.startsWith(".promptus/")) {
+  deny(
+    "`.promptus/` is the derived index — never hand-edit it. " +
+      'It is rebuilt by `bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-index.ts"`.',
+  );
+}
+
+// 2. The ledger: log entries go through the gate; only the NOW-header is hand-editable.
+if (rel === "ledger/RESEARCH-LEDGER.md") {
+  if (tool === "Write") {
+    deny(`Don't overwrite the ledger. New entries go through the gate:\n  ${KB_ADD}\nOnly the NOW-header is hand-editable, at /promptus:checkpoint.`);
+  }
+  if (tool === "Edit" || tool === "MultiEdit") {
+    const adds = (s: string) => /(^|\n)### \[/.test(s || "");
+    const newStr = ti.new_string ?? "";
+    const oldStr = ti.old_string ?? "";
+    const edits = tool === "MultiEdit" && Array.isArray(ti.edits) ? ti.edits : [{ new_string: newStr, old_string: oldStr }];
+    if (edits.some((e: any) => adds(e.new_string) && !adds(e.old_string))) {
+      deny(`That edit adds a \`### [ts] …\` log entry by hand. Log entries go through the gate (it owns the timestamp, id, and placement):\n  ${KB_ADD}\nEditing the NOW-header itself is fine.`);
+    }
+  }
+}
+
+process.exit(0);
