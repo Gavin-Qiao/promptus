@@ -3,9 +3,10 @@
 This repo dogfoods its own methodology. When you work here, you are both building
 the toolbox and using it.
 
-> **Current state: scaffold.** Most scripts/skills/commands are documented **stubs**
-> (contract at the top of each file, body `TODO`). The `humanizer` skill is the one
-> real, working renderer. Implement the stubs one by one against their contracts.
+> **Current state: v0.1 — spine implemented and tested.** `kb-add` / `kb-index` /
+> `kb-find` + `lib/` work (`bun test` green); the `promptus`, `humanizer`, `recall`,
+> `grannie`, `telos`, and `research-ledger` skills are written. Still scaffolded:
+> the overnight-handoff renderer.
 
 ## Cadence (once the spine is implemented)
 
@@ -30,7 +31,8 @@ the toolbox and using it.
 - Never `--no-verify`. Forward-slash paths everywhere.
 - Scripts are **TypeScript on bun** (`#!/usr/bin/env bun`); tests via `bun test`.
   `bun:sqlite` only past a measured threshold (see the invariant).
-- Preserve upstream attribution (LICENSE / NOTICE: Siqi Chen + Gavin-Qiao).
+- License: Apache-2.0 (© 2026 Mohan Qiao); humanizer Part I stays MIT (© 2025 Siqi Chen) in
+  `LICENSE-humanizer`. Preserve both + the `NOTICE` attribution.
 - Don't commit or push unless asked.
 
 ## Layout

@@ -43,4 +43,5 @@ bun scripts/kb-find.ts "<query>"        # retrieve header-first
 - Never `--no-verify`. Forward-slash paths. Don't commit or push unless asked.
 - Scripts: TypeScript on bun (`#!/usr/bin/env bun`); stdlib-first; `bun:sqlite` only past a
   measured threshold (see the invariant in `TELOS.md`).
-- Preserve upstream attribution in `LICENSE` / `NOTICE` (Siqi Chen + Gavin-Qiao).
+- Promptus is Apache-2.0 (© 2026 Mohan Qiao); the forked humanizer Part I stays MIT
+  (© 2025 Siqi Chen) in `LICENSE-humanizer`. Preserve both, and the `NOTICE`.
