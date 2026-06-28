@@ -1,46 +1,73 @@
+<div align="center">
+
 # Promptus
 
+**Store what your research knows. Retrieve it with its confidence attached. Write only what you can defend.**
+
 [![CI](https://github.com/Gavin-Qiao/promptus/actions/workflows/ci.yml/badge.svg)](https://github.com/Gavin-Qiao/promptus/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![runtime: bun](https://img.shields.io/badge/runtime-bun-black.svg)](https://bun.sh)
 
-A file-based research knowledge system for Claude Code. It **stores / keeps / retrieves**
-everything a research project knows — events (the ledger, right and wrong), external
-literature, distilled findings, durable memory — as gated, well-formed markdown, and
-**renders** that knowledge for an audience: a reviewer, a curious layperson, or the next
-agent. The [`humanizer`](skills/humanizer/SKILL.md) writing skill is one renderer in the box.
+</div>
 
-> Latin *promptus* — "brought forth, ready, at hand": the store from which knowledge is
-> brought out and made ready to write, to recall, to hand off.
+A file-based research knowledge system for Claude Code. Promptus **stores / keeps / retrieves**
+everything a project knows — events (the ledger, right and wrong), external literature, distilled
+findings, durable memory — as gated, well-formed markdown, and **renders** that knowledge for an
+audience: a reviewer, a curious layperson, or the next agent at 3am.
 
-## Why
+> Latin *promptus* — "brought forth, ready, at hand": the store from which knowledge is brought
+> out and made ready — to write, to recall, to hand off.
 
-The same virtues that make prose *human* make research *trustworthy*: calibrate to the
-evidence, name your sources, keep your dead-ends. Promptus ties writing to one knowledge store
-so what you write can't drift from what you actually know — calibrated confidence becomes
-*sourced* (read from a unit's status), and citations point at real units.
+## Design philosophy
 
-## Install
+One bet underwrites the whole system: **the same virtues that make prose *human* make research
+*trustworthy*** — calibrate to the evidence, name your sources, keep your dead-ends. Five
+principles follow.
 
-Promptus is a Claude Code plugin. In Claude Code:
+1. **Markdown is the only source of truth.** Everything a project knows is plain, readable
+   markdown you could open with no tools at all. The derived index (`.promptus/`) is *disposable*
+   — rebuilt on demand, never authored. Lose it and nothing is lost.
+
+2. **Every write goes through a gate.** Knowledge enters through one script, never freehand. The
+   script owns the envelope, the timestamp, the id, the placement, and a controlled vocabulary —
+   so format *can't* drift, because nothing is hand-typed. Friction is what makes a lab notebook
+   rot; the gate removes it.
+
+3. **Every unit carries its epistemic status.** A claim is tagged with where it stands —
+   `CONJECTURED`, `VALIDATED`, `REFUTED`, a `DEADEND`. Retrieval hands back facts *with their
+   confidence attached*, so what you write calibrates to what you actually know. This is the hinge
+   between honest prose and honest research.
+
+4. **A header beats a vector — at this scale.** For a small, dense, status-tagged corpus a
+   hand-written header is a better retrieval key than an embedding, and the `[[wikilinks]]`
+   already *are* the graph. So v1 has no embeddings and no database. The heavy machinery turns on
+   only past a threshold you have **measured** — never on spec.
+
+5. **Prefer a script over a server.** The mechanics are a handful of TypeScript files on bun,
+   stdlib-first. Nothing to host, nothing to vendor, nothing to keep running.
+
+> **The invariant** — markdown is the only source of truth · the index is derived & disposable ·
+> writes go through a gated script, never freehand · prefer a script over a server · add machinery
+> (embeddings, a DB) only past a threshold you've **measured**.
+
+*Kindred to Andrej Karpathy's [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+pattern — persistent, LLM-maintained markdown over raw sources, instead of re-retrieving on every
+query. Promptus makes the append-only **ledger** the spine and adds a gate, epistemic status, and
+renderers.*
+
+## Quick start
+
+Promptus is a Claude Code plugin. Install it:
 
 ```
 /plugin marketplace add Gavin-Qiao/promptus
 /plugin install promptus@promptus
 ```
 
-…or from the CLI:
-
-```bash
-claude plugin marketplace add Gavin-Qiao/promptus
-claude plugin install promptus@promptus
-```
-
-Installing brings the bundled `scripts/`, and the skills, commands, and templates resolve them
-via `${CLAUDE_PLUGIN_ROOT}` — nothing to vendor or copy in.
-
-**Requirement:** [bun](https://bun.sh) ≥ 1.3 (the scripts are TypeScript on bun).
-
-## Quick start
+…or from the CLI: `claude plugin marketplace add Gavin-Qiao/promptus` then
+`claude plugin install promptus@promptus`. Installing brings the bundled `scripts/`; the skills,
+commands, and templates resolve them via `${CLAUDE_PLUGIN_ROOT}` — nothing to copy in.
+**Requires** [bun](https://bun.sh) ≥ 1.3 (the scripts are TypeScript on bun).
 
 Stand up the four stores in a repo:
 
@@ -48,16 +75,19 @@ Stand up the four stores in a repo:
 /promptus:promptus-init
 ```
 
-Then just work — tell Claude what happened, and the `research-ledger` skill records it through
-the gate. Under the hood that is:
+Then just work — tell Claude what happened, and the `research-ledger` skill records it through the
+gate. The three verbs, under the hood:
 
 ```bash
-# store a unit — body on stdin; the script owns the timestamp, id, placement, and the gate
-echo "We chose bun for bun:sqlite later." | \
-  bun scripts/kb-add.ts --substrate ledger --kind DECISION --status VALIDATED --title "Chose bun"
+# STORE — body on stdin; the script owns the timestamp, id, placement, and the gate
+echo "Chose bun so bun:sqlite is a one-line upgrade later." \
+  | bun scripts/kb-add.ts --substrate ledger --kind DECISION --status VALIDATED --title "Chose bun"
 
-bun scripts/kb-index.ts        # rebuild the derived .promptus/CATALOG.md + graph.json
-bun scripts/kb-find.ts "bun"   # header-first retrieval, with substrate + status
+# KEEP — rebuild the derived card-catalog + link graph
+bun scripts/kb-index.ts
+
+# RETRIEVE — header-first, every hit tagged substrate:status
+bun scripts/kb-find.ts "bun"
 ```
 
 (Inside the Promptus repo the scripts are `bun scripts/…`; inside another project the skills
@@ -76,34 +106,41 @@ resolve them via `${CLAUDE_PLUGIN_ROOT}`.) Before you compact a session,
 | Knowledge | `docs/` (findings) + `docs/lit/` (literature) | `finding:VALIDATED`, `lit:CITE` |
 | Memory | `memory/` (one file per fact) | `memory:validated` |
 
-**Three verbs** — the KAG mechanics are scripts, the reasoning is skills:
+**Three verbs** — the mechanics are scripts, the reasoning is skills:
 
-- **STORE** → `scripts/kb-add.ts` — the gated writer-jig. The LLM supplies only the prose body
+- **STORE** → `scripts/kb-add.ts`, the gated writer-jig. The LLM supplies only the prose body
   (stdin); the script owns the envelope, the local timestamp, the id, the placement, the index,
   typed relations, and the **hybrid gate** — *strict* for the curated library (finding/lit/memory:
-  off-vocab input is refused with the allowed set), *permissive* for the lab-notebook ledger
-  (an off-vocab kind/status is warned about but still written). `kb-export` emits the relation
-  graph as CiTO/PROV-O JSON-LD.
-- **BOOK-KEEP** → `scripts/kb-index.ts` (rebuild the derived `.promptus/CATALOG.md` card-catalog
-  + `graph.json`, resolve supersedes, lint orphans / unresolved links) + `/promptus:checkpoint`.
+  off-vocab input is refused with the allowed set), *permissive* for the lab-notebook ledger (an
+  off-vocab kind/status is warned about but still written). `kb-export` emits the relation graph as
+  CiTO/PROV-O JSON-LD.
+- **KEEP** → `scripts/kb-index.ts` (rebuild the derived `.promptus/CATALOG.md` card-catalog +
+  `graph.json`, resolve supersedes, lint orphans / unresolved links) + `/promptus:checkpoint`.
 - **RETRIEVE** → `scripts/kb-find.ts` (header-first: read the card-catalog, grep bodies, walk the
   `[[link]]` graph, filter by status) + the `recall` skill (decompose → retrieve →
   confidence-gate → verify → synthesize).
 
-**Renderers** project the store to an audience: `humanizer` (paper voice, with a *ground* mode),
-`grannie` (plain-language ELI90), and a `grounded-writing-reviewer` agent.
+**Renderers** project the store to an audience, and stay honest by *reading* status rather than
+inventing it:
 
-## The invariant
+- `humanizer` — paper voice. Pure style: it strips AI-writing tells and installs human-factor
+  patterns (calibrated confidence, concrete examples, real rhythm). It does not touch the store.
+- `grannie` — plain-language ELI90 for a stored concept.
+- `recall` + the **`grounded-writing-reviewer`** agent — the grounding layer: retrieve a draft's
+  claims, check each against its source, and flag anything unsourced or stated louder than its
+  recorded status allows.
 
-> markdown is the only source of truth · the index is derived & disposable · writes go through
-> a gated script, never freehand · prefer a script over a server · add machinery (embeddings, a
-> graph DB) only past a threshold you've **measured**, never on spec.
+## The papers-scale crossing
 
-A hand-written header is a better retrieval key than a vector for a small, dense, status-tagged
-corpus, and the `[[links]]` in markdown *are* the graph — so v1 has no embeddings and no DB.
-Both turn on only at the papers-scale crossing (see [`docs/report.md`](docs/report.md)).
+When the corpus becomes hundreds–thousands of *papers* (not one project's notes), the header
+catalog stops fitting one read and the deferred machinery turns on — each past a measured
+threshold, into the existing seams: schema-constrained ingestion → embeddings as a pre-filter
+scoped to `docs/lit` → a latent-link linter → graph algorithms (personalized-PageRank,
+community summaries) → recursive summary tiers. The invariant still governs. The full roadmap and
+the prior-art audit are in [`docs/report.md`](docs/report.md) and
+[`docs/promptus-vs-kag-coverage.md`](docs/promptus-vs-kag-coverage.md).
 
-## Command & skill reference
+## Commands & skills
 
 | command | what it does |
 |---|---|
@@ -116,7 +153,7 @@ Both turn on only at the papers-scale crossing (see [`docs/report.md`](docs/repo
 | `promptus` | orchestrator — picks the right verb / script / skill |
 | `research-ledger` | the store-as-you-go recording habit (append via `kb-add`, never freehand) |
 | `recall` | retrieval reasoning — decompose → `kb-find` → verify each claim → synthesize |
-| `humanizer` | writing renderer (paper voice); *ground* mode cites + calibrates from the store |
+| `humanizer` | writing renderer — paper voice, pure style |
 | `grannie` | plain-language ELI90 renderer for a stored concept |
 | `telos` | scaffold a project's four stores, Telos first |
 
@@ -135,8 +172,8 @@ Promptus-initialized repo (no `TELOS.md` / ledger), so other projects are untouc
 - **PostToolUse** re-runs `kb-index` after a `kb-add`, so the derived catalog never drifts.
 - **SessionEnd** nudges you to `/promptus:checkpoint`.
 
-To disable any of them, remove its entry from [`hooks/hooks.json`](hooks/hooks.json), or turn
-off the plugin's hooks in your Claude Code settings.
+To disable any of them, remove its entry from [`hooks/hooks.json`](hooks/hooks.json), or turn off
+the plugin's hooks in your Claude Code settings.
 
 ## Layout
 
@@ -148,7 +185,7 @@ commands/   help · checkpoint · promptus-init
 agents/     grounded-writing-reviewer
 hooks/      session-start · protect-gate · auto-index · checkpoint-nudge (+ hooks.json)
 templates/  the per-project four-store scaffolds
-docs/       Promptus's own knowledge (report, adoption)
+docs/       Promptus's own knowledge (report, adoption, the KAG coverage audit)
 ```
 
 ## Development
@@ -160,17 +197,18 @@ claude plugin validate         # the full plugin check (needs the Claude CLI)
 ```
 
 Promptus **dogfoods** its own methodology: it maintains its own `TELOS.md`, ledger, and `docs/`
-through its own scripts. Contributions go through `.pre-commit-config.yaml` (hygiene on commit,
-validator + tests on push) and CI. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the conventions
-and [`RELEASING.md`](RELEASING.md) for how releases are cut. Changes are recorded in
+through its own scripts. If the toolbox can't hold its own design history, it isn't ready.
+Contributions go through `.pre-commit-config.yaml` (hygiene on commit, validator + tests on push)
+and CI. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the conventions and
+[`RELEASING.md`](RELEASING.md) for how releases are cut; changes are recorded in
 [`CHANGELOG.md`](CHANGELOG.md).
 
-## License
+## License & attribution
 
-Promptus is licensed under **Apache-2.0** (© 2026 Mohan Qiao) — see [`LICENSE`](LICENSE).
+Promptus is free software, licensed under the **GNU General Public License v3.0**
+(© 2026 Mohan Qiao) — see [`LICENSE`](LICENSE). If you distribute it or a derivative, that
+work must also be GPL-3.0: share your usage back.
 
 The [`skills/humanizer`](skills/humanizer/SKILL.md) skill is an extended fork of
-[blader/humanizer](https://github.com/blader/humanizer) by Siqi Chen; its Part I (29 removal
-patterns) remains under the upstream **MIT** license (© 2025 Siqi Chen), retained in
-[`LICENSE-humanizer`](LICENSE-humanizer). Part II (14 positive "human factor" patterns) is this
-fork's addition. Provenance and changes are in [`NOTICE`](NOTICE). Personal-use project.
+[blader/humanizer](https://github.com/blader/humanizer) by Siqi Chen. Its upstream "Part I" was
+MIT-licensed; that notice is preserved in [`NOTICE`](NOTICE), as MIT requires.
