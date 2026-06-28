@@ -32,20 +32,27 @@ system clock, mints the id, inserts above the sentinel, and refreshes the catalo
 hand-type a `### [ts]` line** — hand-typed timestamps drift (that is how a past ledger lost a
 day). Reserve hand-editing for the NOW-header, at `/checkpoint`.
 
-## Entry kinds (the `--kind`)
+## Three facets: KIND, STATUS, RELATION
 
-`PLAN` · `EXP` · `RESULT` · `FINDING` · `MISTAKE` · `FIX` · `IDEA` · `DEADEND` · `RESEARCH` ·
-`DECISION` · `RESUME`. Negative results are first-class: a `DEADEND` or `MISTAKE` earns the
-same care as a `RESULT` — why something failed is often worth more than what worked.
+Keep them distinct — KIND is the *act*, STATUS is the *claim's epistemic state*, RELATION is a
+*typed link to another unit*. The header reads `KIND/STATUS`.
 
-## Status tags (the `--status`, orthogonal to kind)
+**KIND (`--kind`)** — core: `PLAN` · `EXP` · `RESULT` · `FINDING` · `DECISION` · `RESEARCH` ·
+`RESUME`; blessed extensions: `IDEA` · `MISTAKE` · `FIX` · `DEADEND`. Negative results are
+first-class: a `DEADEND` or `MISTAKE` earns the same care as a `RESULT` — why something failed
+is often worth more than what worked.
 
-Questions: `OPEN` / `RESOLVED` / `WONTFIX`. Claims: `CONJECTURED` / `VALIDATED` / `REFUTED`
-— promote to `VALIDATED` only with the evidence named (a passing test, a proof, a measured
-delta vs a control). Corrections: `CORRECTION` (renders `★CORRECTION`; pass `--supersedes <id>`
-to link the entry it overturns) and `CONFOUNDED` (renders `⚠CONFOUNDED`; an observation with
-more than one explanation). The header reads `KIND/STATUS`, e.g. `RESULT/VALIDATED`,
-`MISTAKE/★CORRECTION`, `RESULT/DEADEND`.
+**STATUS (`--status`)** — core: `CONJECTURED` / `VALIDATED` / `REFUTED` / `CONFOUNDED`
+(renders `⚠CONFOUNDED`; an observation with more than one explanation) / `SUPERSEDED`; blessed
+extensions: `OPEN` / `RESOLVED` / `WONTFIX`. Promote to `VALIDATED` only with the evidence named
+(a passing test, a proof, a measured delta vs a control). The ledger is **permissive** — an
+off-vocab status is warned about but still written, so you never lose a thought to the gate; add
+it to `schema/kb-vocab.json` if it's here to stay. (finding / lit / memory stay strict.)
+
+**RELATION (`--rel <type>:<id>`, or `--supersedes <id>`)** — typed edges between units:
+`supersedes` (marks the target `SUPERSEDED` — this is the correction mechanism), `refutes`,
+`challenges`, `supports`, `extends`, `fixes`. They export to CiTO / PROV-O via
+`bun scripts/kb-export.ts`. Example headers: `RESULT/VALIDATED`, `DEADEND/REFUTED`, `RESULT/CONFOUNDED`.
 
 ## Disciplines that make it worth keeping
 

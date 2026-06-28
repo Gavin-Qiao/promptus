@@ -80,8 +80,10 @@ resolve them via `${CLAUDE_PLUGIN_ROOT}`.) Before you compact a session,
 
 - **STORE** → `scripts/kb-add.ts` — the gated writer-jig. The LLM supplies only the prose body
   (stdin); the script owns the envelope, the local timestamp, the id, the placement, the index,
-  and the **validation gate** (off-vocab kind/status, a `lit` unit with no source, or an empty
-  title is refused with the allowed set).
+  typed relations, and the **hybrid gate** — *strict* for the curated library (finding/lit/memory:
+  off-vocab input is refused with the allowed set), *permissive* for the lab-notebook ledger
+  (an off-vocab kind/status is warned about but still written). `kb-export` emits the relation
+  graph as CiTO/PROV-O JSON-LD.
 - **BOOK-KEEP** → `scripts/kb-index.ts` (rebuild the derived `.promptus/CATALOG.md` card-catalog
   + `graph.json`, resolve supersedes, lint orphans / unresolved links) + `/promptus:checkpoint`.
 - **RETRIEVE** → `scripts/kb-find.ts` (header-first: read the card-catalog, grep bodies, walk the
@@ -139,7 +141,7 @@ off the plugin's hooks in your Claude Code settings.
 ## Layout
 
 ```
-scripts/    kb-add · kb-index · kb-find · ledger-append (forwarder) · validate-plugin · changelog · lib/ · test/
+scripts/    kb-add · kb-index · kb-find · kb-export · ledger-append · validate-plugin · changelog · lib/ · test/
 schema/     kb-vocab.json — the controlled vocab the gate validates against
 skills/     promptus (orchestrator) · humanizer · recall · grannie · research-ledger · telos
 commands/   help · checkpoint · promptus-init

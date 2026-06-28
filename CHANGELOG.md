@@ -31,9 +31,15 @@ First public release — the store/keep/retrieve/render spine, packaged as a Cla
 - **Four-store architecture.** Telos (`TELOS.md`), append-only Ledger
   (`ledger/RESEARCH-LEDGER.md`), Knowledge (`docs/` findings + `docs/lit/` literature), and
   Memory (`memory/`, one file per fact). Every unit carries a `substrate:status` tag.
-- **Controlled vocabulary + the gate.** `schema/kb-vocab.json` defines the substrates, kinds,
-  and statuses; the writer-jig refuses off-vocab input — an unknown kind/status, a `lit` unit
-  with no `--source`, or an empty title — and prints the allowed set, commit-msg-hook style.
+- **Controlled vocabulary + the hybrid gate.** `schema/kb-vocab.json` separates three facets —
+  KIND (the act), STATUS (the claim's epistemic state), and RELATION (a typed link) — each a
+  closed core plus blessed extensions. The curated library (finding/lit/memory) is **strict**
+  (off-vocab input is refused with the allowed set); the lab-notebook ledger is **permissive**
+  (an off-vocab kind/status is warned about but still written). Grounded in PROV-O/BFO (act vs.
+  claim), CiTO, and the null-results/hedging literature — `DEADEND` is a KIND, not a STATUS, and
+  supersession is a relation, not a status.
+- **Typed relations + interop.** Relations (`supersedes`/`refutes`/`challenges`/`supports`/
+  `extends`/`fixes`) are first-class edges; `kb-export` emits them as CiTO/PROV-O JSON-LD.
 - **Skills.** `promptus` (orchestrator and map), `humanizer` (the writing renderer, with a
   *ground* mode that cites and calibrates against the store), `recall` (retrieval reasoning:
   decompose → retrieve → confidence-gate → verify → synthesize), `grannie` (plain-language

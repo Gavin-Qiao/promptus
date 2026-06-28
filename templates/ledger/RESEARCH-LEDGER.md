@@ -5,7 +5,7 @@
 
 > Append-only. Never hand-edit a `### [ts] …` entry. Units enter through
 > `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate ledger …` — the script owns the timestamp, id,
-> and placement (the drift fix). A `★CORRECTION` supersedes a prior claim in place.
+> and placement (the drift fix). Supersede a prior claim with `--supersedes <id>` (it marks the target SUPERSEDED).
 > Rewrite only the **NOW-header** below, at `/checkpoint`; keep it to ~a screenful.
 
 ## Mandate
