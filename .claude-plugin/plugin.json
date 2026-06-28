@@ -1,0 +1,12 @@
+{
+  "name": "promptus",
+  "version": "0.0.0",
+  "description": "A file-based research knowledge system: store / keep / retrieve what a project knows as gated markdown, and render it for an audience. Includes the humanizer skill. DRAFT scaffold — validate with `claude plugin validate`.",
+  "author": {
+    "name": "Gavin-Qiao",
+    "url": "https://github.com/Gavin-Qiao"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/Gavin-Qiao/promptus",
+  "keywords": ["research", "knowledge-base", "ledger", "writing", "humanizer"]
+}

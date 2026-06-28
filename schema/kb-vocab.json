@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "substrates": {
+    "ledger": {
+      "prefix": "event",
+      "store": "ledger/RESEARCH-LEDGER.md",
+      "placement": "sentinel",
+      "kinds": ["EVENT", "DECISION", "RUN", "OBSERVATION", "CORRECTION"],
+      "statuses": ["CONJECTURED", "VALIDATED", "DEADEND", "CORRECTION", "OPEN"]
+    },
+    "finding": {
+      "prefix": "finding",
+      "store": "docs",
+      "placement": "file",
+      "kinds": ["RESULT", "METHOD", "CLAIM"],
+      "statuses": ["CONJECTURED", "VALIDATED", "REFUTED", "SUPERSEDED"]
+    },
+    "lit": {
+      "prefix": "lit",
+      "store": "docs/lit",
+      "placement": "file",
+      "kinds": ["PAPER", "NOTE", "QUOTE"],
+      "statuses": ["CITE", "BACKGROUND", "CONTESTED"],
+      "requires": ["source"]
+    },
+    "memory": {
+      "prefix": "memory",
+      "store": "memory/MEMORY.md",
+      "placement": "sentinel",
+      "kinds": ["FACT", "PREFERENCE", "CONVENTION"],
+      "statuses": ["validated", "provisional", "retired"]
+    }
+  },
+  "link_classes": ["supports", "refutes", "supersedes", "derives-from", "relates-to", "cites"],
+  "lit_reuse": ["quote", "paraphrase", "background", "method", "data"],
+  "sentinel": "<!-- kb:append-point -->"
+}
