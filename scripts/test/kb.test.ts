@@ -180,6 +180,26 @@ test("kb-find handles a free-form compound status with spaces (the psi case)", (
   expect(sliced.stdout).toContain("compound status entry");
 });
 
+test("kb-index supports a non-default layout: ledger inside docs/, root found via the schema (the Probatio case)", () => {
+  const root = mkdtempSync(join(tmpdir(), "promptus-probatio-"));
+  tmps.push(root);
+  // No root TELOS.md — only the schema marks the root (Probatio's direction is docs/telos.md).
+  mkdirSync(join(root, "schema"));
+  const vocab = JSON.parse(readFileSync(join(REPO, "schema", "kb-vocab.json"), "utf8"));
+  vocab.substrates.ledger.store = "docs/research-ledger.md";
+  vocab.substrates.finding.store = "docs";
+  writeFileSync(join(root, "schema", "kb-vocab.json"), JSON.stringify(vocab));
+  mkdirSync(join(root, "docs"));
+  writeFileSync(join(root, "docs", "research-ledger.md"), "# Ledger\n\n### [2026-06-19 18:50] DECISION/BUILT — a thing\nbody\n\n<!-- kb:append-point -->\n");
+  writeFileSync(join(root, "docs", "a-finding.md"), "---\nstatus: VALIDATED\n---\n# A finding\nbody\n");
+  const r = index(root);
+  expect(r.status).toBe(0);
+  const cat = read(root, ".promptus", "CATALOG.md");
+  expect(cat).toContain("ledger:BUILT · a thing");        // ledger parsed via the log path
+  expect(cat).toContain("finding:VALIDATED · A finding"); // a real finding is indexed
+  expect(cat).not.toContain("finding:? · Ledger");        // the ledger file is NOT double-indexed as a page
+});
+
 test("kb-add memory → one file per fact + a MEMORY.md index pointer", () => {
   const root = scaffold();
   const r = add(root, ["--substrate", "memory", "--kind", "preference", "--status", "validated", "--title", "Prefers bun", "--desc", "uses bun + uv"], "The operator prefers bun and uv.");

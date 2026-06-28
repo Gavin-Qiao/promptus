@@ -85,9 +85,21 @@ function parsePage(root: string, substrate: string, file: string): Unit {
 
 function collect(root: string, vocab: Vocab): Unit[] {
   const units: Unit[] = [];
+  // Sentinel stores (the ledger) are parsed as a log, never as a page — even when they live
+  // inside a file-store dir (e.g. Probatio's ledger is docs/research-ledger.md, and findings
+  // are docs/), so don't double-index them.
+  const sentinelStores = new Set(
+    Object.values(vocab.substrates)
+      .filter((s) => s.placement === "sentinel")
+      .map((s) => join(root, s.store).replace(/\\/g, "/")),
+  );
   for (const [name, sub] of Object.entries(vocab.substrates)) {
     if (sub.envelope === "log") units.push(...parseLedger(root, sub.store));
-    else if (sub.placement === "file") for (const f of mdFiles(join(root, sub.store))) units.push(parsePage(root, name, f));
+    else if (sub.placement === "file")
+      for (const f of mdFiles(join(root, sub.store))) {
+        if (sentinelStores.has(f.replace(/\\/g, "/"))) continue;
+        units.push(parsePage(root, name, f));
+      }
   }
   return units;
 }

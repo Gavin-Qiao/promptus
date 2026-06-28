@@ -74,6 +74,9 @@ Hardening found by dogfooding before release:
   (e.g. `CORRECTION + RESULT`) is written to the catalog *and* retrievable by `kb-find` (the
   catalog is split on its delimiter, not matched by a single-token regex). Surfaced by migrating
   the Psi project.
+- Adopt projects with a non-default layout — `findProjectRoot` accepts `schema/kb-vocab.json`
+  (not only a root `TELOS.md`), and `kb-index` no longer double-indexes a ledger that lives inside
+  the finding store dir. Surfaced by migrating Probatio (ledger at `docs/research-ledger.md`).
 - Make the ledger's catalog anchor space-free so ledger entries are retrievable by `kb-find`.
 - Key `kb-find` results by full card identity rather than path, so two entries written in the
   same second no longer collapse into one.

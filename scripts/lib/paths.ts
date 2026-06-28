@@ -3,7 +3,8 @@
  * directory containing TELOS.md; all stores resolve relative to it.
  *
  * Contract:
- *   findProjectRoot(start):  walk up from `start` to the nearest dir with TELOS.md; throw if none.
+ *   findProjectRoot(start):  walk up from `start` to the nearest dir with TELOS.md or
+ *                            schema/kb-vocab.json; throw if none.
  *   storePath(root, vocab, substrate, slug?):
  *                            placement "sentinel" → the store file (e.g. ledger/RESEARCH-LEDGER.md);
  *                            placement "file"     → <store>/<slug>.md.
@@ -22,9 +23,11 @@ import type { Vocab } from "./vocab.ts";
 export function findProjectRoot(start: string): string {
   let dir = resolve(start);
   for (;;) {
-    if (existsSync(join(dir, "TELOS.md"))) return dir;
+    // The root is marked by TELOS.md (the direction store) or, for a project whose direction
+    // lives elsewhere (e.g. Probatio's docs/telos.md), by the vocab the scripts already need.
+    if (existsSync(join(dir, "TELOS.md")) || existsSync(join(dir, "schema", "kb-vocab.json"))) return dir;
     const parent = dirname(dir);
-    if (parent === dir) throw new Error(`no TELOS.md found walking up from ${start}`);
+    if (parent === dir) throw new Error(`no TELOS.md or schema/kb-vocab.json found walking up from ${start}`);
     dir = parent;
   }
 }
