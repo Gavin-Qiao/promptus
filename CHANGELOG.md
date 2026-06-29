@@ -17,6 +17,44 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-28
+
+### Added
+
+- **`promptus-doctor` — a version-aware check / migrate tool** (`scripts/promptus-doctor.ts`,
+  command `/promptus-doctor`). `check` diagnoses a repo read-only: it names the layout
+  (`current` / `legacy-root` / `custom`), reads the vocab version, and flags two health hazards —
+  an **unreachable gate** (the plugin's scripts look for `.promptus/schema/kb-vocab.json` and a
+  0.1.x repo keeps the vocab at the root, so `kb-add` silently stops working) and a **`.gitignore`
+  that broadly ignores `.promptus/`** (the 0.1.x derived-cache rule, which would leave the migrated
+  stores uncommitted). `migrate` brings a 0.1.x or custom layout up to the canonical `.promptus/`
+  namespace — **dry-run by default**, `--apply` to perform. It only MOVES store files (it **never
+  edits a unit's content**), rewrites the vocab's `store` paths and upgrades its shape to the
+  current version while preserving any custom blessed kinds/statuses, routes a `docs/`-intermingled
+  ledger and `telos.md` to `.promptus/ledger/` and `.promptus/TELOS.md`, narrows the `.gitignore`
+  to `/.promptus/cache/`, drops the stale 0.1.x cache, and rebuilds the index. Idempotent — a repo
+  already on the current layout is a no-op.
+- **Doctor test suite** (`scripts/test/doctor.test.ts`, 16 tests): detection (layout, version,
+  gate-down + gitignore hazards), safety (dry-run touches nothing; a unit's bytes are identical
+  before/after; a non-project errors clearly), correctness (every store lands at its canonical
+  home; the ledger + telos are routed out of a `docs/`-intermingled layout; the vocab is re-homed +
+  upgraded; the gitignore is narrowed), and the end-to-end guarantees (the gate works again; every
+  doc — including a frontmatter-less project note — is parseable and retrievable).
+
+### Changed
+
+- `docs/adoption.md` now points at `/promptus-doctor` for migrating an existing project; the
+  by-hand checklist is kept as the explanation of what the tool automates and the fallback.
+- The `kb-index` console label reads `.promptus/cache/CATALOG.md` — the actual derived path since
+  0.2.0 — instead of the old `.promptus/CATALOG.md`.
+
+### Notes
+
+- Dogfooded against the operator's two real research repos in a sandbox (originals untouched): a
+  legacy-root layout (191 units) and a custom layout with the ledger and telos living inside
+  `docs/` (248 units). Both migrated cleanly and stayed fully retrievable — numbers, named methods,
+  and defined terms surfaced by `kb-find` afterward, including from frontmatter-less notes.
+
 ## [0.2.0] - 2026-06-28
 
 ### Added
@@ -160,6 +198,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0

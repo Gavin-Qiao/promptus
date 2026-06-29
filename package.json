@@ -7,6 +7,7 @@
     "test": "bun test",
     "validate": "bun scripts/validate-plugin.ts",
     "index": "bun scripts/kb-index.ts",
+    "doctor": "bun scripts/promptus-doctor.ts",
     "export": "bun scripts/kb-export.ts",
     "changelog:check": "bun scripts/changelog.ts check",
     "check": "bun run validate && bun test"
