@@ -19,15 +19,21 @@ automatically against another repo.
 6. **Adopt the cadence.** Copy `templates/AGENTS.md` into the project's `AGENTS.md` so
    store-as-you-go and `/checkpoint`-before-compaction stay in context.
 
-## Mapping an existing ledger
+## Mapping an existing ledger — run the doctor
 
-Projects already on the `research-ledger` skill (e.g. Probatio, Psi) keep their `### [ts]
-KIND/STATUS — title` log format unchanged — Promptus emits exactly that. The conversions are:
-add `.promptus/TELOS.md` if missing; move the project's stores under `.promptus/` (ledger →
-`.promptus/ledger/`, notes → `.promptus/docs/`); add the `<!-- kb:append-point -->` sentinel to
-the ledger; route new appends through `kb-add --substrate ledger` instead of the old
-`ledger-append.mjs` (the new forwarder resolves the ledger from the project root rather than a
-`--ledger` flag, so update any AGENTS.md that still passes `--ledger`).
+Projects already on the `research-ledger` skill (e.g. Probatio, Psi) — or on any 0.1.x layout
+with the stores at the repo root — are migrated by **`/promptus-doctor`**, not by hand. It is
+version-aware and dry-run-first: `check` names the layout (`legacy-root` / `custom`) and the
+health hazards (an unreachable gate, a `.gitignore` that would leave the migrated stores
+uncommitted); `migrate --apply` moves each store under `.promptus/` — the ledger and a
+`docs/`-intermingled `telos.md` are routed to `.promptus/ledger/` and `.promptus/TELOS.md` —
+rewrites and upgrades the vocab, narrows the `.gitignore` to `/.promptus/cache/`, and rebuilds the
+index, **without ever editing a unit's content**. The `### [ts] KIND/STATUS — title` log format is
+kept unchanged (Promptus emits exactly that); new appends route through `kb-add --substrate
+ledger`. The rest of this section is what the doctor automates, kept as the explanation and the
+by-hand fallback: add `.promptus/TELOS.md` if missing; move the stores under `.promptus/` (ledger →
+`.promptus/ledger/`, notes → `.promptus/docs/`); add the `<!-- kb:append-point -->` sentinel to the
+ledger; route new appends through `kb-add --substrate ledger` instead of the old `ledger-append.mjs`.
 
 ## Canonicalization (operator's real machine — not done in this repo)
 

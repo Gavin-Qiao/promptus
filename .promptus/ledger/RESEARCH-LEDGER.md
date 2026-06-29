@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.2.0 — on a PR branch)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.3.0 the doctor)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -24,58 +24,35 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 
 <!-- now:start -->
 
-## NOW (v0.2.0 — on a PR branch; main protected)
-**v0.2.0 (breaking).** Moved the four stores + vocab under one `.promptus/` namespace (derived
-index → `.promptus/cache/`); the repo root now holds only the product. Collision-proof for host
-repos. Updated path resolution, the protect-gate hook, `.gitignore`, the templates, the
-init/adoption flow, and every doc/skill path reference. **Hardened the suite** —
-`robustness.test.ts` (21 tests: substrate fidelity, cross-OS, path resolution, corruption, and
-`kb-now`) + a Windows/macOS CI matrix; the cross-OS tests caught and fixed a real CRLF-ledger bug.
-And **closed the freehand loophole**: `kb-now` is the gated NOW-header writer — it owns the
-`Updated:` stamp (from the clock), checks the required sections, and writes a bounded replacement
-between the `now:` markers; the protect-gate now blocks a hand-set stamp. This very header was
-re-stamped by `kb-now`. `bun test` **43 pass**; validator clean. On
-`feat/promptus-namespace-layout` → PR #2, awaiting review/merge + tag `v0.2.0`.
-
-**v0.1.1 (released).** Relicensed Apache-2.0 → GPL-3.0; rewrote the README design-philosophy-first
-(with a prior-art credit to Karpathy's llm-wiki); removed the humanizer's own version/license
-system; and ran the KAG deep-research dogfood — Promptus implements KAG's *epistemic spine* (the
-store, the typed graph, status-calibrated grounding), not its scale engine, with the llm-wiki as
-its true ancestor (`lit` notes added for llm-wiki/GraphRAG/HippoRAG/RAPTOR; the Karpathy
-over-attribution corrected). Tagged `v0.1.1`; the GitHub release published. `main` branch-protected.
-
-**v0.1.0 (shipped).** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved);
-tagged `v0.1.0`; the store spine, Apache-2.0, CI/CD, four guarded hooks, the **hybrid vocab**
-(KIND/STATUS/RELATION; permissive ledger + strict library; `kb-export` to CiTO/PROV-O),
-`/promptus:help`. Marketplace-installable. Earned by dogfooding three repos: itself, Psi (172), Probatio (248).
+## NOW (v0.3.0 — the doctor)
+**Shipped.** `promptus-doctor` — a version-aware `check` / `migrate` tool — brings a 0.1.x or
+custom layout up to the `.promptus/` namespace: dry-run-first, it MOVES stores to their canonical
+homes, upgrades the vocab, narrows the `.gitignore` (the load-bearing fix — otherwise the migrated
+stores get gitignored), and reindexes, **never editing a unit's content**. 16 doctor tests; 59
+green overall. Dogfooded on sandbox COPIES of Psi (legacy-root, 191 units) + Probatio (custom, 248
+units): originals byte-identical, 12/12 needles retrievable. Releasing v0.3.0 now.
 
 ## Open frontier
-- [ ] **v0.2.0 — the `.promptus/` namespace + test hardening + `kb-now`** — on a PR branch (#2); awaiting review/merge + tag.
-- [ ] **Psi + Probatio need RE-migration** to the v0.2.0 layout (stores under `.promptus/`); their v0.1 working-tree migration is now outdated.
-- [x] **v0.1.1 RELEASED** — GPL-3.0 relicense, README rework, humanizer de-versioned, KAG audit; tagged, main branch-protected.
-- [x] **v0.1.0 RELEASED** — PR #1 merged (`3f46375`), tagged, GitHub release published, marketplace-installable.
-- [ ] overnight-handoff renderer — the last scaffolded piece; partly realized by the SessionStart hook. (grannie is built.)
-- [ ] (post-1.0) per-project vocab tuning; backfill frontmatter on legacy `docs/lit` notes; consider recursive doc indexing.
+- [x] **v0.3.0 — the doctor** built, tested, dogfooded on Psi+Probatio copies; releasing.
+- [ ] **Replace Psi + Probatio's real Promptus** — AWAITING operator review. On go: `promptus-doctor migrate --apply` in each real repo (commit/stash their WIP first so the moves read as renames). The per-repo `docs/` call is settled: bring it all under `.promptus/docs/` (it stays retrievable as `finding:?`).
+- [ ] **Retrieval economy** — real needles returned 189–218 hits/query (body-grep matches every ledger card). Build `kb-get` / `kb-find --snippet/--limit`. No longer parked-on-spec; a measured need.
+- [ ] **Ops:** promote `tests (windows-latest)` / `(macos-latest)` to required checks on `main`.
 
 ## Next actions
-1. Review PR #2 (namespace + test hardening + `kb-now`); merge (0 approvals) and tag `v0.2.0` to release.
-2. After merge: add the `tests (windows-latest)` / `tests (macos-latest)` checks to main's required status checks.
-3. Re-migrate Psi + Probatio to the `.promptus/` layout.
-4. Build the overnight-handoff renderer when there's room.
+1. Tag `v0.3.0` → release.yml publishes; confirm green.
+2. Report to the operator; await review + the go-ahead to replace Psi/Probatio's Promptus.
+3. On go, run the doctor on the real repos (additive; their WIP committed/stashed first).
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.2.0 is on a PR branch** (`feat/promptus-namespace-layout`, PR #2), not yet merged. It
-moves the whole knowledge system under one `.promptus/` namespace (`.promptus/{TELOS.md, ledger/,
-docs/ (+ lit/), memory/, schema/}`, derived index at `.promptus/cache/`), **hardens the suite**
-(`robustness.test.ts`, 21 tests — substrate fidelity, cross-OS, path resolution, corruption, `kb-now`
-— plus a Windows/macOS CI matrix, which caught and fixed a real CRLF-ledger bug), and adds **`kb-now`**:
-the gated NOW-header writer that owns the `Updated:` stamp and writes a bounded replacement between
-the `now:` markers, so nothing in the ledger is freehand (the protect-gate blocks a hand-set stamp).
-`bun test` **43 pass**; validator clean. **Next:** CI green (incl. the Windows/macOS legs), then merge
-(0 approvals) + tag `v0.2.0`; afterwards re-migrate Psi/Probatio and promote the cross-OS checks to
-required. v0.1.1 and v0.1.0 are released and marketplace-installable
-(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). Read
-`.promptus/TELOS.md`, then this header, then the Log.
+Promptus **v0.3.0 ships the doctor** (`scripts/promptus-doctor.ts` + `/promptus-doctor`): a
+version-aware check/migrate that relocates a 0.1.x or custom layout to the canonical `.promptus/`
+namespace without touching unit content, narrowing the `.gitignore` so the stores stay committed.
+Dogfooded on sandbox copies of Psi (legacy-root, 191 units) and Probatio (custom — ledger + telos
+inside `docs/`, 248 units): originals byte-for-byte untouched, every needle retrievable. The
+release (PR → `main` → tag `v0.3.0`) is the last mechanical step. **The next real-world action
+needs the operator's go-ahead:** run `promptus-doctor migrate --apply` on the REAL Psi + Probatio
+(both carry heavy uncommitted WIP — commit or stash first so the moves read as renames). Then build
+the now-measured retrieval economy (`kb-get`). Read `.promptus/TELOS.md`, then this header, then the Log.
 
 <!-- now:end -->
 
@@ -171,5 +148,32 @@ Patch release. plugin.json -> 0.1.1; CHANGELOG renamed [Unreleased] to [0.1.1]. 
 
 ### [2026-06-28 20:14:48] RESULT/VALIDATED — Namespaced the stores under .promptus/ (v0.2.0) and hardened the test suite
 Moved the four stores plus the vocab under one .promptus/ namespace (derived index -> .promptus/cache/); the repo root now holds only the product (skills/scripts/commands/agents/hooks/templates). One folder is collision-proof in a host repo. Updated path resolution, the protect-gate hook, .gitignore, the templates, the init/adoption flow, and every doc/skill path reference; re-pointed the test scaffold. Added robustness.test.ts (16 tests across substrate fidelity, cross-OS, path resolution, and corruption) plus a Windows/macOS CI matrix. The cross-OS tests caught a real bug -- a CRLF ledger dropped every entry because the .+$ parser never matches across \r\n -- fixed by normalizing line endings in kb-index. 38 tests pass; validator clean. Breaking change -> v0.2.0; Psi and Probatio need re-migration. Built on a PR branch (main is protected).
+
+### [2026-06-28 20:57:56] RESULT/VALIDATED — Released v0.2.0 (PR #2 merged, tagged, GitHub release published)
+PR #2 merged to main (merge commit 3d30c5b, conventional history preserved, not squashed); tagged v0.2.0; release.yml published green (validator + 43 tests + tag==plugin.json + non-empty [0.2.0] changelog). Marketplace-installable. v0.2.0 = the .promptus/ namespace (stores under one folder, derived cache at .promptus/cache/), kb-now, test hardening (43 tests), a Windows/macOS CI matrix, and the CRLF-ledger fix that matrix caught.
+
+### [2026-06-28 20:57:56] DECISION/VALIDATED — kb-now is a separate gated script, not a kb-add mode
+kb-add appends immutable, id'd, vocab-gated units; the NOW-header is the opposite (overwrite-in-place, no id, free prose). Different verb, shared lib/ -- a kb-add --header flag would fork kb-add's clean contract. kb-now owns the Updated stamp (clock, local), checks the required sections, writes a bounded replacement between the now: sentinels, atomically. Closes the one freehand carve-out in the ledger; the protect-gate now blocks a hand-set stamp.
+
+### [2026-06-28 20:57:56] DECISION/VALIDATED — Next (v0.3.0): build kb-migrate / promptus-doctor before migrating Psi/Probatio
+A version-aware tool with modes check (doctor) / migrate / update, dry-run-first, over a small migration registry (DB-migrations for the knowledge base). Crux it must surface not decide: a docs/ classifier (promptus-unit frontmatter id/substrate/status vs the project's own file) so it never moves research notes. Build as v0.3.0 now that v0.2.0 ships, then use it to migrate Psi/Probatio.
+
+### [2026-06-28 20:57:56] FINDING/VALIDATED — Psi and Probatio docs/ are intermingled with the projects' own research
+Inspected both: Psi's docs/ (contour-*, dimension-typing, ...) and Probatio's docs/ are the projects' OWN research notes, not kb-add findings; Probatio uses a custom layout (docs/research-ledger.md, docs/telos.md). Both carry heavy uncommitted WIP. A blind git mv docs .promptus/docs would bury research notes. Open per-repo call: move docs/ under .promptus/, or namespace only ledger/schema/memory/TELOS while docs/ stays. Constraint: additive, do not commit there (operator parks).
+
+### [2026-06-28 20:57:56] IDEA/CONJECTURED — Retrieval economy: the body-fetch is the token sink, not discovery
+kb-find already returns one-line headers (the catalog stays in-script, not in agent context). The token sink is recall reading whole files -- worst case the ledger (one file, N entries; reading one entry swallows all N). Fix = kb-get (fetch one unit's body by ref; a ledger anchor -> just that entry) + kb-find --snippet (matching excerpt inline) + --limit. Parked: operator observing the current setup before investing.
+
+### [2026-06-28 21:25:01] RESULT/VALIDATED — v0.3.0: built promptus-doctor (version-aware check/migrate, dry-run default)
+promptus-doctor built: `check` diagnoses layout/version/health (is the gate reachable? is .promptus/ broadly gitignored?); `migrate` is dry-run-first, `--apply` moves stores to the canonical .promptus/ layout, upgrades the vocab (preserving custom terms), narrows the .gitignore, and reindexes. It NEVER edits a unit's content. 16 doctor tests, 59 green overall.
+
+### [2026-06-28 21:25:01] DECISION/VALIDATED — doctor normalizes legacy+custom layouts to canonical; narrows .gitignore so stores stay committed
+Normalize BOTH legacy-root (Psi: stores at repo root) and custom docs/-intermingled (Probatio: ledger+telos inside docs/) to the canonical .promptus/ layout, routing the ledger and telos out of docs/. The .promptus/ collision (0.1.x used it for the gitignored derived cache; 0.2.0 uses it for the committed namespace) is handled by dropping the stale cache and narrowing /.promptus/ to /.promptus/cache/ — else migration would silently gitignore the whole knowledge base.
+
+### [2026-06-28 21:25:01] RESULT/VALIDATED — dogfood: doctor migrated Psi+Probatio copies clean; originals untouched; needles pass
+Migrated COPIES in a sandbox (never the originals): Psi (legacy-root, 191 units) and Probatio (custom, 248 units). Originals byte-identical afterward (ledger sha256 unchanged, root schema untouched, no .promptus/schema created). 12/12 needle facts retrievable post-migration — ledger numbers/methods and frontmatter-less project notes (indexed as finding:?).
+
+### [2026-06-28 21:25:01] FINDING/VALIDATED — real-data needles confirm the retrieval-economy need (parked kb-get/--snippet)
+Each real-data needle returned 189-218 hits: the kb-find body-grep matches every ledger card because they share one file. Retrieval works (the needle always surfaces) but is noisy. This is direct evidence FOR the parked retrieval-economy work — kb-get / kb-find --snippet/--limit — to stop swallowing the whole ledger per query.
 
 <!-- kb:append-point -->
