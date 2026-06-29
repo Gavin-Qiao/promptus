@@ -100,6 +100,45 @@ test("fidelity: a query that matches nothing says so, it does not invent a hit",
   expect(r.stdout).not.toContain("alpha");
 });
 
+// ---- Recursion: notes in subdirectories are indexed, with no double-index ----
+
+test("recursion: a finding in a docs/ subdirectory is indexed (the subdir blind spot)", () => {
+  const root = scaffold();
+  mkdirSync(join(root, ".promptus", "docs", "positioning"), { recursive: true });
+  writeFileSync(join(root, ".promptus", "docs", "positioning", "audit.md"), "# Positioning audit\n\nneedle qzx987.\n");
+  index(root);
+  expect(catalog(root)).toContain("Positioning audit");                   // indexed, not skipped
+  expect(find(root, ["qzx987"]).stdout).toContain("positioning/audit.md"); // and retrievable
+});
+
+test("recursion: the lit store is not double-indexed when the finding walk recurses into it", () => {
+  const root = scaffold();
+  add(root, ["--substrate", "lit", "--kind", "PAPER", "--status", "CITE", "--title", "solo paper", "--source", "arXiv:9"], "z");
+  index(root);
+  const lines = catalog(root).split(/\r?\n/).filter((l) => l.includes("solo-paper.md"));
+  expect(lines.length).toBe(1);                    // exactly once, not also as a finding
+  expect(lines[0].startsWith("lit:")).toBe(true);  // owned by the more-specific lit store
+});
+
+test("recursion: a README in a store dir is navigation, not an indexed unit", () => {
+  const root = scaffold();
+  writeFileSync(join(root, ".promptus", "docs", "README.md"), "# Findings index\n\njust a pointer.\n");
+  add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", "real one"], "r");
+  index(root);
+  expect(catalog(root)).toContain("real one");
+  expect(catalog(root)).not.toContain("Findings index"); // README skipped
+});
+
+test("recursion: an archive/ subdir is cold storage and stays unindexed (no bloat re-entry)", () => {
+  const root = scaffold();
+  mkdirSync(join(root, ".promptus", "docs", "ledger", "archive"), { recursive: true });
+  writeFileSync(join(root, ".promptus", "docs", "ledger", "archive", "old.md"), "# Retired continuation\n\nold stuff.\n");
+  add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", "active note"], "a");
+  index(root);
+  expect(catalog(root)).toContain("active note");
+  expect(catalog(root)).not.toContain("Retired continuation"); // archive/ is left cold
+});
+
 // ---- Cross-OS / encoding ----
 
 test("cross-os: a CRLF ledger still parses (Windows autocrlf must not drop entries)", () => {
