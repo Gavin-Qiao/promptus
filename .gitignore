@@ -1,5 +1,6 @@
-# Derived, disposable knowledge index — rebuilt by scripts/kb-index.ts
-/.promptus/
+# Derived, disposable knowledge index — rebuilt by scripts/kb-index.ts.
+# Everything else under .promptus/ (the stores) is committed; only the cache is derived.
+/.promptus/cache/
 
 # Node / bun
 node_modules/

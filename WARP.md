@@ -7,14 +7,14 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 **Promptus** — a file-based research knowledge system for Claude Code: store / keep /
 retrieve a project's knowledge as gated markdown, and render it for an audience. The
 [`humanizer`](skills/humanizer/SKILL.md) writing skill (a fork of blader/humanizer) is
-one renderer in the box. See [`TELOS.md`](TELOS.md) for the north star + the invariant and
+one renderer in the box. See [`.promptus/TELOS.md`](.promptus/TELOS.md) for the north star + the invariant and
 [`README.md`](README.md) for the overview.
 
 ## Source of truth
 
 - **Behavior** lives in two places: the `scripts/` (the KAG mechanics — TypeScript on bun)
   and the `skills/` + `commands/` + `agents/` (the markdown that tells the agent how to use
-  them). `schema/kb-vocab.json` is the controlled vocab the writer-jig validates against.
+  them). `.promptus/schema/kb-vocab.json` is the controlled vocab the writer-jig validates against.
 - **Markdown is the only source of truth** for stored knowledge; `.promptus/` (the catalog +
   graph) is derived, gitignored, and rebuilt by `kb-index` — never hand-edit it.
 
@@ -42,6 +42,6 @@ bun scripts/kb-find.ts "<query>"        # retrieve header-first
 - Conventional Commits `type(scope):` + a flat `-` bullet body; **omit** `Co-Authored-By`.
 - Never `--no-verify`. Forward-slash paths. Don't commit or push unless asked.
 - Scripts: TypeScript on bun (`#!/usr/bin/env bun`); stdlib-first; `bun:sqlite` only past a
-  measured threshold (see the invariant in `TELOS.md`).
+  measured threshold (see the invariant in `.promptus/TELOS.md`).
 - Promptus is GPL-3.0 (© 2026 Mohan Qiao). The `skills/humanizer` fork incorporates Part I from
   blader/humanizer (© 2025 Siqi Chen, MIT); that upstream MIT notice is preserved in `NOTICE`.

@@ -16,7 +16,7 @@ NOW-header); load it if you need the spec. Work from facts; never invent entries
    echo "<body>" | bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate <s> --kind <K> --status <S> --title "…"
    ```
    Lead with the dead-ends and mistakes — those are the ones that get skipped. Be terse.
-3. **Refresh the NOW-header** of `ledger/RESEARCH-LEDGER.md` so a resuming self is current:
+3. **Refresh the NOW-header** of `.promptus/ledger/RESEARCH-LEDGER.md` so a resuming self is current:
    the `Updated:` stamp, `NOW`, `Open frontier`, and the `<<< RESUME HERE AFTER COMPACTION >>>`
    paragraph. Hand-edit only the header — never a `### [ts]` log line.
 4. **Reconcile memory** only where the session clearly settled or overturned a fact

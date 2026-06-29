@@ -18,9 +18,9 @@
  * Envelope is substrate-aware:
  *   ledger  → `### [YYYY-MM-DD HH:MM:SS] KIND/STATUS — title` (local) before the sentinel,
  *             with any relations as `↳ <type> <target>` footer lines.
- *   finding → docs/<slug>.md          : frontmatter (incl. relations) + `# title` + body
- *   lit     → docs/lit/<slug>.md       : same, requires --source
- *   memory  → memory/<slug>.md + a `- [title](slug.md) — hook` line in memory/MEMORY.md
+ *   finding → .promptus/docs/<slug>.md       : frontmatter (incl. relations) + `# title` + body
+ *   lit     → .promptus/docs/lit/<slug>.md   : same, requires --source
+ *   memory  → .promptus/memory/<slug>.md + a `- [title](slug.md) — hook` line in .promptus/memory/MEMORY.md
  *
  * The gate refuses an off-vocab unit on a STRICT substrate (finding/lit/memory) and
  * WARNS-but-writes on the PERMISSIVE ledger — printing the allowed set, commit-msg-hook

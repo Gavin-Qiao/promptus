@@ -10,7 +10,7 @@ the toolbox and using it.
 
 ## Cadence (once the spine is implemented)
 
-1. **Read `TELOS.md` first.** It holds the north star and the invariant that never bends.
+1. **Read `.promptus/TELOS.md` first.** It holds the north star and the invariant that never bends.
 2. **Store as you go.** Don't hand-edit the ledger or `docs/`. Every unit goes in
    through the gated writer-jig:
    ```
@@ -38,7 +38,7 @@ the toolbox and using it.
 ## Layout
 
 - `scripts/` — the KAG mechanics (kb-add / kb-index / kb-find + `lib/`).
-- `schema/kb-vocab.json` — the controlled vocab the writer-jig validates against.
+- `.promptus/schema/kb-vocab.json` — the controlled vocab the writer-jig validates against.
 - `skills/` — reasoning: `promptus` (orchestrator), `humanizer` (real), `recall`,
   `grannie`, `research-ledger`, `telos`.
 - `commands/` — `checkpoint`, `promptus-init`.

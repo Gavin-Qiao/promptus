@@ -43,7 +43,7 @@ renderer states `VALIDATED` plainly, hedges `CONJECTURED`, and admits a `DEADEND
 When the corpus becomes hundreds–thousands of *papers* (not one project's notes), the header
 catalog stops fitting one read and the deferred machinery turns on, each past a measured
 threshold, into the existing seams: `kb-ingest` (schema-constrained extraction) → embeddings as
-a pre-filter scoped to `docs/lit` → a latent-link linter at checkpoint → graph algorithms as
+a pre-filter scoped to `.promptus/docs/lit` → a latent-link linter at checkpoint → graph algorithms as
 scripts (personalized-PageRank related-work, GraphRAG-style community summaries) → RAPTOR-style
 summary tiers → mutual-index hardening for sentence-level citation. The invariant still governs:
 markdown stays truth, indexes stay derived, scripts beat servers, machinery turns on by measurement.

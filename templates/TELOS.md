@@ -11,10 +11,10 @@
 
 | store | path | retrieve it to… |
 |---|---|---|
-| **Telos** | `TELOS.md` | know the direction |
-| **Ledger** | `ledger/RESEARCH-LEDGER.md` | reconstruct what happened & why |
-| **Knowledge** | `docs/` + `docs/lit/` | ground a claim |
-| **Memory** | `memory/MEMORY.md` (per-project) | not relearn what was settled |
+| **Telos** | `.promptus/TELOS.md` | know the direction |
+| **Ledger** | `.promptus/ledger/RESEARCH-LEDGER.md` | reconstruct what happened & why |
+| **Knowledge** | `.promptus/docs/` + `.promptus/docs/lit/` | ground a claim |
+| **Memory** | `.promptus/memory/MEMORY.md` (per-project) | not relearn what was settled |
 
 ## Rules that never bend (the invariant)
 

@@ -1,10 +1,10 @@
 {
   "version": 3,
-  "_doc": "Hybrid vocab: three orthogonal facets (KIND = the act/event, STATUS = the claim's epistemic state, RELATION = a typed link). Each substrate has a closed `core` plus a `extended` set of blessed terms; `policy` decides what happens to anything off-vocab — `permissive` warns and writes (the lab-notebook ledger), `strict` refuses (the curated library: finding/lit/memory). Grounded in PROV-O / BFO (act vs. claim), CiTO (relations), and the null-results + hedging literature. See docs/vocab-grounding-no-single-standard-recommend-a-hybrid-gate.md.",
+  "_doc": "Hybrid vocab: three orthogonal facets (KIND = the act/event, STATUS = the claim's epistemic state, RELATION = a typed link). Each substrate has a closed `core` plus a `extended` set of blessed terms; `policy` decides what happens to anything off-vocab — `permissive` warns and writes (the lab-notebook ledger), `strict` refuses (the curated library: finding/lit/memory). Grounded in PROV-O / BFO (act vs. claim), CiTO (relations), and the null-results + hedging literature. See .promptus/docs/vocab-grounding-no-single-standard-recommend-a-hybrid-gate.md.",
   "substrates": {
     "ledger": {
       "prefix": "event",
-      "store": "ledger/RESEARCH-LEDGER.md",
+      "store": ".promptus/ledger/RESEARCH-LEDGER.md",
       "placement": "sentinel",
       "envelope": "log",
       "policy": "permissive",
@@ -19,7 +19,7 @@
     },
     "finding": {
       "prefix": "finding",
-      "store": "docs",
+      "store": ".promptus/docs",
       "placement": "file",
       "envelope": "page",
       "policy": "strict",
@@ -28,7 +28,7 @@
     },
     "lit": {
       "prefix": "lit",
-      "store": "docs/lit",
+      "store": ".promptus/docs/lit",
       "placement": "file",
       "envelope": "page",
       "policy": "strict",
@@ -38,10 +38,10 @@
     },
     "memory": {
       "prefix": "memory",
-      "store": "memory",
+      "store": ".promptus/memory",
       "placement": "file",
       "envelope": "memory",
-      "index": "memory/MEMORY.md",
+      "index": ".promptus/memory/MEMORY.md",
       "policy": "strict",
       "kinds": { "core": ["user", "feedback", "project", "reference"], "extended": [] },
       "statuses": { "core": ["validated", "provisional", "retired"], "extended": [] }

@@ -9,9 +9,9 @@
  *     ≡ kb-add --substrate ledger --kind <K> --status <S> --title "<t>" [...]
  *
  * Note (migration): the original `ledger-append.mjs` (node) took `--ledger <path>`;
- * this resolves the ledger from the project root (nearest TELOS.md) instead. Update
+ * this resolves the ledger from the project root (the nearest `.promptus/`) instead. Update
  * any AGENTS.md that still calls `node …/ledger-append.mjs --ledger …` when you
- * adopt Promptus in a repo (see docs/adoption.md).
+ * adopt Promptus in a repo (see .promptus/docs/adoption.md).
  */
 
 import { spawnSync } from "node:child_process";

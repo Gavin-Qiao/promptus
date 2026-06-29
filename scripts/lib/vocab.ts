@@ -1,5 +1,5 @@
 /**
- * vocab.ts — load schema/kb-vocab.json and enforce the gate.
+ * vocab.ts — load .promptus/schema/kb-vocab.json and enforce the gate.
  *
  * Three orthogonal facets: KIND (the act/event), STATUS (the claim's epistemic
  * state), RELATION (a typed link). Each substrate carries a closed `core` plus a
@@ -13,7 +13,7 @@
  * docs/vocab-grounding-no-single-standard-recommend-a-hybrid-gate.md.
  *
  * Contract:
- *   loadVocab(root):       parse <root>/schema/kb-vocab.json into a typed Vocab.
+ *   loadVocab(root):       parse <root>/.promptus/schema/kb-vocab.json into a typed Vocab.
  *   validate(vocab, unit): { ok: true, warnings } | { ok: false, error, allowed? }
  */
 
@@ -82,7 +82,18 @@ export type ValidateResult =
 export const known = (s: KindStatusSet): string[] => [...s.core, ...s.extended];
 
 export function loadVocab(root: string): Vocab {
-  return JSON.parse(readFileSync(join(root, "schema", "kb-vocab.json"), "utf8")) as Vocab;
+  const p = join(root, ".promptus", "schema", "kb-vocab.json");
+  let text: string;
+  try {
+    text = readFileSync(p, "utf8");
+  } catch {
+    throw new Error(`vocab not found: ${p} — run /promptus-init to scaffold it`);
+  }
+  try {
+    return JSON.parse(text) as Vocab;
+  } catch (e) {
+    throw new Error(`malformed vocab ${p}: ${(e as Error).message}`);
+  }
 }
 
 export function validate(vocab: Vocab, unit: UnitInput): ValidateResult {
@@ -101,7 +112,7 @@ export function validate(vocab: Vocab, unit: UnitInput): ValidateResult {
     if (sub.policy === "permissive") {
       warnings.push(
         `${facet} "${value}" isn't in the ${unit.substrate} vocab — writing anyway; ` +
-          `add it to schema/kb-vocab.json if it's here to stay`,
+          `add it to .promptus/schema/kb-vocab.json if it's here to stay`,
       );
       return false;
     }

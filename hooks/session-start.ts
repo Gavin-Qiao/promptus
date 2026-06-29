@@ -33,5 +33,5 @@ if (!block) process.exit(0);
 const title = (lines.find((l) => /^# /.test(l)) || "# Research Ledger").replace(/^#\s*/, "").trim();
 process.stdout.write(
   `Promptus — resuming "${title}". Current state, from the ledger NOW-header ` +
-    `(read the full ledger/RESEARCH-LEDGER.md and TELOS.md before acting):\n\n${block}\n`,
+    `(read the full .promptus/ledger/RESEARCH-LEDGER.md and .promptus/TELOS.md before acting):\n\n${block}\n`,
 );

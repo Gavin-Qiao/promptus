@@ -81,7 +81,7 @@ for (const s of entries("skills")) {
 }
 
 // 4. Controlled vocabulary must parse.
-if (readJSON("schema/kb-vocab.json")) pass("schema/kb-vocab.json");
+if (readJSON("templates/schema/kb-vocab.json")) pass("templates/schema/kb-vocab.json");
 
 // 5. Hooks (optional) — the manifest parses and every referenced script exists.
 if (existsSync(join(root, "hooks", "hooks.json"))) {

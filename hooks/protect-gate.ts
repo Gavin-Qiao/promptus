@@ -37,16 +37,16 @@ function deny(reason: string): never {
 const KB_ADD =
   'echo "<body>" | bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-add.ts" --substrate <s> --kind <K> --status <S> --title "…"';
 
-// 1. The derived index is never hand-edited.
-if (rel === ".promptus" || rel.startsWith(".promptus/")) {
+// 1. The derived cache is never hand-edited (the rest of .promptus/ is the committed store).
+if (rel === ".promptus/cache" || rel.startsWith(".promptus/cache/")) {
   deny(
-    "`.promptus/` is the derived index — never hand-edit it. " +
+    "`.promptus/cache/` is the derived index — never hand-edit it. " +
       'It is rebuilt by `bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-index.ts"`.',
   );
 }
 
 // 2. The ledger: log entries go through the gate; only the NOW-header is hand-editable.
-if (rel === "ledger/RESEARCH-LEDGER.md") {
+if (rel === ".promptus/ledger/RESEARCH-LEDGER.md") {
   if (tool === "Write") {
     deny(`Don't overwrite the ledger. New entries go through the gate:\n  ${KB_ADD}\nOnly the NOW-header is hand-editable, at /promptus:checkpoint.`);
   }

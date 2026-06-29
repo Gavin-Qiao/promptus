@@ -101,10 +101,10 @@ resolve them via `${CLAUDE_PLUGIN_ROOT}`.) Before you compact a session,
 
 | store | path | example tag |
 |---|---|---|
-| Telos | `TELOS.md` | — (direction) |
-| Ledger | `ledger/RESEARCH-LEDGER.md` | `ledger:DEADEND` |
-| Knowledge | `docs/` (findings) + `docs/lit/` (literature) | `finding:VALIDATED`, `lit:CITE` |
-| Memory | `memory/` (one file per fact) | `memory:validated` |
+| Telos | `.promptus/TELOS.md` | — (direction) |
+| Ledger | `.promptus/ledger/RESEARCH-LEDGER.md` | `ledger:DEADEND` |
+| Knowledge | `.promptus/docs/` (findings) + `.promptus/docs/lit/` (literature) | `finding:VALIDATED`, `lit:CITE` |
+| Memory | `.promptus/memory/` (one file per fact) | `memory:validated` |
 
 **Three verbs** — the mechanics are scripts, the reasoning is skills:
 
@@ -114,7 +114,7 @@ resolve them via `${CLAUDE_PLUGIN_ROOT}`.) Before you compact a session,
   off-vocab input is refused with the allowed set), *permissive* for the lab-notebook ledger (an
   off-vocab kind/status is warned about but still written). `kb-export` emits the relation graph as
   CiTO/PROV-O JSON-LD.
-- **KEEP** → `scripts/kb-index.ts` (rebuild the derived `.promptus/CATALOG.md` card-catalog +
+- **KEEP** → `scripts/kb-index.ts` (rebuild the derived `.promptus/cache/CATALOG.md` card-catalog +
   `graph.json`, resolve supersedes, lint orphans / unresolved links) + `/promptus:checkpoint`.
 - **RETRIEVE** → `scripts/kb-find.ts` (header-first: read the card-catalog, grep bodies, walk the
   `[[link]]` graph, filter by status) + the `recall` skill (decompose → retrieve →
@@ -135,10 +135,10 @@ inventing it:
 When the corpus becomes hundreds–thousands of *papers* (not one project's notes), the header
 catalog stops fitting one read and the deferred machinery turns on — each past a measured
 threshold, into the existing seams: schema-constrained ingestion → embeddings as a pre-filter
-scoped to `docs/lit` → a latent-link linter → graph algorithms (personalized-PageRank,
+scoped to `.promptus/docs/lit` → a latent-link linter → graph algorithms (personalized-PageRank,
 community summaries) → recursive summary tiers. The invariant still governs. The full roadmap and
-the prior-art audit are in [`docs/report.md`](docs/report.md) and
-[`docs/promptus-vs-kag-coverage.md`](docs/promptus-vs-kag-coverage.md).
+the prior-art audit are in [`.promptus/docs/report.md`](.promptus/docs/report.md) and
+[`.promptus/docs/promptus-vs-kag-coverage.md`](.promptus/docs/promptus-vs-kag-coverage.md).
 
 ## Commands & skills
 
@@ -163,10 +163,10 @@ unsourced or over-confident claims, checking each against the store.
 ## Hooks (optional)
 
 When the plugin is enabled, four hooks activate — each a strict no-op outside a
-Promptus-initialized repo (no `TELOS.md` / ledger), so other projects are untouched:
+Promptus-initialized repo (no `.promptus/` project), so other projects are untouched:
 
 - **SessionStart** injects the ledger's NOW-header, so a resuming agent wakes up oriented.
-- **PreToolUse** blocks freehand writes that add a `### [ts]` log line or touch `.promptus/`,
+- **PreToolUse** blocks freehand writes that add a `### [ts]` log line or touch `.promptus/cache/`,
   pointing at `kb-add` — the gate, enforced. Editing the NOW-header (at `/promptus:checkpoint`)
   stays allowed.
 - **PostToolUse** re-runs `kb-index` after a `kb-add`, so the derived catalog never drifts.
@@ -179,13 +179,12 @@ the plugin's hooks in your Claude Code settings.
 
 ```
 scripts/    kb-add · kb-index · kb-find · kb-export · ledger-append · validate-plugin · changelog · lib/ · test/
-schema/     kb-vocab.json — the controlled vocab the gate validates against
 skills/     promptus (orchestrator) · humanizer · recall · grannie · research-ledger · telos
 commands/   help · checkpoint · promptus-init
 agents/     grounded-writing-reviewer
 hooks/      session-start · protect-gate · auto-index · checkpoint-nudge (+ hooks.json)
-templates/  the per-project four-store scaffolds
-docs/       Promptus's own knowledge (report, adoption, the KAG coverage audit)
+templates/  the per-project scaffolds (incl. the default schema/kb-vocab.json)
+.promptus/  Promptus using itself — TELOS · ledger · docs (findings + lit) · memory · schema (cache/ is derived)
 ```
 
 ## Development
@@ -196,8 +195,8 @@ bun run check                  # plugin validator + tests
 claude plugin validate         # the full plugin check (needs the Claude CLI)
 ```
 
-Promptus **dogfoods** its own methodology: it maintains its own `TELOS.md`, ledger, and `docs/`
-through its own scripts. If the toolbox can't hold its own design history, it isn't ready.
+Promptus **dogfoods** its own methodology: it maintains its own `.promptus/` stores (TELOS, ledger,
+docs, memory) through its own scripts. If the toolbox can't hold its own design history, it isn't ready.
 Contributions go through `.pre-commit-config.yaml` (hygiene on commit, validator + tests on push)
 and CI. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the conventions and
 [`RELEASING.md`](RELEASING.md) for how releases are cut; changes are recorded in
