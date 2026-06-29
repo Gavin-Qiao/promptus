@@ -1,6 +1,6 @@
 {
   "name": "promptus",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A file-based research knowledge system: store / keep / retrieve what a project knows as gated markdown, and render it for an audience (humanizer, grannie). Includes the humanizer skill.",
   "author": {
     "name": "Mohan Qiao",
