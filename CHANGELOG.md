@@ -17,6 +17,48 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-28
+
+### Added
+
+- **Robustness test suite** (`scripts/test/robustness.test.ts`, 16 tests): substrate fidelity (no
+  phantom or silently-dropped units; status preserved verbatim as the calibration source), cross-OS
+  encoding (CRLF, forward-slash paths, non-ASCII titles), path resolution (relative `--root`, a
+  subdirectory, spaces, cwd fallback), and corruption resilience (bad vocab, a missing sentinel,
+  broken frontmatter, a corrupt cache).
+- **CI runs on Windows and macOS** in addition to Linux, so the cross-OS code paths are exercised on
+  real runners.
+
+### Changed
+
+- **BREAKING — the knowledge system now lives under one `.promptus/` namespace.** A project's
+  stores moved off the repo root into `.promptus/`: `.promptus/TELOS.md`,
+  `.promptus/ledger/RESEARCH-LEDGER.md`, `.promptus/docs/` (+ `docs/lit/`), `.promptus/memory/`,
+  and `.promptus/schema/kb-vocab.json`. The derived index dropped to `.promptus/cache/`. One folder
+  is collision-proof in a host repo (it no longer clobbers the host's own `docs/`, `memory/`, or
+  schema) and cleanly separates "the Promptus product" from "Promptus using itself." `AGENTS.md`
+  stays at the repo root, where agents look for it.
+- `findProjectRoot` now marks the root by `.promptus/schema/kb-vocab.json` (or `.promptus/TELOS.md`);
+  `kb-add` / `kb-index` / `kb-find` / `kb-export` read and write the catalog at `.promptus/cache/`;
+  the PreToolUse hook guards `.promptus/cache/` (not the whole namespace) plus the relocated ledger.
+- `.gitignore` now ignores only `/.promptus/cache/` — the stores under `.promptus/` are committed.
+- The shipped default vocab moved to `templates/schema/kb-vocab.json` (what `/promptus-init` copies in).
+
+### Fixed
+
+- **A CRLF ledger no longer drops its entries.** `kb-index` normalizes line endings before parsing,
+  so a ledger checked out with `core.autocrlf=true` (Windows) is parsed correctly instead of
+  silently yielding an empty catalog. Surfaced by the new cross-OS tests.
+- **`loadVocab` reports a clear error** for a missing or malformed `.promptus/schema/kb-vocab.json`
+  instead of a raw parser stack trace.
+
+### Migration (from 0.1.x)
+
+Move a 0.1.x repo's stores under `.promptus/` and its vocab to `.promptus/schema/kb-vocab.json`
+(prefix the vocab's `store` paths with `.promptus/`), then swap `/.promptus/` for `/.promptus/cache/`
+in `.gitignore`. `git mv` keeps history; re-run `kb-index` to rebuild the cache. Full checklist in
+`.promptus/docs/adoption.md`.
+
 ## [0.1.1] - 2026-06-28
 
 ### Added
