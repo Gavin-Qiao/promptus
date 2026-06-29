@@ -17,6 +17,33 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-29
+
+### Added
+
+- **`kb-ingest` — the CURATE verb** (`scripts/kb-ingest.ts`, command `/promptus-ingest`). Gives
+  already-collected deep-research notes the `source` the `lit` substrate requires, deriving it **only
+  from what is already recorded** and **flagging — never inventing** — when nothing is. Two modes,
+  dry-run by default:
+  - **`backfill`** — for notes already in `.promptus/docs/lit/`: prepend `lit` frontmatter, deriving
+    `source` from a deep-research run-id in the ledger or the note's own `## Citation` / `## References`
+    section. The body is never touched.
+  - **`promote`** — reclassify a genuinely-external note out of the finding store into `docs/lit/`,
+    replacing any stale frontmatter (it won't stack a second block) and fixing the relative links the
+    move breaks. The classification (`lit` vs `finding`) stays the operator's call.
+- **Ingest test suite** (`scripts/test/ingest.test.ts`, 13 tests) including the adversarial
+  regressions an audit surfaced — double-frontmatter on promote, a `## Source of …` content heading
+  mistaken for a citation, a case-mismatched link rewrite, an off-vocab `--kind`, and the run-id
+  false-positive guard — each locked with a test.
+
+### Notes
+
+- Dogfooded across all three repos (on sandbox copies; originals untouched): **Promptus** — a clean
+  no-op (its lit already carries sources); **Psi** — 32 of 37 lit notes sourced (6 via ledger run-id,
+  26 via own citation), 5 honestly flagged as needing a manual source; **Probatio** — 12 lit units
+  after an operator-signed-off `lit`-vs-`finding` pass that also surfaced 6 external positioning notes
+  previously unindexed in a `docs/` subdir.
+
 ## [0.3.0] - 2026-06-28
 
 ### Added
@@ -198,7 +225,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.0...v0.1.1
