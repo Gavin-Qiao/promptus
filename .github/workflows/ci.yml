@@ -27,6 +27,21 @@ jobs:
       - name: Run tests
         run: bun test
 
+  cross-os:
+    name: tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Run tests
+        run: bun test
+
   lint:
     name: pre-commit (hygiene)
     runs-on: ubuntu-latest
