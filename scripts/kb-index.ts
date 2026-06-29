@@ -49,7 +49,7 @@ function mdFiles(dir: string): string[] {
 function parseLedger(root: string, store: string): Unit[] {
   const file = join(root, store);
   if (!existsSync(file)) return [];
-  const text = readFileSync(file, "utf8");
+  const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const re = /^### \[([^\]]+)\] ([^\n—]+?) — (.+)$/gm;
   const heads: Array<{ ts: string; ks: string; title: string; idx: number }> = [];
   let m: RegExpExecArray | null;
@@ -64,7 +64,7 @@ function parseLedger(root: string, store: string): Unit[] {
 }
 
 function parsePage(root: string, substrate: string, file: string): Unit {
-  const text = readFileSync(file, "utf8");
+  const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const { data, body } = parseFrontmatter(text);
   const slug = file.replace(/\\/g, "/").split("/").pop()!.replace(/\.md$/, "");
   const h1 = /^#\s+(.+)$/m.exec(body);

@@ -36,27 +36,33 @@ function deny(reason: string): never {
 
 const KB_ADD =
   'echo "<body>" | bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-add.ts" --substrate <s> --kind <K> --status <S> --title "…"';
+const KB_NOW =
+  'echo "<## NOW … RESUME>" | bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-now.ts" --note "<short>"';
 
-// 1. The derived index is never hand-edited.
-if (rel === ".promptus" || rel.startsWith(".promptus/")) {
+// 1. The derived cache is never hand-edited (the rest of .promptus/ is the committed store).
+if (rel === ".promptus/cache" || rel.startsWith(".promptus/cache/")) {
   deny(
-    "`.promptus/` is the derived index — never hand-edit it. " +
+    "`.promptus/cache/` is the derived index — never hand-edit it. " +
       'It is rebuilt by `bun "$CLAUDE_PLUGIN_ROOT/scripts/kb-index.ts"`.',
   );
 }
 
-// 2. The ledger: log entries go through the gate; only the NOW-header is hand-editable.
-if (rel === "ledger/RESEARCH-LEDGER.md") {
+// 2. The ledger: log entries go through kb-add, the NOW-header through kb-now. Nothing freehand.
+if (rel === ".promptus/ledger/RESEARCH-LEDGER.md") {
   if (tool === "Write") {
-    deny(`Don't overwrite the ledger. New entries go through the gate:\n  ${KB_ADD}\nOnly the NOW-header is hand-editable, at /promptus:checkpoint.`);
+    deny(`Don't overwrite the ledger. Log entries go through kb-add; the NOW-header through kb-now:\n  ${KB_ADD}\n  ${KB_NOW}`);
   }
   if (tool === "Edit" || tool === "MultiEdit") {
     const adds = (s: string) => /(^|\n)### \[/.test(s || "");
+    const stamps = (s: string) => /\*\*Updated:\*\*/.test(s || "");
     const newStr = ti.new_string ?? "";
     const oldStr = ti.old_string ?? "";
     const edits = tool === "MultiEdit" && Array.isArray(ti.edits) ? ti.edits : [{ new_string: newStr, old_string: oldStr }];
     if (edits.some((e: any) => adds(e.new_string) && !adds(e.old_string))) {
-      deny(`That edit adds a \`### [ts] …\` log entry by hand. Log entries go through the gate (it owns the timestamp, id, and placement):\n  ${KB_ADD}\nEditing the NOW-header itself is fine.`);
+      deny(`That edit adds a \`### [ts] …\` log entry by hand. Log entries go through the gate (it owns the timestamp, id, and placement):\n  ${KB_ADD}`);
+    }
+    if (edits.some((e: any) => stamps(e.new_string))) {
+      deny(`That edit hand-sets the \`**Updated:**\` stamp. The NOW-header goes through kb-now, which owns the date (from the clock — a hand-typed date is the original drift):\n  ${KB_NOW}`);
     }
   }
 }

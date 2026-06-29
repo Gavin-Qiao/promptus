@@ -1,11 +1,11 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.1.1 — releasing)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-28 (v0.2.0 — on a PR branch)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
 > `bun scripts/kb-add.ts --substrate ledger …` (the script owns the timestamp/id/placement).
-> Supersede a prior claim with `--supersedes <id>` (a `supersedes` relation marks it SUPERSEDED). Rewrite only the NOW-header, at `/checkpoint`.
+> Supersede a prior claim with `--supersedes <id>` (a `supersedes` relation marks it SUPERSEDED). Refresh the NOW-header (between the `now:` markers) through `kb-now` at `/checkpoint` — it owns the `Updated:` stamp.
 
 ## Mandate
 Package the operator's write-it-grounded-and-human methodology — humanizer + research-ledger +
@@ -17,49 +17,67 @@ same virtues that make prose human make research trustworthy. Markdown is truth;
 derived; writes go through a gated script; a hand-written header beats a vector at this scale.
 
 ## Guardrails
-- The invariant (see `TELOS.md`): markdown is the only source of truth · index derived & disposable ·
+- The invariant (see `.promptus/TELOS.md`): markdown is the only source of truth · index derived & disposable ·
   writes gated · script over server · machinery only past a **measured** threshold.
 - Failure-first: dead-ends and mistakes earn the same care as wins.
 - Commits: `type(scope)` + flat bullet body, no `Co-Authored-By`. Don't merge without operator review.
 
-## NOW (v0.1.1 — cut; release workflow publishing)
-**v0.1.1 (patch).** Relicensed Apache-2.0 → GPL-3.0; rewrote the README design-philosophy-first
+<!-- now:start -->
+
+## NOW (v0.2.0 — on a PR branch; main protected)
+**v0.2.0 (breaking).** Moved the four stores + vocab under one `.promptus/` namespace (derived
+index → `.promptus/cache/`); the repo root now holds only the product. Collision-proof for host
+repos. Updated path resolution, the protect-gate hook, `.gitignore`, the templates, the
+init/adoption flow, and every doc/skill path reference. **Hardened the suite** —
+`robustness.test.ts` (21 tests: substrate fidelity, cross-OS, path resolution, corruption, and
+`kb-now`) + a Windows/macOS CI matrix; the cross-OS tests caught and fixed a real CRLF-ledger bug.
+And **closed the freehand loophole**: `kb-now` is the gated NOW-header writer — it owns the
+`Updated:` stamp (from the clock), checks the required sections, and writes a bounded replacement
+between the `now:` markers; the protect-gate now blocks a hand-set stamp. This very header was
+re-stamped by `kb-now`. `bun test` **43 pass**; validator clean. On
+`feat/promptus-namespace-layout` → PR #2, awaiting review/merge + tag `v0.2.0`.
+
+**v0.1.1 (released).** Relicensed Apache-2.0 → GPL-3.0; rewrote the README design-philosophy-first
 (with a prior-art credit to Karpathy's llm-wiki); removed the humanizer's own version/license
 system; and ran the KAG deep-research dogfood — Promptus implements KAG's *epistemic spine* (the
 store, the typed graph, status-calibrated grounding), not its scale engine, with the llm-wiki as
 its true ancestor (`lit` notes added for llm-wiki/GraphRAG/HippoRAG/RAPTOR; the Karpathy
-over-attribution corrected). Tagged `v0.1.1`; `release.yml` publishing the GitHub release. `main`
-branch-protected right after.
+over-attribution corrected). Tagged `v0.1.1`; the GitHub release published. `main` branch-protected.
 
-**v0.1.0 (shipped).** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved, not
-squashed); tagged `v0.1.0`; `release.yml` published the GitHub release after re-running the validator
-+ 22 tests, asserting tag==`plugin.json`, and confirming a non-empty `[0.1.0]` CHANGELOG section (notes
-drawn from the changelog). Live at github.com/Gavin-Qiao/promptus/releases/tag/v0.1.0; installs via
-`/plugin marketplace add Gavin-Qiao/promptus` + `/plugin install promptus@promptus`. v0.1.0 = the store
-spine, Apache-2.0, CI/CD, four guarded hooks, the **hybrid vocab** (KIND/STATUS/RELATION; permissive
-ledger + strict library; `kb-export` to CiTO/PROV-O), `/promptus:help`. Earned it by dogfooding three
-repos: itself, Psi (172 units), Probatio (248 units).
+**v0.1.0 (shipped).** PR #1 merged to `main` (merge commit `3f46375`, conventional history preserved);
+tagged `v0.1.0`; the store spine, Apache-2.0, CI/CD, four guarded hooks, the **hybrid vocab**
+(KIND/STATUS/RELATION; permissive ledger + strict library; `kb-export` to CiTO/PROV-O),
+`/promptus:help`. Marketplace-installable. Earned by dogfooding three repos: itself, Psi (172), Probatio (248).
 
 ## Open frontier
+- [ ] **v0.2.0 — the `.promptus/` namespace + test hardening + `kb-now`** — on a PR branch (#2); awaiting review/merge + tag.
+- [ ] **Psi + Probatio need RE-migration** to the v0.2.0 layout (stores under `.promptus/`); their v0.1 working-tree migration is now outdated.
+- [x] **v0.1.1 RELEASED** — GPL-3.0 relicense, README rework, humanizer de-versioned, KAG audit; tagged, main branch-protected.
 - [x] **v0.1.0 RELEASED** — PR #1 merged (`3f46375`), tagged, GitHub release published, marketplace-installable.
-- [x] **Psi + Probatio migrated** (both additive, in their own working trees, **uncommitted**) — awaiting the operator's review + commit in those repos.
-- [ ] overnight-handoff renderer — the last scaffolded piece; partly realized by the SessionStart hook, but no dedicated terse renderer yet. (grannie is built.)
-- [ ] (post-1.0) per-project vocab tuning (promote each repo's house tags into the `extended` sets); backfill frontmatter on legacy `docs/lit` notes; consider recursive doc indexing.
+- [ ] overnight-handoff renderer — the last scaffolded piece; partly realized by the SessionStart hook. (grannie is built.)
+- [ ] (post-1.0) per-project vocab tuning; backfill frontmatter on legacy `docs/lit` notes; consider recursive doc indexing.
 
 ## Next actions
-1. Operator: review + commit the Psi and Probatio working-tree changes when ready; optionally delete the merged `feat/promptus-v1` branch.
-2. Build the overnight-handoff renderer when there's room.
+1. Review PR #2 (namespace + test hardening + `kb-now`); merge (0 approvals) and tag `v0.2.0` to release.
+2. After merge: add the `tests (windows-latest)` / `tests (macos-latest)` checks to main's required status checks.
+3. Re-migrate Psi + Probatio to the `.promptus/` layout.
+4. Build the overnight-handoff renderer when there's room.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.1.1 is cut** — `main` carries the GPL-3.0 relicense (was Apache-2.0), the
-design-philosophy-first README (with a prior-art credit to Karpathy's llm-wiki), the removal of the
-humanizer's own version system, and the KAG deep-research dogfood (Promptus = KAG's *epistemic spine*,
-not its scale engine; the llm-wiki is the true ancestor; `lit` notes for llm-wiki/GraphRAG/HippoRAG/RAPTOR;
-the Karpathy over-attribution corrected). Tagged `v0.1.1`; `release.yml` publishes the GitHub release on
-the tag — **verify it landed**. `main` is now **branch-protected** (PR + CI required: `test + validate`,
-`pre-commit (hygiene)`). `bun test` 22 pass; validator clean. v0.1.0 remains live and marketplace-installable
-(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). The last scaffolded
-piece is the overnight-handoff renderer. Read `TELOS.md`, then this header, then the Log.
+Promptus **v0.2.0 is on a PR branch** (`feat/promptus-namespace-layout`, PR #2), not yet merged. It
+moves the whole knowledge system under one `.promptus/` namespace (`.promptus/{TELOS.md, ledger/,
+docs/ (+ lit/), memory/, schema/}`, derived index at `.promptus/cache/`), **hardens the suite**
+(`robustness.test.ts`, 21 tests — substrate fidelity, cross-OS, path resolution, corruption, `kb-now`
+— plus a Windows/macOS CI matrix, which caught and fixed a real CRLF-ledger bug), and adds **`kb-now`**:
+the gated NOW-header writer that owns the `Updated:` stamp and writes a bounded replacement between
+the `now:` markers, so nothing in the ledger is freehand (the protect-gate blocks a hand-set stamp).
+`bun test` **43 pass**; validator clean. **Next:** CI green (incl. the Windows/macOS legs), then merge
+(0 approvals) + tag `v0.2.0`; afterwards re-migrate Psi/Probatio and promote the cross-OS checks to
+required. v0.1.1 and v0.1.0 are released and marketplace-installable
+(`/plugin marketplace add Gavin-Qiao/promptus` → `/plugin install promptus@promptus`). Read
+`.promptus/TELOS.md`, then this header, then the Log.
+
+<!-- now:end -->
 
 ## Glossary
 - `substrate:status` — every unit's tag (`ledger`/`finding`/`lit`/`memory` : its status).
@@ -150,5 +168,8 @@ Relicensed from Apache-2.0 to GPL-3.0 -- copyleft, so redistributing Promptus or
 
 ### [2026-06-28 19:08:33] RESULT/VALIDATED — Cut v0.1.1 (GPL-3.0 relicense, README rework, humanizer de-versioned, KAG audit)
 Patch release. plugin.json -> 0.1.1; CHANGELOG renamed [Unreleased] to [0.1.1]. Ships the GPL-3.0 relicense (was Apache-2.0), the design-philosophy-first README with a prior-art credit to Karpathy's llm-wiki, removal of the humanizer's own version/license system, and the KAG deep-research dogfood (Promptus = KAG's epistemic spine, not its scale engine; lit notes for llm-wiki/GraphRAG/HippoRAG/RAPTOR; corrected the Karpathy over-attribution). Tagged v0.1.1; release.yml re-runs the validator + 22 tests, asserts tag==plugin.json, and publishes the GitHub release from the [0.1.1] notes. main set branch-protected (PR + CI required) right after.
+
+### [2026-06-28 20:14:48] RESULT/VALIDATED — Namespaced the stores under .promptus/ (v0.2.0) and hardened the test suite
+Moved the four stores plus the vocab under one .promptus/ namespace (derived index -> .promptus/cache/); the repo root now holds only the product (skills/scripts/commands/agents/hooks/templates). One folder is collision-proof in a host repo. Updated path resolution, the protect-gate hook, .gitignore, the templates, the init/adoption flow, and every doc/skill path reference; re-pointed the test scaffold. Added robustness.test.ts (16 tests across substrate fidelity, cross-OS, path resolution, and corruption) plus a Windows/macOS CI matrix. The cross-OS tests caught a real bug -- a CRLF ledger dropped every entry because the .+$ parser never matches across \r\n -- fixed by normalizing line endings in kb-index. 38 tests pass; validator clean. Breaking change -> v0.2.0; Psi and Probatio need re-migration. Built on a PR branch (main is protected).
 
 <!-- kb:append-point -->

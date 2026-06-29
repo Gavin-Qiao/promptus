@@ -15,7 +15,7 @@ deliberate inversion of the gist's coequal layers, ours and not Karpathy's own o
 
 ## Two parts of the ledger
 
-`ledger/RESEARCH-LEDGER.md` has a small **NOW-header** (always rewritten to stay current —
+`.promptus/ledger/RESEARCH-LEDGER.md` has a small **NOW-header** (always rewritten to stay current —
 the compaction-safe core a resuming agent reads instead of the whole file) and an
 **append-only Log** below a `<!-- kb:append-point -->` sentinel.
 
@@ -48,7 +48,7 @@ is often worth more than what worked.
 extensions: `OPEN` / `RESOLVED` / `WONTFIX`. Promote to `VALIDATED` only with the evidence named
 (a passing test, a proof, a measured delta vs a control). The ledger is **permissive** — an
 off-vocab status is warned about but still written, so you never lose a thought to the gate; add
-it to `schema/kb-vocab.json` if it's here to stay. (finding / lit / memory stay strict.)
+it to `.promptus/schema/kb-vocab.json` if it's here to stay. (finding / lit / memory stay strict.)
 
 **RELATION (`--rel <type>:<id>`, or `--supersedes <id>`)** — typed edges between units:
 `supersedes` (marks the target `SUPERSEDED` — this is the correction mechanism), `refutes`,

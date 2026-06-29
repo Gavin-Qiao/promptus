@@ -15,10 +15,10 @@ grounded, and navigable.
 
 | store | path | retrieve it to… |
 |---|---|---|
-| **Telos** | `TELOS.md` | know the direction |
-| **Ledger** | `ledger/RESEARCH-LEDGER.md` | reconstruct what happened & why (incl. dead-ends) |
-| **Knowledge** | `docs/` (findings) + `docs/lit/` (literature) | ground a claim in prior art / our findings |
-| **Memory** | `memory/MEMORY.md` (per-project) | not relearn what was settled |
+| **Telos** | `.promptus/TELOS.md` | know the direction |
+| **Ledger** | `.promptus/ledger/RESEARCH-LEDGER.md` | reconstruct what happened & why (incl. dead-ends) |
+| **Knowledge** | `.promptus/docs/` (findings) + `.promptus/docs/lit/` (literature) | ground a claim in prior art / our findings |
+| **Memory** | `.promptus/memory/MEMORY.md` (per-project) | not relearn what was settled |
 
 Every retrievable unit carries a **substrate + status** (`ledger:DEADEND`,
 `lit:CITE`, `finding:VALIDATED`, `memory:validated`). The `[[wikilink]]` graph
@@ -54,6 +54,6 @@ not before.)
 
 Memory is **per-project**, in your real one-file-per-fact format: `kb-add --substrate
 memory` writes one file per fact (`memory/<slug>.md`, with `name` / `description` / `type`
-frontmatter) and adds a pointer line to the `memory/MEMORY.md` index — not a single append
+frontmatter) and adds a pointer line to the `.promptus/memory/MEMORY.md` index — not a single append
 blob. Kept current and reconciled at `/checkpoint`. Each project owns what it has settled; a
 global `~/.claude/.../memory` store, if you keep one, is reconciled up to at checkpoint.

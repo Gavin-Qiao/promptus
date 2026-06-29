@@ -6,7 +6,7 @@ description: Orchestrator and map for the Promptus research knowledge system. Us
 # Promptus — orchestrator
 
 Promptus stores / keeps / retrieves what a research project knows as gated markdown, and
-renders it for an audience. Read `TELOS.md` for the canonical statement and the invariant.
+renders it for an audience. Read `.promptus/TELOS.md` for the canonical statement and the invariant.
 This skill is the map: pick the verb, run the piece.
 
 ## Decision table — intent → do this
@@ -27,8 +27,9 @@ This skill is the map: pick the verb, run the piece.
 
 ## The four stores
 
-Telos (`TELOS.md`, direction) · Ledger (`ledger/RESEARCH-LEDGER.md`, events) · Knowledge
-(`docs/` findings + `docs/lit/` literature) · Memory (`memory/`, durable facts). Every unit
+Telos (`.promptus/TELOS.md`, direction) · Ledger (`.promptus/ledger/RESEARCH-LEDGER.md`, events) ·
+Knowledge (`.promptus/docs/` findings + `.promptus/docs/lit/` literature) · Memory
+(`.promptus/memory/`, durable facts). Every unit
 is tagged `substrate:status` — `ledger:DEADEND`, `finding:VALIDATED`, `lit:CITE`,
 `memory:validated`.
 

@@ -16,9 +16,15 @@ NOW-header); load it if you need the spec. Work from facts; never invent entries
    echo "<body>" | bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-add.ts" --substrate <s> --kind <K> --status <S> --title "…"
    ```
    Lead with the dead-ends and mistakes — those are the ones that get skipped. Be terse.
-3. **Refresh the NOW-header** of `ledger/RESEARCH-LEDGER.md` so a resuming self is current:
-   the `Updated:` stamp, `NOW`, `Open frontier`, and the `<<< RESUME HERE AFTER COMPACTION >>>`
-   paragraph. Hand-edit only the header — never a `### [ts]` log line.
+3. **Refresh the NOW-header through the gate.** Pipe the new header (the `## NOW … Open frontier …
+   Next actions … RESUME` region) to `kb-now` — it owns the `Updated:` stamp (from the clock, never
+   hand-typed), checks the required sections, and writes a bounded replacement between the `now:`
+   markers:
+   ```
+   echo "<## NOW … / ## Open frontier … / ## Next actions … / ## <<< RESUME … >>> …>" | \
+     bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-now.ts" --note "<short, e.g. the version>"
+   ```
+   Never hand-type the `Updated:` stamp or a `### [ts]` log line — both are the gate's job.
 4. **Reconcile memory** only where the session clearly settled or overturned a fact
    (`kb-add --substrate memory`, or flip a stale one to `status: retired`). Don't re-survey.
 5. **Re-index + report.** `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-index.ts"` to refresh the
