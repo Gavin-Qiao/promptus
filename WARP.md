@@ -21,6 +21,7 @@ one renderer in the box. See [`.promptus/TELOS.md`](.promptus/TELOS.md) for the 
 ## Key files
 
 - `scripts/kb-add.ts` — the gated writer-jig (the ONE way knowledge enters a project).
+- `scripts/kb-now.ts` — the gated NOW-header writer (owns the `Updated:` stamp; the header's gate).
 - `scripts/kb-index.ts` — rebuild the derived card-catalog + graph; lint.
 - `scripts/kb-find.ts` — header-first retrieval.
 - `scripts/lib/` — clock / ids / links / frontmatter / vocab / paths.

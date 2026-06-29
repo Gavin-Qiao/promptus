@@ -178,7 +178,7 @@ the plugin's hooks in your Claude Code settings.
 ## Layout
 
 ```
-scripts/    kb-add · kb-index · kb-find · kb-export · ledger-append · validate-plugin · changelog · lib/ · test/
+scripts/    kb-add · kb-now · kb-index · kb-find · kb-export · ledger-append · validate-plugin · changelog · lib/ · test/
 skills/     promptus (orchestrator) · humanizer · recall · grannie · research-ledger · telos
 commands/   help · checkpoint · promptus-init
 agents/     grounded-writing-reviewer

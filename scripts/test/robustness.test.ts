@@ -51,6 +51,7 @@ const index = (root: string) => run("kb-index.ts", ["--root", root]);
 const find = (root: string, args: string[]) => run("kb-find.ts", ["--root", root, ...args]);
 const read = (root: string, ...p: string[]) => readFileSync(join(root, ...p), "utf8");
 const catalog = (root: string) => read(root, ".promptus", "cache", "CATALOG.md");
+const ledgerFile = (root: string) => join(root, ".promptus", "ledger", "RESEARCH-LEDGER.md");
 
 // ---- Substrate fidelity: the deterministic anti-hallucination guardrails ----
 // The scripts can't "hallucinate" — but they must be an honest substrate: never surface a
@@ -204,4 +205,92 @@ test("corruption: kb-index rebuilds a hand-corrupted cache cleanly (derived & di
   expect(index(root).status).toBe(0); // heals, does not choke on its own stale output
   expect(() => JSON.parse(readFileSync(gp, "utf8"))).not.toThrow();
   expect(catalog(root)).toContain("rebuildable");
+});
+
+// ---- kb-now: the gated NOW-header writer (determinism over a freehand header) ----
+// The script owns what a model gets wrong — the date stamp, the placement, the structure —
+// so the header can't drift (wrong date) or break (missing section), and the write is bounded.
+
+const HEADER_LEDGER = `# Research Ledger — test
+
+**Updated:** 1999-01-01 (stale)  ·  **Operator:** t  ·  **Agent:** t
+**Timezone:** America/Montreal (UTC-4) — local.
+
+## Guardrails
+- never bends
+
+<!-- now:start -->
+## NOW
+old now content
+
+## Open frontier
+- [ ] thing
+
+## Next actions
+1. do it
+
+## <<< RESUME HERE AFTER COMPACTION >>>
+pick up here
+<!-- now:end -->
+
+## Glossary
+- term — def
+
+## Log
+
+<!-- kb:append-point -->
+### [2026-06-19 10:00:00] DECISION/VALIDATED — an existing entry
+body
+`;
+
+const HEADER_BODY = "## NOW\nfresh now\n\n## Open frontier\n- [ ] x\n\n## Next actions\n1. y\n\n## <<< RESUME HERE AFTER COMPACTION >>>\nresume here";
+
+test("kb-now: stamps Updated from the clock (not from input), preserving the Operator/Agent tail", () => {
+  const root = scaffold();
+  writeFileSync(ledgerFile(root), HEADER_LEDGER);
+  const r = run("kb-now.ts", ["--root", root, "--note", "v9"], { stdin: HEADER_BODY });
+  expect(r.status).toBe(0);
+  const led = readFileSync(ledgerFile(root), "utf8");
+  expect(led).toMatch(/\*\*Updated:\*\* \d{4}-\d{2}-\d{2} \(v9\)/); // a script-stamped ISO date + the note
+  expect(led).not.toContain("1999-01-01");                         // the stale hand-typed date is gone
+  expect(led).toContain("**Operator:** t");                   // the tail is preserved
+  expect(led).toContain("fresh now");                         // the new prose is placed
+  expect(led).not.toContain("old now content");               // the old region is replaced
+});
+
+test("kb-now: the write is bounded — the log and the static framing are untouched", () => {
+  const root = scaffold();
+  writeFileSync(ledgerFile(root), HEADER_LEDGER);
+  run("kb-now.ts", ["--root", root], { stdin: HEADER_BODY });
+  const led = readFileSync(ledgerFile(root), "utf8");
+  expect(led).toContain("### [2026-06-19 10:00:00] DECISION/VALIDATED — an existing entry"); // log intact
+  expect(led).toContain("- never bends");                                                    // framing intact
+  expect(led).toContain("<!-- kb:append-point -->");                                         // append point intact
+});
+
+test("kb-now: refuses a header missing a required section, naming it", () => {
+  const root = scaffold();
+  writeFileSync(ledgerFile(root), HEADER_LEDGER);
+  const noFrontier = "## NOW\nn\n\n## Next actions\n1. y\n\n## <<< RESUME HERE AFTER COMPACTION >>>\nr";
+  const r = run("kb-now.ts", ["--root", root], { stdin: noFrontier });
+  expect(r.status).toBe(1);
+  expect(r.stderr).toContain("Open frontier");
+});
+
+test("kb-now: refuses a ledger that has no now sentinels", () => {
+  const root = scaffold();
+  writeFileSync(ledgerFile(root), "# L\n\n**Updated:** 2000-01-01\n\n## NOW\nx\n\n<!-- kb:append-point -->\n");
+  const r = run("kb-now.ts", ["--root", root], { stdin: HEADER_BODY });
+  expect(r.status).toBe(1);
+  expect(r.stderr.toLowerCase()).toContain("now:start");
+});
+
+test("kb-now: --dry-run prints the result but does not touch the ledger", () => {
+  const root = scaffold();
+  writeFileSync(ledgerFile(root), HEADER_LEDGER);
+  const before = readFileSync(ledgerFile(root), "utf8");
+  const r = run("kb-now.ts", ["--root", root, "--dry-run"], { stdin: HEADER_BODY });
+  expect(r.status).toBe(0);
+  expect(r.stdout).toContain("[dry-run]");
+  expect(readFileSync(ledgerFile(root), "utf8")).toBe(before);
 });

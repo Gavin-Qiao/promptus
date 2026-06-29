@@ -37,7 +37,7 @@ the toolbox and using it.
 
 ## Layout
 
-- `scripts/` — the KAG mechanics (kb-add / kb-index / kb-find + `lib/`).
+- `scripts/` — the KAG mechanics (kb-add / kb-now / kb-index / kb-find + `lib/`).
 - `.promptus/schema/kb-vocab.json` — the controlled vocab the writer-jig validates against.
 - `skills/` — reasoning: `promptus` (orchestrator), `humanizer` (real), `recall`,
   `grannie`, `research-ledger`, `telos`.

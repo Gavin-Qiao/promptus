@@ -21,7 +21,13 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ### Added
 
-- **Robustness test suite** (`scripts/test/robustness.test.ts`, 16 tests): substrate fidelity (no
+- **`kb-now` — the gated NOW-header writer.** The ledger's NOW-header now enters through a script,
+  like every log entry: `kb-now` owns the `Updated:` stamp (from the clock, never hand-typed — the
+  original drift), checks the required sections, and writes a bounded replacement between the
+  `<!-- now:start -->` / `<!-- now:end -->` markers (the log and framing stay out of reach).
+  `/checkpoint` calls it, and the protect-gate hook blocks a hand-set `**Updated:**` stamp — so
+  nothing in the ledger is freehand.
+- **Robustness test suite** (`scripts/test/robustness.test.ts`, 21 tests): substrate fidelity (no
   phantom or silently-dropped units; status preserved verbatim as the calibration source), cross-OS
   encoding (CRLF, forward-slash paths, non-ASCII titles), path resolution (relative `--root`, a
   subdirectory, spaces, cwd fallback), and corruption resilience (bad vocab, a missing sentinel,
