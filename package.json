@@ -7,6 +7,8 @@
     "test": "bun test",
     "validate": "bun scripts/validate-plugin.ts",
     "index": "bun scripts/kb-index.ts",
+    "get": "bun scripts/kb-get.ts",
+    "graph": "bun scripts/kb-graph.ts",
     "doctor": "bun scripts/promptus-doctor.ts",
     "ingest": "bun scripts/kb-ingest.ts",
     "export": "bun scripts/kb-export.ts",

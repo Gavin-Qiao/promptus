@@ -20,6 +20,7 @@ import { parseFrontmatter } from "./lib/frontmatter.ts";
 import { extractLinks } from "./lib/links.ts";
 import { loadVocab, type Relation, type Vocab } from "./lib/vocab.ts";
 import { derivedDir, findProjectRoot } from "./lib/paths.ts";
+import { ledgerHeads } from "./lib/units.ts";
 
 interface Unit {
   substrate: string;
@@ -60,16 +61,16 @@ function parseLedger(root: string, store: string): Unit[] {
   const file = join(root, store);
   if (!existsSync(file)) return [];
   const text = readFileSync(file, "utf8").replace(/\r\n/g, "\n");
-  const re = /^### \[([^\]]+)\] ([^\n—]+?) — (.+)$/gm;
-  const heads: Array<{ ts: string; ks: string; title: string; idx: number }> = [];
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) heads.push({ ts: m[1], ks: m[2].trim(), title: m[3].trim(), idx: m.index });
+  const heads = ledgerHeads(text); // shared, fence-aware — kb-index and kb-get slice on the same heads
   return heads.map((h, i) => {
     const body = text.slice(h.idx, i + 1 < heads.length ? heads[i + 1].idx : undefined);
-    const status = h.ks.split("/").pop()!.replace(/^[★⚠↩]/, "").trim();
-    const relations = [...body.matchAll(/^↳ (\S+) (.+)$/gm)].map((x) => ({ type: x[1], target: x[2].trim() }));
-    // anchor must be space-free so the catalog's `· path ·` columns stay parseable
-    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.ts.replace(/ /g, "T")}`, links: extractLinks(body), relations };
+    const status = h.kindStatus.split("/").pop()!.replace(/^[★⚠↩]/, "").trim();
+    // strip fenced blocks before reading typed relations — a `↳ …` quoted as an example inside a
+    // ``` fence is not a real edge (same discipline as the fence-aware head parse + links.ts)
+    const prose = body.replace(/```[\s\S]*?```/g, "\n");
+    const relations = [...prose.matchAll(/^↳ (\S+) (.+)$/gm)].map((x) => ({ type: x[1], target: x[2].trim() }));
+    // anchor (h.anchor) is already space-free (spaces → T) so the catalog's `· path ·` columns stay parseable
+    return { substrate: "ledger", status, title: h.title, slug: null, relPath: `${store}#${h.anchor}`, links: extractLinks(body), relations };
   });
 }
 

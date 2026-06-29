@@ -17,6 +17,55 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-29
+
+### Added
+
+- **`kb-get` — the body-fetch retrieval tier** (`scripts/kb-get.ts`). Completes RETRIEVE: `kb-find`
+  says *which* unit (header-first); `kb-get` returns that unit's text by its catalog path — one ledger
+  entry's slice, not the whole shared file. `--title` disambiguates a same-second anchor. Unit
+  extraction is shared with `kb-find` through `scripts/lib/units.ts`, so the retriever and the fetcher
+  agree on a unit's bounds; the `recall` skill now drives both tiers (read headers, then fetch only the
+  bodies they earn).
+- **`kb-graph` — query the `[[link]]` graph** (`scripts/kb-graph.ts`, command `/promptus-graph`). No
+  embeddings — the links *are* the graph. Three reads over the derived `graph.json`:
+  - **`rank`** — personalized-PageRank over the page-link graph: the load-bearing units (with degree).
+  - **`lint`** — graph health: dangling `[[handles]]` (with a "did you mean?" by slug similarity) and
+    orphans; `--strict` exits non-zero to gate a checkpoint.
+  - **`suggest`** — a latent-link linter: IDF-weighted shared vocabulary + a shared-source signal
+    surface unlinked-but-related unit pairs to connect. Suggest-only — the human draws the link.
+- **Retrieve + graph test suites** (`scripts/test/{get,graph,adversarial}.test.ts`), including an
+  adversarial pass that locked the fixes below.
+
+### Changed
+
+- **`kb-find` retrieval is de-noised.** A body term now matches the **entry's own slice**, not every
+  entry sharing the ledger file — so a rare ledger term no longer flags nearly every entry. Adds
+  `--limit` (caps results and reports "N of M" — no silent truncation) and `--snippet` (attaches the
+  matched line, to judge relevance header-first without opening the file). On rare-term queries this
+  cuts retrieval output by ~90 %+.
+- **Architecture clarified to match the code.** Promptus is documented as a **substrate for the LLM
+  agent** — STORE / BOOK-KEEP / RETRIEVE plus the graph are agent-operated; **grannie** is the one
+  human read-port; the humanizer is a bundled **style toolkit**, not a "render" verb. The docs were
+  re-truthed throughout (README + two new Mermaid diagrams, `TELOS.md`, the design report, the
+  orchestrator skill, `/promptus:help`), and the prior-art lineage that justifies the graph
+  (HippoRAG → `rank`, Roam/Obsidian unlinked-references → `suggest`) is now captured in the store.
+
+### Fixed
+
+- **`kb-get` never returns a different unit than the one asked for.** A `--title` that matches no entry
+  at a shared anchor now errors and names the candidates, instead of silently returning the first.
+- **A fenced `### [ts]` or `↳` example inside a ledger entry no longer corrupts the log.** Head and
+  relation parsing are now fence-aware — one shared `ledgerHeads` (in `scripts/lib/units.ts`) used by
+  both `kb-index` and `kb-get` — so syntax quoted in an entry body is never mistaken for a real unit
+  or edge.
+
+### Notes
+
+- `kb-graph suggest` is a v1 lexical heuristic: on a corpus with one very broad note it can surface
+  generic-word pairs near the top. It is suggest-only and shows the shared terms, so you judge — a
+  per-node cap / length normalization is a later refinement.
+
 ## [0.4.1] - 2026-06-29
 
 ### Fixed
@@ -237,7 +286,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.2.0...v0.3.0

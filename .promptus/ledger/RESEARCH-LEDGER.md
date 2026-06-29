@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-29 (v0.4.1 hardening)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-29 (architecture clarified (agent substrate + grannie read-port); docs re-truthed; clear to ship v0.5.0)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -12,9 +12,10 @@ Package the operator's write-it-grounded-and-human methodology — humanizer + r
 checkpoint + a file-based KAG store — into one installable Claude Code plugin (2026-06-27 directive).
 
 ## Thesis / approach
-Store / keep / retrieve a project's knowledge as gated markdown; render it for an audience. The
-same virtues that make prose human make research trustworthy. Markdown is truth; the index is
-derived; writes go through a gated script; a hand-written header beats a vector at this scale.
+Store / keep / retrieve a project's knowledge as gated markdown — a substrate for the LLM agent;
+grannie is the one human read-port. The same virtues that make prose honest make research
+trustworthy. Markdown is truth; the index is derived; writes go through a gated script; a
+hand-written header beats a vector at this scale.
 
 ## Guardrails
 - The invariant (see `.promptus/TELOS.md`): markdown is the only source of truth · index derived & disposable ·
@@ -24,33 +25,42 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 
 <!-- now:start -->
 
-## NOW (v0.4.1 — hardening)
-**Shipping.** Hardening pass: `kb-index` now recurses into `docs/` subdirs (the `positioning/` blind
-spot the Probatio dogfood exposed) — longest-prefix store ownership prevents double-indexing `lit`,
-and `archive/` + hidden dirs stay cold; `README` is skipped as navigation. Cross-OS checks
-(Windows/macOS) are now **required** on `main`. 76 tests green. v0.3.0 (doctor) + v0.4.0 (kb-ingest)
-remain shipped + dogfooded across Promptus/Psi/Probatio.
+## NOW (RETRIEVE + GRAPH done, docs re-truthed; clear to ship v0.5.0)
+Released through **v0.4.1**. On `main`, uncommitted, **108 tests + validator green**: (a) **v0.4.2
+kb-find de-noise**; (b) **kb-get** body-fetch (find→get; `lib/units.ts` shared + fence-aware; `recall`
+two-tier); (c) **kb-graph** `rank`/`lint`/`suggest`. Polished (discoverable across orchestrator/README/
+help + `/promptus-graph`), hardened (adversarial pass fixed 3 bugs: kb-get wrong-`--title` mis-fetch;
+fenced `### [ts]` + fenced `↳` false-splits → one shared fence-aware parse). **Architecture clarified
+(operator):** Promptus is an **agent substrate** (STORE/KEEP/RETRIEVE/GRAPH, agent-operated); **grannie
+is the one human read-port**; the humanizer is a bundled STYLE TOOLKIT; "RENDER as a verb" is retired
+(grounding=recall, style=humanizer, grannie already composes both). Docs re-truthed to match the code.
+Norma parked.
 
 ## Open frontier
-- [x] v0.3.0 doctor · v0.4.0 kb-ingest · v0.4.1 kb-index recursion + cross-OS required checks.
-- [ ] **Apply migrate → ingest to the REAL Psi + Probatio** — operator-gated; commit/stash WIP first. Probatio lit classification is settled (10 promotes — see memory + Log).
-- [ ] **`kb-get` (retrieval economy)** — a measured need (100s of hits/query); the next build lever.
-- [ ] On the real Psi conversion: source the 5 flagged lit notes by hand (no machine-recoverable source).
+- [ ] **Ship v0.5.0** — de-noise + kb-get + kb-graph + polish + hardening + re-truthed docs. CHANGELOG +
+  `plugin.json` 0.4.1→0.5.0 + feature branch + PR + tag. Verify the CI gate first (`uv run pre-commit`,
+  `changelog:check`, cross-OS).
+- [ ] **(note in CHANGELOG)** `kb-graph suggest` floods on one broad doc (the design report) — v1
+  heuristic; a per-node cap / length-norm is a later refinement.
+- [ ] **(deferred)** the Norma seam — external grounding; parked, not dropped.
+- [ ] **(gated)** apply migrate→ingest to the REAL Psi + Probatio — commit/stash their WIP first.
 
 ## Next actions
-1. Pick the next track: the real-repo conversion (the payoff) or `kb-get` (the next capability).
-2. When converting for real, quiesce + commit/stash each repo first.
+1. Operator: green-light the v0.5.0 ship. Then I branch off `main`, verify the CI gate locally, write the
+   CHANGELOG, open the PR, and show it before pushing.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus is at **v0.4.1**: doctor (migrate, v0.3.0), kb-ingest (curate lit, v0.4.0), and a hardening
-patch (v0.4.1) — `kb-index` now recurses into `docs/` subdirs (each file assigned to its
-longest-matching store so `lit` is never double-indexed; `archive/` + hidden dirs cold; README
-skipped), and Windows/macOS are required checks on `main`. All shipped + dogfooded on sandbox copies
-(originals untouched). **Two live tracks, operator's pick:** (a) run the full pipeline — doctor
-`migrate --apply` then `kb-ingest` — on the REAL Psi + Probatio (their gate is down; commit/stash WIP
-first; the Probatio lit classification is settled, 10 promotes in memory), or (b) build `kb-get` /
-`kb-find --snippet/--limit`, the now-measured retrieval economy. Read `.promptus/TELOS.md`, then this
-header, then the Log.
+Promptus through **v0.4.1**; **v0.5.0 is staged + uncommitted on `main`**, 108 tests + validator green,
+dogfooded + hardened: kb-find de-noise (v0.4.2), kb-get (body-fetch, fence-aware shared `ledgerHeads`),
+kb-graph (rank/lint/suggest). An adversarial pass fixed 3 real bugs (kb-get wrong-`--title` mis-fetch;
+fenced `### [ts]` and fenced `↳` false-splits). **Architecture is now load-bearing:** Promptus is an
+**agent substrate** — STORE/KEEP/RETRIEVE/GRAPH are agent-operated; **grannie is the ONE human read-port**
+(human-initiated: a person asks `/grannie explain X`; it retrieves + grounds + explains plainly by status);
+the **humanizer is a bundled style toolkit** grannie dials, NOT a verb; the **grounded-writing-reviewer is
+an agent-side audit**. "RENDER for an audience" was retired as a category error — the planned humanizer
+ground-mode already exists, assembled, inside grannie. All docs were re-truthed to this model. NEXT: ship
+v0.5.0 (branch off `main`, verify CI gate, CHANGELOG, PR, tag) on operator go. Deferred: Norma seam. Gated:
+real Psi/Probatio. Read `.promptus/TELOS.md`, then this header, then the Log.
 
 <!-- now:end -->
 
@@ -191,5 +201,41 @@ kb-index walked each store dir non-recursively, so notes in docs/ subdirs were s
 
 ### [2026-06-29 13:35:03] DECISION/VALIDATED — Ops: cross-OS checks now required on main; the suite 'flake' was contention, not a bug
 Promoted tests (windows-latest) + tests (macos-latest) to required status checks on main (gh api PATCH of the branch-protection required_status_checks, strict kept). The cross-OS matrix now gates every merge — pending since v0.2.0. Also: the one-off 70/2 test result earlier was subprocess/fs contention from running two suites concurrently, not a code flake — 3 consecutive isolated runs are 76/0; documented as transient, not chased.
+
+### [2026-06-29 14:44:31] RESULT/VALIDATED — v0.4.2 (uncommitted): kb-find de-noise — entry-scoped matching + --limit + --snippet
+Body-grep now matches a ledger term against the entry's OWN slice (anchor+title to disambiguate same-second entries), not the shared file. Added --limit (caps + reports 'N of M', no silent truncation) and --snippet (the matched line, so the model judges relevance header-first without opening files). A/B on the Probatio corpus: rare-term queries (Quot.sound/irr_fract/corpus-kNN) cut output tokens 92-97% (~9.5k -> ~0.3-0.8k), 0 false positives (was ~94%); pervasive 'Goedel' -40%; page-unit queries unchanged. 79 tests green. UNCOMMITTED on main = would-be v0.4.2.
+
+### [2026-06-29 14:44:31] FINDING/VALIDATED — Retrieval noise root cause: kb-find body-grep matched the shared ledger FILE, not the entry
+For any term not in a title, kb-find greps each card's FILE — but all ~200 ledger entries share one file, so a term appearing anywhere in the ledger flagged EVERY entry (191 of 203 FALSE for a rare term). Fix: match the entry's own slice. Principle that falls out: lexical matching is the SCRIPT's job (done at the right granularity); semantic relevance stays the MODEL's (per the invariant). The de-noise is the cheap-CERTAIN retrieval tier; the body-fetch (kb-get, return the entry body not the file) is the conditional one whose ROI depends on retrieval frequency.
+
+### [2026-06-29 14:44:31] RESEARCH/VALIDATED — Checked Norma-demo: the operator's external-literature RAG (working, custom Python, 202 papers)
+Telotia/Norma-demo (local C:/Users/mohan/Desktop/Norma-demo) validates an input paper's claims against a 202-paper Yong-Zeng corpus. Stack: LanceDB (dense+vision) + BM25 + claim-index + SQLite citation-graph; Qwen3.6-35B relation-judge + Qwen3-Embedding-8B + ColEmbed vision + Qwen3-Reranker; vLLM; 100% custom Python (no LangChain). Discipline = retrieval != proof: candidates -> relation-judge (supports/method_precedent/conceptual_lineage/contradicts/challenge) -> verification gates (specificity/adversarial/direct) -> 3-tier evidence ladder broad/plausible/strict_showable (admitted ~59KB vs rejected ~8.5MB). Engine is mature + heavily iterated, BUT the rigorous judge/ladder isn't wired into the shipped viewer (older similarity-bridge demo). README is stale.
+
+### [2026-06-29 14:44:31] DECISION/VALIDATED — Grounded-writing strategy: delegate external grounding to a Norma-style RAG, don't absorb one
+Promptus and Norma are Principia siblings with a clean split: Promptus = own notes (small, authored, TRUSTED, header-first, no embeddings; the inner loop / writing surface); Norma = external literature (large, untrusted; embeddings+judge; the validation engine). Plan: Promptus does NOT absorb a RAG. It defines a thin external-grounding interface, delegates to a Norma-style service, and writes back ONLY strict_showable evidence as gated lit:CITE units with paper/page anchors + caveats. Shared Principia vocab: Norma's relation labels + broad/plausible/strict ladder ~= Promptus KIND/STATUS. This unifies the stack (Principia/Probatio/Norma/Promptus) under one epistemic frame.
+
+### [2026-06-29 15:01:10] RESULT/VALIDATED — kb-get: the body-fetch retrieval tier (find->get); unit-extraction unified in lib/units.ts
+Built kb-get, the RETRIEVE body-fetch tier: returns ONE unit's text by its catalog path — a page's whole file, or a single ledger entry's slice — without opening the shared ledger. Companion to kb-find: find says WHICH (header-first, cheap-certain), get returns the body (conditional tier). Lifted unit-extraction (ledgerEntries/unitText) into lib/units.ts so find and get share one definition of a unit's bounds; refactored kb-find onto it (no behaviour change). Wired recall's procedure to the two-tier find->get (header-first, then fetch only the bodies the headers earned; --snippet to pre-judge). 88 tests green (+9 get). Dogfood: find "de-noise" -> get one entry's slice, disambiguated by --title across a same-second anchor. Uncommitted alongside the v0.4.2 de-noise; together they complete the RETRIEVE verb.
+
+### [2026-06-29 15:21:39] RESULT/VALIDATED — kb-graph: graph slice 1 — PageRank rank + dangling/orphan lint (no embeddings)
+Built kb-graph (graph slice 1, over graph.json, no embeddings). Two commands: `rank` ranks load-bearing units by PageRank over the page-link subgraph (power iteration, damping 0.85) with in/out degree alongside; `lint` flags dangling wikilink handles with a "did you mean?" suggestion (token-Jaccard + whole-slug containment + edit-distance, maxed, threshold 0.5) and lists orphans, with --strict to gate a checkpoint. Dogfood on the real corpus: rank puts "Header beats vector" at #1 and ranks it ABOVE "The gate" despite lower raw in-degree (proves PageRank != degree: who links to you beats how many); lint surfaces the 3 orphans (the design report + 2 packaging memories) as actionable. 95 tests green (+7). Situated against prior art: this is HippoRAG's Personalized-PageRank minus the vectors (rank) and Roam/Obsidian unlinked-references minus the ML (the coming latent-link linter = slice 2). Greenlit slice 2 next. Uncommitted on main with the v0.4.2 de-noise + kb-get.
+
+### [2026-06-29 15:32:45] MISTAKE/CORRECTED — kb-graph: suggest() name-collision shadowed the dangling-handle helper; lint broke until renamed nearest()
+Naming the latent-link command function suggest(root,dir,g,top) shadowed the existing dangling-handle helper suggest(handle,nodes). JS function hoisting keeps the LATER declaration, so lint's call suggest(to, g.nodes) invoked the command with g.nodes (an array) where the dir (string) arg goes, crashing in pageDocs on join(). It slipped past because lint's dogfood ran BEFORE the command existed; only adding lint + suggest tests in the same suite surfaced it (lint stdout went empty as the "no graph" guard fired on the thrown error). Fix: renamed the helper to nearest(). Lesson: a green earlier dogfood does not cover code added after it -- re-run the old command after introducing a same-named symbol.
+
+### [2026-06-29 15:32:46] RESULT/VALIDATED — kb-graph suggest: latent-link linter (graph slice 2) — IDF co-occurrence + shared source
+Built kb-graph suggest (graph slice 2): surfaces unit pairs that are unlinked but probably related. tf.idf cosine over page-unit text (stopwords + sub-3-char tokens dropped; IDF so ubiquitous words carry ~no signal) plus a shared-source bonus (two units citing the same paper id). Suggest-only, excludes already-linked pairs, prints the WHY (top shared terms / shared source) so the human judges -- Roam/Obsidian unlinked-references minus the ML. Dogfood surfaced real prior-art siblings (graphrag<->hipporag, <->raptor, <->kag) but the long design report floods on generic words. A/B: tried IDF-squared to sink the report's faint matches -- it over-sharpened (each doc norm dominated by its own rarest terms) and DROPPED the good cross-doc links; reverted to tf.idf. Cosine floor 0.08; a shared source always shows. 98 tests green (+3). Graph slices 1+2 done; uncommitted with de-noise + kb-get + kb-graph rank/lint.
+
+### [2026-06-29 15:43:53] RESULT/VALIDATED — Polish: integrated kb-get + kb-graph into orchestrator/README/help + /promptus-graph command; doc-accuracy fixes
+Polish pass before shipping the retrieval+graph bundle: made the new tools discoverable + the docs accurate. kb-get and kb-graph (rank/lint/suggest) were invisible -- absent from the promptus orchestrator map, the README verbs, and /promptus:help. Added them across all three, a "knowledge graph" subsection to the orchestrator, and a new /promptus-graph command (matching doctor/ingest; validator-clean). Accuracy fix: the README papers-scale section framed the latent-link linter + personalized-PageRank as DEFERRED machinery, but the scriptable no-embeddings versions just shipped -- reworded so the scriptable graph layer ships now at notes-scale, only the embedding-scale version defers. Caught pre-existing drift: README + help also omitted the doctor/ingest commands -- added. False alarm cleared: lib/links.ts ALREADY strips fenced + inline code before extracting wikilinks, so the earlier "kb-index should skip code-spans" item was wrong -- my ledger handle got extracted only because I wrote it as bare prose, not backticked. Discipline: backtick wikilink-syntax when you mean it literally. bun run check green (validator + 98 tests). Release-ready.
+
+### [2026-06-29 15:55:02] RESULT/VALIDATED — Adversarial pass: fixed kb-get silent mis-fetch + ledger fenced-head false-split (shared fence-aware ledgerHeads)
+Pre-release adversarial pass on the retrieve+graph layer. Two real bugs, both fixed; six degenerate graph cases (single node, self-loop, identical bodies, all-stopword body, sourceless pairs, path-escape) verified robust. BUG 1 (honesty): kb-get with a --title matching nothing silently returned the FIRST entry at that anchor instead of erroring -- a system that promises an honest substrate must never hand back a different unit than named. Fix: resolve() now errors and lists the candidate titles when a named title matches none at a shared anchor (resolves only when there is exactly one entry there). BUG 2 (corruption): a fenced "### [ts]" example inside a ledger entry body was parsed as a real head, splitting the log and spawning a phantom unit (ledger:PHANTOM). Root cause: the head regex was DUPLICATED in kb-index.parseLedger and units.ledgerEntries and neither respected code fences (though links.ts already did). Fix: centralized a fence-aware ledgerHeads() in lib/units.ts used by BOTH callers, so they can never drift and both skip fenced heads. 107 tests green (+9 adversarial); real corpus unchanged at 67 units, proving the parseLedger refactor is behavior-preserving.
+
+### [2026-06-29 16:43:01] DECISION/VALIDATED — Architecture clarified: Promptus is an agent substrate; grannie is the one human read-port; RENDER is not a verb
+Operator reframe, accepted: the whole of Promptus serves the LLM AGENT — STORE/KEEP/RETRIEVE/GRAPH are agent-operated. The only human-initiated loop is grannie (a person asks /grannie explain X; it retrieves, grounds, and explains plainly at honest confidence). So RENDER is NOT a fourth verb: grounding = recall, styling = the humanizer patterns, and grannie already composes BOTH — there was never a "humanizer ground mode" to build (it lives, assembled, inside grannie). Reclassified: humanizer = a bundled STYLE TOOLKIT grannie dials and the agent applies to its own prose (not a knowledge verb); grounded-writing-reviewer = an agent-side AUDIT; overnight-handoff = agent-to-agent state (a checkpoint variant). Retired the planned Phase-3 "humanizer grounding" as a category error. Re-truthed the docs (TELOS, README + both Mermaid diagrams, plugin.json, orchestrator SKILL, help) from "render for an audience" to "agent substrate + grannie as the one human read-port". Clears the last pre-ship honesty gap: docs now match code. Anchoring distinction: grannie is human-initiated; writing / auditing / handoff are agent-initiated.
+
+### [2026-06-29 16:55:56] RESULT/VALIDATED — Final pre-ship audit: .promptus structure conformant; graph design + suggest ancestor distilled into Knowledge
+Final audit before the v0.5.0 ship, two parts. (1) STRUCTURE: promptus-doctor check reports layout=current, vocab namespaced v3, gate reachable, gitignore correct (only cache/ ignored), all 6 stores present -- Promptus's own .promptus/ conforms to the canonical layout it prescribes; dogfooding integrity holds. (2) KNOWLEDGE COMPLETENESS: the graph layer + kb-get were built this session but their design rationale lived only in ledger events, and the design report + the hipporag lit unit still framed PageRank / the latent-link linter as DEFERRED (the pre-reframe overreach). Closed: re-truthed report.md (agent substrate + grannie read-port; two-tier retrieve; the scriptable graph ships now, embedding-scale defers) and hipporag.md (PPR ships as kb-graph rank); added finding "The scriptable graph layer" (rank = HippoRAG PPR minus vectors, lint, suggest = unlinked-references minus ML) and lit "Unlinked references" (Roam/Obsidian -- the named ancestor of suggest); wired the orphaned design report to the 7 findings it synthesizes. Now 71 units, no unresolved links, orphans down to 2 (standalone memory facts). 108 tests + validator green. The store now holds its own complete, current design history.
 
 <!-- kb:append-point -->

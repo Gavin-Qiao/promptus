@@ -139,6 +139,39 @@ test("recursion: an archive/ subdir is cold storage and stays unindexed (no bloa
   expect(catalog(root)).not.toContain("Retired continuation"); // archive/ is left cold
 });
 
+// ---- De-noise: unit-scoped matching, --limit, --snippet ----
+
+test("denoise: a ledger body term matches only the entry that holds it, not its file-mates", () => {
+  const root = scaffold();
+  add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "VALIDATED", "--title", "alpha entry"], "body with zentinel42 token");
+  add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "VALIDATED", "--title", "beta entry"], "an unrelated body");
+  add(root, ["--substrate", "ledger", "--kind", "RESULT", "--status", "VALIDATED", "--title", "gamma entry"], "another unrelated body");
+  index(root);
+  const out = find(root, ["zentinel42"]).stdout;
+  const hits = out.split(/\r?\n/).filter((l) => l.includes(" · "));
+  expect(hits.length).toBe(1);              // the de-noise — not all 3 entries sharing the file
+  expect(out).toContain("alpha entry");
+  expect(out).not.toContain("beta entry");  // the old whole-file grep returned these too
+});
+
+test("--limit caps the result and reports how many it held back", () => {
+  const root = scaffold();
+  for (const t of ["one", "two", "three"]) add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", `shared ${t}`], "x");
+  index(root);
+  const out = find(root, ["shared", "--limit", "1"]).stdout;
+  expect(out.split(/\r?\n/).filter((l) => l.includes(" · ")).length).toBe(1);
+  expect(out).toContain("of 3 shown"); // no silent truncation
+});
+
+test("--snippet attaches the matched line so relevance is judged header-first", () => {
+  const root = scaffold();
+  add(root, ["--substrate", "finding", "--kind", "CLAIM", "--status", "VALIDATED", "--title", "a finding"], "the magic token wobble9 lives in the body");
+  index(root);
+  const out = find(root, ["wobble9", "--snippet"]).stdout;
+  expect(out).toContain("↳");       // the snippet marker
+  expect(out).toContain("wobble9"); // the matched line, not just the header
+});
+
 // ---- Cross-OS / encoding ----
 
 test("cross-os: a CRLF ledger still parses (Windows autocrlf must not drop entries)", () => {

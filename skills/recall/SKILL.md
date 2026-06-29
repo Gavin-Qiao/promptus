@@ -14,19 +14,27 @@ store, check it rather than asserting from memory.
 
 1. **Decompose.** Break the question into retrievable sub-questions. A multi-hop question
    ("does our method beat the baseline on the hard cases?") splits into facts you can look up.
-2. **Retrieve header-first.** For each sub-question:
+2. **Retrieve header-first, then fetch only what you need.** Two tiers — find the headers, then
+   pull just the bodies the headers earned. For each sub-question:
    ```
-   bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-find.ts" "<sub-question>" [--substrate ledger|finding|lit|memory] [--status <S>] [--hops <n>]
+   bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-find.ts" "<sub-question>" [--substrate ledger|finding|lit|memory] [--status <S>] [--hops <n>] [--snippet]
    ```
-   The card-catalog is the index; read the returned headers, then open only the bodies you need.
-   Widen `--hops` (1–2) when you need associative neighbours, not just direct keyword hits.
+   The card-catalog is the index: read the returned headers (add `--snippet` to see the matched
+   line), decide which units are worth the body, then fetch just those — never the whole ledger:
+   ```
+   bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-get.ts" "<path>" [--title "<title>"]   # <path> = kb-find's 3rd ` · ` column
+   ```
+   `kb-get` returns one unit's text — a page's whole file, or a single ledger entry's slice (not
+   the ~200 it shares a file with); `--title` disambiguates a same-second anchor. Widen `--hops`
+   (1–2) when you need associative neighbours, not just direct keyword hits.
 3. **Confidence-gate on status** — this is the calibration source:
    - `ledger:CONJECTURED`, `finding:CONJECTURED`, `memory:provisional` → **weak**; hedge.
    - `finding:VALIDATED`, `ledger:VALIDATED`, `memory:validated` → **firm**; state plainly.
    - `lit:CITE` → citable prior art; attribute it by name.
    - `ledger:DEADEND`, `finding:REFUTED`, `finding:SUPERSEDED` → say it failed / was overturned.
-4. **Verify.** Open each unit's `source#anchor` (or its body) — do **not** pass through a unit
-   you didn't read. If the store doesn't back the claim, say *unsupported*, don't invent.
+4. **Verify.** Read each unit you cite — its body via `kb-get` (a page or a ledger slice), or a
+   lit unit's `source#anchor` at the real source. Do **not** pass through a unit you didn't read.
+   If the store doesn't back the claim, say *unsupported*, don't invent.
 5. **Synthesize.** Answer in the form the caller (humanizer, grannie, a reviewer) can render
    honestly: each point carries its `substrate:status` and its citation.
 
