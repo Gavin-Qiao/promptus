@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-29 (v0.4.0 kb-ingest)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-29 (v0.4.1 hardening)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -24,37 +24,33 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 
 <!-- now:start -->
 
-## NOW (v0.4.0 — kb-ingest, the curate verb)
-**Shipping.** `kb-ingest` gives deep-research notes the `source` the `lit` substrate requires —
-`backfill` (existing lit notes; source from a ledger run-id or the note's own citation) and `promote`
-(reclassify an external note into `docs/lit/`). It derives provenance only from what's recorded;
-**flags, never invents**. An adversarial audit found + fixed 4 bugs the happy-path tests missed
-(including a recall regression only real Psi data caught). Dogfooded on all three: Promptus (no-op),
-Psi (32/37 sourced, 5 flagged), Probatio (12 lit units after an operator-signed-off classification
-that also surfaced 6 unindexed `positioning/` audits). 72 tests green.
+## NOW (v0.4.1 — hardening)
+**Shipping.** Hardening pass: `kb-index` now recurses into `docs/` subdirs (the `positioning/` blind
+spot the Probatio dogfood exposed) — longest-prefix store ownership prevents double-indexing `lit`,
+and `archive/` + hidden dirs stay cold; `README` is skipped as navigation. Cross-OS checks
+(Windows/macOS) are now **required** on `main`. 76 tests green. v0.3.0 (doctor) + v0.4.0 (kb-ingest)
+remain shipped + dogfooded across Promptus/Psi/Probatio.
 
 ## Open frontier
-- [x] v0.3.0 doctor + v0.4.0 kb-ingest — built, hardened, dogfooded on sandbox copies.
-- [ ] **Apply migrate → ingest to the REAL Psi + Probatio** — operator-gated. Both carry heavy uncommitted WIP; commit/stash first so the moves read as renames. The Probatio lit classification is settled (10 promotes — see the Log + memory).
-- [ ] **Retrieval economy** — needles return 100s of hits/query; build `kb-get` / `kb-find --snippet/--limit`. A measured need.
-- [ ] **Ops:** promote `tests (windows/macos)` to required checks on `main`; the suite showed a transient teardown flake under load — harden it.
+- [x] v0.3.0 doctor · v0.4.0 kb-ingest · v0.4.1 kb-index recursion + cross-OS required checks.
+- [ ] **Apply migrate → ingest to the REAL Psi + Probatio** — operator-gated; commit/stash WIP first. Probatio lit classification is settled (10 promotes — see memory + Log).
+- [ ] **`kb-get` (retrieval economy)** — a measured need (100s of hits/query); the next build lever.
+- [ ] On the real Psi conversion: source the 5 flagged lit notes by hand (no machine-recoverable source).
 
 ## Next actions
-1. Ship v0.4.0 (PR → `main` → tag).
-2. Await the go-ahead to convert the REAL Psi + Probatio.
-3. Build `kb-get` (retrieval economy).
+1. Pick the next track: the real-repo conversion (the payoff) or `kb-get` (the next capability).
+2. When converting for real, quiesce + commit/stash each repo first.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.4.0 ships `kb-ingest`** (`scripts/kb-ingest.ts` + `/promptus-ingest`): the curate verb
-that gives external-knowledge notes their `source` — `backfill` existing lit, `promote` a misfiled
-external note into `docs/lit/`. It derives provenance only from a ledger run-id / the note's own
-citation and FLAGS rather than invents. Hardened by an adversarial audit (4 bugs fixed; a citation
-over-tightening regression caught only on real Psi data). Dogfooded on copies of all three repos:
-Promptus no-op, Psi 32/37 sourced + 5 flagged, Probatio 12 lit units after the operator signed off a
-lit-vs-finding pass (10 promotes, incl. 6 `positioning/` audits that kb-index's non-recursive walk had
-left unindexed). **Next real-world step (operator-gated):** run the full pipeline — doctor `migrate
---apply` then `kb-ingest` — on the REAL Psi + Probatio (commit/stash their WIP first). Then build the
-measured retrieval economy (`kb-get`). Read `.promptus/TELOS.md`, then this header, then the Log.
+Promptus is at **v0.4.1**: doctor (migrate, v0.3.0), kb-ingest (curate lit, v0.4.0), and a hardening
+patch (v0.4.1) — `kb-index` now recurses into `docs/` subdirs (each file assigned to its
+longest-matching store so `lit` is never double-indexed; `archive/` + hidden dirs cold; README
+skipped), and Windows/macOS are required checks on `main`. All shipped + dogfooded on sandbox copies
+(originals untouched). **Two live tracks, operator's pick:** (a) run the full pipeline — doctor
+`migrate --apply` then `kb-ingest` — on the REAL Psi + Probatio (their gate is down; commit/stash WIP
+first; the Probatio lit classification is settled, 10 promotes in memory), or (b) build `kb-get` /
+`kb-find --snippet/--limit`, the now-measured retrieval economy. Read `.promptus/TELOS.md`, then this
+header, then the Log.
 
 <!-- now:end -->
 
@@ -189,5 +185,11 @@ Operator signed off on the lit-vs-finding classification for Probatio's deep-res
 
 ### [2026-06-29 13:01:04] RESULT/VALIDATED — dogfood: kb-ingest works on Promptus + Psi + Probatio; no invented sources
 kb-ingest validated on all 3 dogfood repos (sandbox copies, originals untouched): Promptus = clean no-op (own lit already sourced); Psi = 32/37 sourced (6 ledger run-id, 26 own citation), 5 honestly flagged; Probatio = 12 lit after the signed-off classification. Confirms the tool is honest (no invented provenance) across real corpora.
+
+### [2026-06-29 13:35:03] FIX/RESOLVED — v0.4.1: kb-index recurses into docs/ subdirs (the positioning/ blind spot)
+kb-index walked each store dir non-recursively, so notes in docs/ subdirs were silently unindexed + unretrievable — exposed by the Probatio dogfood (its docs/positioning/ audits were invisible). Fix: mdFiles recurses; collect() assigns each file to its LONGEST-matching store so the recursive finding walk never double-indexes the nested lit store; archive/ (cold storage) + hidden dirs + README.md are skipped so re-indexing doesn't re-introduce archived bloat. +4 robustness tests (subdir indexed, no double-index, README skipped, archive cold). 76 green.
+
+### [2026-06-29 13:35:03] DECISION/VALIDATED — Ops: cross-OS checks now required on main; the suite 'flake' was contention, not a bug
+Promoted tests (windows-latest) + tests (macos-latest) to required status checks on main (gh api PATCH of the branch-protection required_status_checks, strict kept). The cross-OS matrix now gates every merge — pending since v0.2.0. Also: the one-off 70/2 test result earlier was subprocess/fs contention from running two suites concurrently, not a code flake — 3 consecutive isolated runs are 76/0; documented as transient, not chased.
 
 <!-- kb:append-point -->

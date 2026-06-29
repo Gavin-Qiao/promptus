@@ -17,6 +17,18 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-29
+
+### Fixed
+
+- **`kb-index` now indexes notes in `docs/` subdirectories.** The store walk was non-recursive, so a
+  note in a subdirectory (e.g. an external audit under `docs/positioning/`) was silently left out of
+  the catalog and unretrievable — a blind spot the Probatio dogfood exposed. `kb-index` now recurses,
+  assigning each file to its **longest-matching store** so the recursive finding walk never
+  double-indexes the nested `lit` store. An `archive/` subdir is treated as cold storage and hidden
+  dirs are skipped, so re-indexing doesn't re-introduce the bloat that archiving removed; `README.md`
+  is skipped as navigation, like `INDEX.md`.
+
 ## [0.4.0] - 2026-06-29
 
 ### Added
@@ -225,7 +237,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.1.1...v0.2.0

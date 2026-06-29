@@ -15,7 +15,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { parseFrontmatter } from "./lib/frontmatter.ts";
 import { extractLinks } from "./lib/links.ts";
 import { loadVocab, type Relation, type Vocab } from "./lib/vocab.ts";
@@ -39,11 +39,21 @@ function parseRel(s: string): Relation | null {
   return c > 0 && c < s.length - 1 ? { type: s.slice(0, c), target: s.slice(c + 1).trim() } : null;
 }
 
+// Walk RECURSIVELY: a store's notes may sit in subdirectories (e.g. docs/positioning/), and a
+// non-recursive walk left those silently unindexed. But `archive/` is cold storage by convention
+// (continuations retired for bloat control) and hidden dirs (.git, …) aren't content — skip both,
+// so re-indexing doesn't re-introduce the bloat that archiving removed. README/index/memory files
+// are navigation, not units, so they're skipped too.
 function mdFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".md") && !["index.md", "memory.md"].includes(f.toLowerCase()))
-    .map((f) => join(dir, f));
+  const out: string[] = [];
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) {
+      if (e.name !== "archive" && !e.name.startsWith(".")) out.push(...mdFiles(p));
+    } else if (e.name.endsWith(".md") && !["index.md", "memory.md", "readme.md"].includes(e.name.toLowerCase())) out.push(p);
+  }
+  return out;
 }
 
 function parseLedger(root: string, store: string): Unit[] {
@@ -85,21 +95,33 @@ function parsePage(root: string, substrate: string, file: string): Unit {
 
 function collect(root: string, vocab: Vocab): Unit[] {
   const units: Unit[] = [];
+  const norm = (p: string) => p.replace(/\\/g, "/");
+  // File stores can nest (lit = docs/lit lives inside finding = docs). Each file belongs to its
+  // LONGEST-matching store dir, so the recursive finding walk does not double-index lit, and a
+  // note in an undeclared subdir (docs/positioning/) is indexed under its nearest store (finding).
+  const fileStores = Object.entries(vocab.substrates)
+    .filter(([, s]) => s.placement === "file")
+    .map(([name, s]) => ({ name, dir: norm(join(root, s.store)) }))
+    .sort((a, b) => b.dir.length - a.dir.length);
   // Sentinel stores (the ledger) are parsed as a log, never as a page — even when they live
-  // inside a file-store dir (e.g. Probatio's ledger is docs/research-ledger.md, and findings
-  // are docs/), so don't double-index them.
-  const sentinelStores = new Set(
-    Object.values(vocab.substrates)
-      .filter((s) => s.placement === "sentinel")
-      .map((s) => join(root, s.store).replace(/\\/g, "/")),
+  // inside a file-store dir (e.g. Probatio's ledger is docs/research-ledger.md), so skip them here.
+  const sentinelFiles = new Set(
+    Object.values(vocab.substrates).filter((s) => s.placement === "sentinel").map((s) => norm(join(root, s.store))),
   );
-  for (const [name, sub] of Object.entries(vocab.substrates)) {
-    if (sub.envelope === "log") units.push(...parseLedger(root, sub.store));
-    else if (sub.placement === "file")
-      for (const f of mdFiles(join(root, sub.store))) {
-        if (sentinelStores.has(f.replace(/\\/g, "/"))) continue;
-        units.push(parsePage(root, name, f));
-      }
+  const owner = (fileDir: string) => fileStores.find((st) => fileDir === st.dir || fileDir.startsWith(st.dir + "/"));
+
+  for (const sub of Object.values(vocab.substrates)) if (sub.envelope === "log") units.push(...parseLedger(root, sub.store));
+
+  const seen = new Set<string>();
+  for (const st of fileStores) {
+    for (const f of mdFiles(st.dir)) {
+      const nf = norm(f);
+      if (seen.has(nf) || sentinelFiles.has(nf)) continue;
+      const own = owner(norm(dirname(nf)));
+      if (!own || own.name !== st.name) continue; // a nested, more-specific store owns this file
+      seen.add(nf);
+      units.push(parsePage(root, st.name, nf));
+    }
   }
   return units;
 }
