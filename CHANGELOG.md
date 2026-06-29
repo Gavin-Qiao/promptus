@@ -23,8 +23,9 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 - **`kb-get` — the body-fetch retrieval tier** (`scripts/kb-get.ts`). Completes RETRIEVE: `kb-find`
   says *which* unit (header-first); `kb-get` returns that unit's text by its catalog path — one ledger
-  entry's slice, not the whole shared file. `--title` disambiguates a same-second anchor. Unit
-  extraction is shared with `kb-find` through `scripts/lib/units.ts`, so the retriever and the fetcher
+  entry's slice, not the whole shared file. `--title` disambiguates a same-second anchor, and a path
+  that escapes the project root is refused (it reads only within the project). Unit extraction is
+  shared with `kb-find` through `scripts/lib/units.ts`, so the retriever and the fetcher
   agree on a unit's bounds; the `recall` skill now drives both tiers (read headers, then fetch only the
   bodies they earn).
 - **`kb-graph` — query the `[[link]]` graph** (`scripts/kb-graph.ts`, command `/promptus-graph`). No

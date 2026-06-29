@@ -155,9 +155,10 @@ test("kb-graph suggest: two sourceless units are never paired by 'shared source'
   expect(out).not.toContain("shared source"); // empty source must not equal empty source
 });
 
-test("kb-get: a path escaping the root is refused, not crashed", () => {
+test("kb-get: a path escaping the project root is refused (not read off disk)", () => {
   const root = scaffold();
+  // on Unix this would otherwise resolve to a real /etc/hosts — kb-get must refuse, deterministically, cross-OS
   const r = get(root, ["../../../../../../etc/hosts"]);
   expect(r.status).toBe(1);
-  expect(r.stderr.toLowerCase()).toContain("no such file");
+  expect(r.stderr.toLowerCase()).toContain("outside the project root");
 });

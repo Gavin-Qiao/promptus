@@ -21,7 +21,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve as resolvePath, sep } from "node:path";
 import { findProjectRoot } from "./lib/paths.ts";
 import { ledgerEntries, readCached } from "./lib/units.ts";
 
@@ -30,6 +30,10 @@ type Resolved = { ok: true; text: string } | { ok: false; err: string };
 function resolve(root: string, path: string, title?: string): Resolved {
   const [rel, anchor] = path.split("#");
   const file = join(root, rel);
+  // confine to the project: a catalog path is always inside root, so a `../` escape is never a unit —
+  // refuse it rather than read an arbitrary file off disk (on Unix, `../…/etc/hosts` exists).
+  const abs = resolvePath(file), absRoot = resolvePath(root);
+  if (abs !== absRoot && !abs.startsWith(absRoot + sep)) return { ok: false, err: `refusing to read outside the project root: ${rel}` };
   if (!existsSync(file)) return { ok: false, err: `no such file: ${rel}` };
   if (!anchor) return { ok: true, text: readCached(file) }; // a page: the file IS the unit
   const es = ledgerEntries(file);
