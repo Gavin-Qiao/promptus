@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-28 (v0.3.0 the doctor)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-29 (v0.4.0 kb-ingest)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -24,35 +24,37 @@ derived; writes go through a gated script; a hand-written header beats a vector 
 
 <!-- now:start -->
 
-## NOW (v0.3.0 — the doctor)
-**Shipped.** `promptus-doctor` — a version-aware `check` / `migrate` tool — brings a 0.1.x or
-custom layout up to the `.promptus/` namespace: dry-run-first, it MOVES stores to their canonical
-homes, upgrades the vocab, narrows the `.gitignore` (the load-bearing fix — otherwise the migrated
-stores get gitignored), and reindexes, **never editing a unit's content**. 16 doctor tests; 59
-green overall. Dogfooded on sandbox COPIES of Psi (legacy-root, 191 units) + Probatio (custom, 248
-units): originals byte-identical, 12/12 needles retrievable. Releasing v0.3.0 now.
+## NOW (v0.4.0 — kb-ingest, the curate verb)
+**Shipping.** `kb-ingest` gives deep-research notes the `source` the `lit` substrate requires —
+`backfill` (existing lit notes; source from a ledger run-id or the note's own citation) and `promote`
+(reclassify an external note into `docs/lit/`). It derives provenance only from what's recorded;
+**flags, never invents**. An adversarial audit found + fixed 4 bugs the happy-path tests missed
+(including a recall regression only real Psi data caught). Dogfooded on all three: Promptus (no-op),
+Psi (32/37 sourced, 5 flagged), Probatio (12 lit units after an operator-signed-off classification
+that also surfaced 6 unindexed `positioning/` audits). 72 tests green.
 
 ## Open frontier
-- [x] **v0.3.0 — the doctor** built, tested, dogfooded on Psi+Probatio copies; releasing.
-- [ ] **Replace Psi + Probatio's real Promptus** — AWAITING operator review. On go: `promptus-doctor migrate --apply` in each real repo (commit/stash their WIP first so the moves read as renames). The per-repo `docs/` call is settled: bring it all under `.promptus/docs/` (it stays retrievable as `finding:?`).
-- [ ] **Retrieval economy** — real needles returned 189–218 hits/query (body-grep matches every ledger card). Build `kb-get` / `kb-find --snippet/--limit`. No longer parked-on-spec; a measured need.
-- [ ] **Ops:** promote `tests (windows-latest)` / `(macos-latest)` to required checks on `main`.
+- [x] v0.3.0 doctor + v0.4.0 kb-ingest — built, hardened, dogfooded on sandbox copies.
+- [ ] **Apply migrate → ingest to the REAL Psi + Probatio** — operator-gated. Both carry heavy uncommitted WIP; commit/stash first so the moves read as renames. The Probatio lit classification is settled (10 promotes — see the Log + memory).
+- [ ] **Retrieval economy** — needles return 100s of hits/query; build `kb-get` / `kb-find --snippet/--limit`. A measured need.
+- [ ] **Ops:** promote `tests (windows/macos)` to required checks on `main`; the suite showed a transient teardown flake under load — harden it.
 
 ## Next actions
-1. Tag `v0.3.0` → release.yml publishes; confirm green.
-2. Report to the operator; await review + the go-ahead to replace Psi/Probatio's Promptus.
-3. On go, run the doctor on the real repos (additive; their WIP committed/stashed first).
+1. Ship v0.4.0 (PR → `main` → tag).
+2. Await the go-ahead to convert the REAL Psi + Probatio.
+3. Build `kb-get` (retrieval economy).
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.3.0 ships the doctor** (`scripts/promptus-doctor.ts` + `/promptus-doctor`): a
-version-aware check/migrate that relocates a 0.1.x or custom layout to the canonical `.promptus/`
-namespace without touching unit content, narrowing the `.gitignore` so the stores stay committed.
-Dogfooded on sandbox copies of Psi (legacy-root, 191 units) and Probatio (custom — ledger + telos
-inside `docs/`, 248 units): originals byte-for-byte untouched, every needle retrievable. The
-release (PR → `main` → tag `v0.3.0`) is the last mechanical step. **The next real-world action
-needs the operator's go-ahead:** run `promptus-doctor migrate --apply` on the REAL Psi + Probatio
-(both carry heavy uncommitted WIP — commit or stash first so the moves read as renames). Then build
-the now-measured retrieval economy (`kb-get`). Read `.promptus/TELOS.md`, then this header, then the Log.
+Promptus **v0.4.0 ships `kb-ingest`** (`scripts/kb-ingest.ts` + `/promptus-ingest`): the curate verb
+that gives external-knowledge notes their `source` — `backfill` existing lit, `promote` a misfiled
+external note into `docs/lit/`. It derives provenance only from a ledger run-id / the note's own
+citation and FLAGS rather than invents. Hardened by an adversarial audit (4 bugs fixed; a citation
+over-tightening regression caught only on real Psi data). Dogfooded on copies of all three repos:
+Promptus no-op, Psi 32/37 sourced + 5 flagged, Probatio 12 lit units after the operator signed off a
+lit-vs-finding pass (10 promotes, incl. 6 `positioning/` audits that kb-index's non-recursive walk had
+left unindexed). **Next real-world step (operator-gated):** run the full pipeline — doctor `migrate
+--apply` then `kb-ingest` — on the REAL Psi + Probatio (commit/stash their WIP first). Then build the
+measured retrieval economy (`kb-get`). Read `.promptus/TELOS.md`, then this header, then the Log.
 
 <!-- now:end -->
 
@@ -175,5 +177,17 @@ Migrated COPIES in a sandbox (never the originals): Psi (legacy-root, 191 units)
 
 ### [2026-06-28 21:25:01] FINDING/VALIDATED — real-data needles confirm the retrieval-economy need (parked kb-get/--snippet)
 Each real-data needle returned 189-218 hits: the kb-find body-grep matches every ledger card because they share one file. Retrieval works (the needle always surfaces) but is noisy. This is direct evidence FOR the parked retrieval-economy work — kb-get / kb-find --snippet/--limit — to stop swallowing the whole ledger per query.
+
+### [2026-06-29 13:01:04] RESULT/VALIDATED — v0.4.0: built kb-ingest, the CURATE verb (backfill + promote)
+Built kb-ingest: backfill (prepend lit frontmatter, source from ledger run-id or the note's own ## Citation/## References) + promote (reclassify an external note out of the finding store into docs/lit/, replacing stale frontmatter, fixing moved links). Derives source ONLY from what's recorded; FLAGS, never invents. 13 tests; /promptus-ingest command.
+
+### [2026-06-29 13:01:04] FINDING/VALIDATED — kb-ingest adversarial audit: 4 bugs fixed; real data caught a recall regression fixtures passed
+Adversarial audit found 4 real bugs the 9 happy-path tests missed: (1) promote stacked a 2nd frontmatter block onto a file that already had one; (2) a '## Source of the wall' content heading was extracted as the citation (provenance corruption); (3) an uppercase ](TELOS.md) link mis-pathed; (4) --kind written unvalidated. All fixed + regression-tested. The fix for (2) over-tightened and dropped 8 real '## References (...)' notes — caught ONLY by re-running on real Psi data, not the synthetic tests. Lesson: dogfood on real data, not just fixtures.
+
+### [2026-06-29 13:01:04] DECISION/VALIDATED — Probatio lit-vs-finding settled (operator sign-off): 12 lit units, positioning/ surfaced
+Operator signed off on the lit-vs-finding classification for Probatio's deep-research. Promote 10 to lit: prior-art-org-redesign, epistemics-of-the-believer (sweep D75 wf_93f1d629), manager-interventions, apn-125-ladder, + 6 positioning/ audits (aristotle-novelty, buehler arXiv:2606.01444, competitive-landscape, principia-prior-art, reinvented-wheel, publication-strategy). KEY: the positioning/ subdir was UNINDEXED (kb-index is non-recursive on docs/) — promotion both re-types and surfaces them. Result: 12 lit units (was 2).
+
+### [2026-06-29 13:01:04] RESULT/VALIDATED — dogfood: kb-ingest works on Promptus + Psi + Probatio; no invented sources
+kb-ingest validated on all 3 dogfood repos (sandbox copies, originals untouched): Promptus = clean no-op (own lit already sourced); Psi = 32/37 sourced (6 ledger run-id, 26 own citation), 5 honestly flagged; Probatio = 12 lit after the signed-off classification. Confirms the tool is honest (no invented provenance) across real corpora.
 
 <!-- kb:append-point -->
