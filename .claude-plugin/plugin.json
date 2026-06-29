@@ -1,7 +1,7 @@
 {
   "name": "promptus",
-  "version": "0.4.1",
-  "description": "A file-based research knowledge system: store / keep / retrieve what a project knows as gated markdown, and render it for an audience (humanizer, grannie). Includes the humanizer skill.",
+  "version": "0.5.0",
+  "description": "A file-based research knowledge system — a substrate for the LLM agent: store / keep / retrieve what a project knows as gated markdown, navigable by status and a [[link]] graph. grannie is the human read-port (plain-language, grounded answers); the humanizer is a bundled style toolkit.",
   "author": {
     "name": "Mohan Qiao",
     "url": "https://github.com/Gavin-Qiao"

@@ -2,14 +2,16 @@
 
 ## North star
 
-Promptus is a file-based research knowledge system. Its job is to **store / keep /
-retrieve** everything a research project knows — events, literature, findings,
-durable memory — as gated, well-formed markdown, and to **render** that knowledge
-for an audience (a reviewer, a layperson, the next agent at 3am).
+Promptus is a file-based research knowledge system — a knowledge **substrate for the
+LLM agent** doing the research. Its job is to **store / keep / retrieve** everything a
+project knows — events, literature, findings, durable memory — as gated, well-formed
+markdown, so the agent's reasoning and writing stay honest, grounded, and navigable.
 
-The humanizer is one renderer in the box. Everything else (the four stores, the
-three verbs, the card-catalog) exists so that what a project knows is honest,
-grounded, and navigable.
+The agent is the user. A human reads in through **one port: grannie** (`/grannie
+explain …`), which answers from the store in plain language, honest about confidence.
+The humanizer is a **style toolkit** grannie dials (and the agent applies to its own
+prose) — not a verb of its own. There is no separate "render for an audience": the
+agent grounds its writing by retrieving; grannie is the one human-facing read.
 
 ## The four stores
 
@@ -28,13 +30,14 @@ spans all four.
 
 - **STORE** → `scripts/kb-add.ts` (gated writer-jig; the LLM supplies only the prose body).
 - **BOOK-KEEP** → `scripts/kb-index.ts` (rebuild the derived catalog + graph) + `/checkpoint` (lossless flush before compaction).
-- **RETRIEVE** → `scripts/kb-find.ts` (header-first) + `skills/recall` (reasoning).
+- **RETRIEVE** → `scripts/kb-find.ts` → `scripts/kb-get.ts` (header-first, then body-fetch) + `scripts/kb-graph.ts` (rank · lint · suggest over the `[[link]]` graph) + `skills/recall` (reasoning).
 
-## The renderers
+## The human read-port + the skills around it
 
-- **humanizer** (`/humanizer`) — write humanized text (pure style). *Real / shipping.*
-- **grannie** (`/grannie explain …`) — explain a concept in plain language; auto-looks-up the store by judgement. *Stub.*
-- **overnight-handoff** — terse resumable state for the next agent. *Deferred.*
+- **grannie** (`/grannie explain …`) — the one human-facing port: explain a stored concept in plain language, grounded by judgement (auto-looks-up the store) and honest about its status. *Real.*
+- **humanizer** (`/humanizer`) — a style toolkit (de-AI, human voice) grannie dials and the agent applies to its own prose. Not a knowledge verb. *Real.*
+- **grounded-writing-reviewer** — an agent-side audit: check a draft's claims against the store. *Real.*
+- **overnight-handoff** — terse resumable state for the next agent (agent-to-agent, a checkpoint variant). *Deferred.*
 
 ## Rules that never bend (the invariant)
 

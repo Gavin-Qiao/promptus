@@ -10,4 +10,4 @@ relations: ["relates-to:kag-knowledge-augmented-generation"]
 ---
 # HippoRAG
 
-HippoRAG (Gutierrez et al., NeurIPS 2024): a schemaless knowledge graph used as a "hippocampal index" over which Personalized PageRank, seeded on the query's concepts, gathers associatively related facts in a single multi-hop pass. The principled version of Promptus's kb-find --hops graph-walk; PPR ranking is deferred (report section 5). KAG benchmarks against it.
+HippoRAG (Gutierrez et al., NeurIPS 2024): a schemaless knowledge graph used as a "hippocampal index" over which Personalized PageRank, seeded on the query's concepts, gathers associatively related facts in a single multi-hop pass. The principled version of Promptus's kb-find --hops graph-walk; its PPR now ships as `kb-graph rank` (PPR over the page-link graph, minus the embeddings) — see [[the-scriptable-graph-layer]]. The embedding-scale version stays deferred (report section 5). KAG benchmarks against it.

@@ -18,10 +18,12 @@ otherwise give the map below and end at the single next step.
   - **Memory** (`.promptus/memory/`) — durable facts, one per file.
 - **Three verbs** — scripts do the mechanics, skills do the reasoning:
   - **STORE** → `kb-add` (the gated writer-jig; off-vocab input is refused with the allowed set).
-  - **BOOK-KEEP** → `kb-index` (rebuild the derived catalog + graph; lint) and `/checkpoint`.
-  - **RETRIEVE** → `kb-find` (header-first) and the `recall` skill.
-- **Render** the store for an audience: `humanizer` (paper voice), `grannie` (plain language),
-  and the `grounded-writing-reviewer` agent.
+  - **BOOK-KEEP** → `kb-index` (rebuild the derived catalog + graph) + `kb-graph lint` (graph health) and `/checkpoint`.
+  - **RETRIEVE** → `kb-find` (header-first) → `kb-get` (fetch one unit's body) and the `recall` skill;
+    `kb-graph rank`/`suggest` to navigate the `[[link]]` graph.
+- A human reads in through **`grannie`** (`/grannie explain <concept>`) — plain-language, grounded
+  answers; the one human port. The `humanizer` is a bundled style toolkit, the
+  `grounded-writing-reviewer` an agent-side audit.
 
 ## Commands & skills
 
@@ -34,6 +36,7 @@ otherwise give the map below and end at the single next step.
 | write something grounded and human | `recall` (grounds it) → `humanizer` (styles it) |
 | explain a concept plainly | the `grannie` skill (`explain <concept>`) |
 | audit a draft | the `grounded-writing-reviewer` agent |
+| inspect or heal the knowledge graph | `/promptus:promptus-graph` (`rank` · `lint` · `suggest`) |
 | see the whole map | the `promptus` orchestrator skill |
 
 ## The invariant

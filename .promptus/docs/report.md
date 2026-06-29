@@ -22,10 +22,12 @@ which stay off until a measured threshold.
 
 ## 3. Architecture
 
-Four stores (Telos / Ledger / Knowledge / Memory), three verbs (STORE / BOOK-KEEP / RETRIEVE),
-and a family of renderers (humanizer, grannie, a reviewer) projecting the store to an audience.
-Every unit is tagged `substrate:status`; that status is the **calibration source** — a
-renderer states `VALIDATED` plainly, hedges `CONJECTURED`, and admits a `DEADEND`.
+Four stores (Telos / Ledger / Knowledge / Memory) and three agent-operated verbs (STORE /
+BOOK-KEEP / RETRIEVE), over a `[[link]]` graph the agent navigates with `kb-graph`. Promptus is a
+substrate for the **LLM agent**; a human reads in through one port — **grannie** — which explains a
+stored concept in plain language. Every unit is tagged `substrate:status`; that status is the
+**calibration source** — state `VALIDATED` plainly, hedge `CONJECTURED`, admit a `DEADEND`. The
+humanizer is a style toolkit grannie dials (and the agent applies to its own prose), not a verb.
 
 ## 4. Mechanics
 
@@ -33,17 +35,30 @@ renderer states `VALIDATED` plainly, hedges `CONJECTURED`, and admits a `DEADEND
   KIND/STATUS — title` log line for the ledger in local time; a `# claim` page for
   findings/lit; one file + an index pointer for memory), the timestamp, the id, the placement,
   and a validation gate that refuses off-vocab input with the allowed set.
-- **Header-first retrieval** (`kb-find`) reads the derived card-catalog (`.promptus/CATALOG.md`,
-  one line per unit), greps bodies for what headers didn't advertise, and walks the link graph.
+- **Two-tier retrieval**: `kb-find` reads the derived card-catalog (`.promptus/cache/CATALOG.md`,
+  one line per unit) header-first — the cheap, certain tier — matching a body term against the
+  entry's own slice, not the shared file; `kb-get` then fetches just the unit bodies the headers
+  earned, so a ledger term never costs the whole file. The `recall` skill drives both.
+- **The graph** (`kb-graph`, no embeddings — the `[[links]]` are the graph): `rank` (personalized
+  PageRank for the load-bearing units), `lint` (dangling handles with a "did you mean?" + orphans),
+  `suggest` (a lexical latent-link linter — unlinked-but-related pairs to connect). It queries `graph.json`.
 - **Book-keeping** (`kb-index` + `/checkpoint`): rebuild the catalog/graph, resolve supersedes,
   lint orphans + unresolved links; format-linting is unnecessary because nothing is hand-typed.
 
 ## 5. The papers-scale crossing
 
-When the corpus becomes hundreds–thousands of *papers* (not one project's notes), the header
-catalog stops fitting one read and the deferred machinery turns on, each past a measured
-threshold, into the existing seams: `kb-ingest` (schema-constrained extraction) → embeddings as
-a pre-filter scoped to `.promptus/docs/lit` → a latent-link linter at checkpoint → graph algorithms as
-scripts (personalized-PageRank related-work, GraphRAG-style community summaries) → RAPTOR-style
-summary tiers → mutual-index hardening for sentence-level citation. The invariant still governs:
-markdown stays truth, indexes stay derived, scripts beat servers, machinery turns on by measurement.
+The scriptable graph layer already ships at notes-scale (`kb-graph rank` = personalized-PageRank,
+`suggest` = a lexical latent-link linter — no embeddings). What defers to the **papers-scale**
+crossing is the embedding-scale version: when the corpus becomes hundreds–thousands of *papers*
+(not one project's notes), the header catalog stops fitting one read and that machinery turns on,
+each past a measured threshold, into the existing seams: `kb-ingest` (schema-constrained extraction)
+→ embeddings as a pre-filter scoped to `.promptus/docs/lit` → embedding latent-links and
+GraphRAG-style community summaries over the literature → RAPTOR-style summary tiers → mutual-index
+hardening for sentence-level citation. The invariant still governs: markdown stays truth, indexes
+stay derived, scripts beat servers, machinery turns on by measurement.
+
+## See also — the durable record
+
+The decisions and prior art this report synthesizes, each retrievable with `kb-find`:
+[[header-beats-vector]] · [[markdown-is-the-graph]] · [[the-gate]] · [[the-scriptable-graph-layer]] ·
+[[vocab-grounding-no-single-standard-recommend-a-hybrid-gate]] · [[promptus-vs-kag-coverage]] · [[adoption]].

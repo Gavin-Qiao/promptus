@@ -1,6 +1,6 @@
 ---
 name: promptus
-description: Orchestrator and map for the Promptus research knowledge system. Use at the start of research book-keeping to choose the right verb/script/skill — STORE (kb-add), BOOK-KEEP (kb-index + /checkpoint), RETRIEVE (kb-find + recall), RENDER (humanizer, grannie). Knows the four stores (Telos, Ledger, Knowledge, Memory), the substrate:status tagging, and the invariant.
+description: Orchestrator and map for the Promptus research knowledge system — a substrate for the LLM agent. Use at the start of research book-keeping to choose the right verb/script/skill — STORE (kb-add), BOOK-KEEP (kb-index + kb-graph lint + /checkpoint), RETRIEVE (kb-find → kb-get + recall, kb-graph rank/suggest). grannie is the one human read-port; the humanizer is a bundled style toolkit. Knows the four stores (Telos, Ledger, Knowledge, Memory), the substrate:status tagging, the [[link]] graph, and the invariant.
 ---
 
 # Promptus — orchestrator
@@ -18,11 +18,15 @@ This skill is the map: pick the verb, run the piece.
 | capture external prior art you read | STORE | `kb-add --substrate lit --source "<src#anchor>" …` |
 | remember a durable, cross-session fact | STORE | `kb-add --substrate memory …` |
 | make the index current after writes | BOOK-KEEP | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-index.ts"` |
+| check the knowledge web's health (dangling `[[links]]`, orphans) | BOOK-KEEP | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-graph.ts" lint` |
 | flush a session before compaction | BOOK-KEEP | `/checkpoint` |
-| answer "what did we decide / find / read about X" | RETRIEVE | the `recall` skill (drives `kb-find`) |
-| write something the project already knows | RETRIEVE → RENDER | `recall` first, then `humanizer` |
-| explain a stored concept plainly | RENDER | `grannie` (`/grannie explain <concept>`) |
-| audit a draft for AI-tells + unsourced claims | RENDER | the `grounded-writing-reviewer` agent |
+| answer "what did we decide / find / read about X" | RETRIEVE | the `recall` skill (drives `kb-find` → `kb-get`) |
+| read one unit's body without opening the whole ledger | RETRIEVE | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-get.ts" "<path>"` (the `path` column `kb-find` prints) |
+| find the load-bearing units (what to read first) | RETRIEVE | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-graph.ts" rank` |
+| find related-but-unlinked notes to connect | RETRIEVE | `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-graph.ts" suggest` |
+| write something the project already knows | RETRIEVE | `recall` to ground it, then `humanizer` for style |
+| explain a stored concept to a human | read-port | `grannie` (`/grannie explain <concept>`) — grounds from the store |
+| audit a draft for AI-tells + unsourced claims | audit | the `grounded-writing-reviewer` agent (agent-side; checks the store) |
 | initialize Promptus in a repo | — | `/promptus-init` (runs the `telos` skill) |
 
 ## The four stores
@@ -32,6 +36,18 @@ Knowledge (`.promptus/docs/` findings + `.promptus/docs/lit/` literature) · Mem
 (`.promptus/memory/`, durable facts). Every unit
 is tagged `substrate:status` — `ledger:DEADEND`, `finding:VALIDATED`, `lit:CITE`,
 `memory:validated`.
+
+## The knowledge graph
+
+The `[[wikilinks]]` between units *are* the graph (no DB, no embeddings — see the invariant);
+`kb-index` derives `.promptus/cache/graph.json` from them, and `kb-graph` queries it:
+- `kb-graph rank` — PageRank over the page-link graph: the load-bearing units, what to read first.
+- `kb-graph lint` — health: dangling `[[handles]]` (with a "did you mean?") and orphans. `--strict` to gate.
+- `kb-graph suggest` — latent links: unit pairs that are unlinked but probably related (shared
+  vocabulary + shared source), so you can draw the missing `[[link]]`. Suggest-only; you judge.
+
+Retrieval is two-tier: `kb-find` reads the card-catalog of headers (cheap, header-first), then
+`kb-get` fetches only the bodies the headers earned — so a ledger term never costs the whole file.
 
 ## The invariant (do not break)
 
