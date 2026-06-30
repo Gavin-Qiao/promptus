@@ -11,9 +11,12 @@
  *                                 --strict exits non-zero when anything is flagged (gates a checkpoint).
  *   kb-graph rank  [--top <n>]    load-bearing units by PageRank over the page-link graph,
  *                                 with in/out degree alongside. [default --top 20]
- *   kb-graph suggest [--top <n>]  latent links — unit pairs that are unlinked but probably
- *                                 related (IDF-weighted shared vocabulary + a shared source).
- *                                 Suggest-only, with the "why"; you draw the [[link]] if apt. [default 15]
+ *   kb-graph suggest [--top <n>] [--knn <k>] [--soft]
+ *                                 latent links — unit pairs that are unlinked but probably related
+ *                                 (IDF-weighted shared vocabulary + a shared source). A broad "hub" note
+ *                                 is tamed by reciprocal best-match pruning (mutual-KNN), or by Mutual
+ *                                 Proximity rescaling with --soft (rank hubs down, don't delete edges).
+ *                                 Suggest-only, with the "why"; you draw the [[link]] if apt. [--top 15 --knn 6]
  *   kb-graph [--root <dir>]       (defaults to `lint`)
  *
  * PageRank runs over page units (the durable [[link]] web — findings/lit/memory); in-degree is
@@ -153,7 +156,7 @@ function pageDocs(root: string, dir: string): Doc[] {
   return docs;
 }
 
-function suggest(root: string, dir: string, g: Graph, top: number): number {
+function suggest(root: string, dir: string, g: Graph, top: number, knn: number, soft: boolean): number {
   const docs = pageDocs(root, dir);
   if (docs.length < 2) { console.log("kb-graph suggest: need at least two page units."); return 0; }
   const N = docs.length;
@@ -162,8 +165,8 @@ function suggest(root: string, dir: string, g: Graph, top: number): number {
   const idf = (t: string) => Math.log((N + 1) / ((df.get(t) ?? 0) + 1)) + 1; // smoothed; a term in every doc ≈ 1, a rare term ≫ 1
   // Plain tf·idf cosine. (Tried idf² to sink the broad design-doc's faint matches — but it
   // over-sharpened: each doc's norm became dominated by its own rarest terms, which shrank genuine
-  // cross-doc links like graphrag⟷hipporag. tf·idf surfaced more real pairs; the score's `why`
-  // already exposes whether a match rides on distinctive terms or generic ones, so the human judges.)
+  // cross-doc links like graphrag⟷hipporag. The flood is pruned structurally instead — see the
+  // mutual-KNN gate below — so the weighting stays honest and the `why` still names the shared terms.)
   for (const d of docs) {
     let s = 0;
     for (const [t, f] of d.tf) { const w = f * idf(t); d.vec.set(t, w); s += w * w; }
@@ -172,7 +175,11 @@ function suggest(root: string, dir: string, g: Graph, top: number): number {
   const linked = new Set<string>();
   for (const [a, tos] of Object.entries(g.out)) for (const t of tos) linked.add([slugOf(a), t].sort().join("\t"));
 
-  const pairs: Array<{ a: string; b: string; score: number; why: string }> = [];
+  // One O(N²) pass over the unlinked pairs: tf·idf cosine + shared-source, each kept as a candidate
+  // cell (with its "why"). nbr[i] collects i's above-floor neighbours so the gate below can rank them.
+  interface Cell { i: number; j: number; cos: number; score: number; sharedSrc: boolean; why: string }
+  const cells: Cell[] = [];
+  const nbr: Array<Array<{ o: number; cos: number }>> = docs.map(() => []);
   for (let i = 0; i < docs.length; i++) for (let j = i + 1; j < docs.length; j++) {
     const a = docs[i], b = docs[j];
     if (linked.has([a.slug, b.slug].sort().join("\t"))) continue; // already wired — nothing latent here
@@ -182,12 +189,38 @@ function suggest(root: string, dir: string, g: Graph, top: number): number {
     for (const [t, w] of small.vec) { const w2 = large.vec.get(t); if (w2) { dot += w * w2; contrib.push([t, w * w2]); } }
     const cos = dot / (a.norm * b.norm);
     const sharedSrc = a.source !== "" && a.source === b.source;
-    const score = cos + (sharedSrc ? 0.5 : 0);
     if (!sharedSrc && cos < 0.08) continue; // floor: ignore faint lexical noise; a shared source always shows
+    if (cos >= 0.08) { nbr[i].push({ o: j, cos }); nbr[j].push({ o: i, cos }); }
     contrib.sort((x, y) => y[1] - x[1]);
     const terms = contrib.slice(0, 4).map((c) => c[0]).join(", ");
     const why = [sharedSrc ? `shared source ${a.source}` : "", terms].filter(Boolean).join(" · ");
-    pairs.push({ a: a.slug, b: b.slug, score, why });
+    cells.push({ i, j, cos, score: cos + (sharedSrc ? 0.5 : 0), sharedSrc, why });
+  }
+  // Two ways to tame a broad "hub" note that is similar to everything (hubness; Radovanović 2010).
+  // Default — Mutual-KNN: each unit keeps only its top-`knn` lexical neighbours, and a lexical pair
+  // survives only when the interest is reciprocal, so a hub (in few units' top lists) is pruned out.
+  // --soft — Mutual Proximity (Schnitzer 2012): don't delete edges, RESCALE. A pair scores by how high
+  // each unit ranks in the other's neighbourhood (rank-fraction product), so a hub sinks instead of
+  // being cut — softer and not k-sensitive. A shared source bypasses either gate.
+  let pairs: Array<{ a: string; b: string; score: number; why: string }>;
+  if (soft) {
+    const M = docs.length, denom = Math.max(1, M - 2);
+    // rank-fraction: of the other units, how many does cosine `pc` strictly outrank in unit i's view
+    // (every below-floor unit counts, since pc cleared the floor). A hub lands low on both sides.
+    const rankFrac = (i: number, pc: number) => {
+      let lt = 0; for (const e of nbr[i]) if (e.cos < pc) lt++;
+      return (lt + (M - 1 - nbr[i].length)) / denom;
+    };
+    pairs = cells.map((c) => ({
+      a: docs[c.i].slug, b: docs[c.j].slug,
+      score: rankFrac(c.i, c.cos) * rankFrac(c.j, c.cos) + (c.sharedSrc ? 0.5 : 0),
+      why: c.why,
+    }));
+  } else {
+    const topk = nbr.map((list) => new Set(list.sort((x, y) => y.cos - x.cos).slice(0, knn).map((e) => e.o)));
+    pairs = cells
+      .filter((c) => c.sharedSrc || (topk[c.i].has(c.j) && topk[c.j].has(c.i)))
+      .map((c) => ({ a: docs[c.i].slug, b: docs[c.j].slug, score: c.score, why: c.why }));
   }
   pairs.sort((x, y) => y.score - x.score);
   if (!pairs.length) { console.log("kb-graph suggest: no latent links above the floor — the web is well-knit (or too sparse)."); return 0; }
@@ -214,7 +247,7 @@ function main(argv: string[]): number {
 
   if (cmd === "lint") return lint(g, lab, "strict" in flags);
   if (cmd === "rank") return rank(g, lab, Number(flags.top || 20));
-  if (cmd === "suggest") return suggest(root, dir, g, Number(flags.top || 15));
+  if (cmd === "suggest") return suggest(root, dir, g, Number(flags.top || 15), Number(flags.knn || 6), "soft" in flags);
   console.error(`kb-graph: unknown command "${cmd}" — use lint | rank | suggest.`);
   return 1;
 }

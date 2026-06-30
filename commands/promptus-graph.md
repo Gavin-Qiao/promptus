@@ -1,6 +1,6 @@
 ---
 description: Inspect the knowledge graph — rank load-bearing units (PageRank), lint health (dangling handles + orphans), and suggest latent links (related-but-unlinked pairs). Read-only, no embeddings.
-argument-hint: "[rank|lint|suggest] [--top <n>] [--strict]"
+argument-hint: "[rank|lint|suggest] [--top <n>] [--knn <k>] [--strict]"
 ---
 
 # /promptus-graph — inspect the knowledge graph
@@ -23,8 +23,10 @@ string match. If the index is stale, run `bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-
    bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-graph.ts" rank --root . --top 20
    ```
 3. **Discovery — `suggest`.** Surface unit pairs that are unlinked but probably related (shared
-   vocabulary, IDF-weighted, + a shared source), each with the "why". Suggest-only — read the
-   reason and draw the `[[link]]` yourself if it's apt; the script proposes, you judge.
+   vocabulary, IDF-weighted, + a shared source), each with the "why". Pairs are pruned to reciprocal
+   best matches (mutual-KNN), so a broad note can't flood the list; `--knn <k>` dials how many
+   neighbours each unit keeps (default 6 — lower is stricter). Suggest-only — read the reason and
+   draw the `[[link]]` yourself if it's apt; the script proposes, you judge.
    ```
    bun "${CLAUDE_PLUGIN_ROOT}/scripts/kb-graph.ts" suggest --root . --top 15
    ```
