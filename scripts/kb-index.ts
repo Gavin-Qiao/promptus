@@ -167,7 +167,8 @@ function main(argv: string[]): number {
   );
   writeFileSync(join(dir, "graph.json"), `${JSON.stringify({ nodes: [...nodes], out, inDeg, relations: relEdges }, null, 2)}\n`);
 
-  console.log(`kb-index: ${units.length} units, ${relEdges.length} relations → .promptus/cache/CATALOG.md + graph.json`);
+  const linkEdges = Object.values(out).reduce((s, a) => s + a.length, 0);
+  console.log(`kb-index: ${units.length} units · ${linkEdges} links · ${relEdges.length} relations → .promptus/cache/CATALOG.md + graph.json`);
   if (unresolved.length) {
     console.log(`  unresolved links (${unresolved.length}) — a typo or an intentional concept-handle:`);
     for (const e of unresolved.slice(0, 25)) console.log(`    ${e.from} → [[${e.to}]]`);
