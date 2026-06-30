@@ -17,6 +17,26 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-29
+
+### Changed
+
+- **`kb-graph suggest` no longer floods on a broad note.** Latent-link pairs are now pruned to
+  reciprocal best matches (mutual-KNN): a lexical pair surfaces only when each unit is among the
+  other's top-`knn` most-similar — so a broad note that faintly touches many topics (which used to
+  pad the list) collapses out, while genuine cluster links survive. A shared source still bypasses
+  the gate, and a new `--knn <k>` flag dials precision/recall (default 6). On the operator's Psi
+  corpus this cut the candidate list from 2272 to 138 (−94 %) with the top apt pairs intact, and the
+  good cross-doc links on Promptus's own corpus (e.g. `graphrag ⟷ hipporag`) are preserved — the very
+  links the reverted `idf²` experiment had dropped. A `--soft` mode adds Mutual Proximity
+  (Schnitzer 2012) as a non-destructive alternative — it rescales by rank-fraction so a hub *sinks*
+  instead of being pruned, floating reciprocal-best pairs to the top without deleting any edge.
+  Resolves the v0.5.0 known limitation.
+- **`kb-index` surfaces the `[[link]]`-edge count.** The summary line now reads
+  `N units · E links · M relations`. The dense navigation graph that `kb-graph rank` / `lint` /
+  `suggest` actually run on was previously hidden behind the sparse typed-relation count — so a corpus
+  rich in `[[links]]` but light on typed relations (e.g. `↳ supersedes`) misleadingly read as `0 relations`.
+
 ## [0.5.0] - 2026-06-29
 
 ### Added
@@ -287,7 +307,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.3.0...v0.4.0
