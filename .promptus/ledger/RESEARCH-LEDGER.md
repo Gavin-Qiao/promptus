@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-29 (architecture clarified (agent substrate + grannie read-port); docs re-truthed; clear to ship v0.5.0)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-29 (v0.5.0 released + local plugin updated; cross-OS settled; real Psi additively migrated (finalize gated))  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -25,42 +25,42 @@ hand-written header beats a vector at this scale.
 
 <!-- now:start -->
 
-## NOW (RETRIEVE + GRAPH done, docs re-truthed; clear to ship v0.5.0)
-Released through **v0.4.1**. On `main`, uncommitted, **108 tests + validator green**: (a) **v0.4.2
-kb-find de-noise**; (b) **kb-get** body-fetch (find→get; `lib/units.ts` shared + fence-aware; `recall`
-two-tier); (c) **kb-graph** `rank`/`lint`/`suggest`. Polished (discoverable across orchestrator/README/
-help + `/promptus-graph`), hardened (adversarial pass fixed 3 bugs: kb-get wrong-`--title` mis-fetch;
-fenced `### [ts]` + fenced `↳` false-splits → one shared fence-aware parse). **Architecture clarified
-(operator):** Promptus is an **agent substrate** (STORE/KEEP/RETRIEVE/GRAPH, agent-operated); **grannie
-is the one human read-port**; the humanizer is a bundled STYLE TOOLKIT; "RENDER as a verb" is retired
-(grounding=recall, style=humanizer, grannie already composes both). Docs re-truthed to match the code.
-Norma parked.
+## NOW (v0.5.0 SHIPPED; real Psi additively migrated)
+**Promptus v0.5.0 released** — PR #6 merged (main e031acb), tagged, GitHub release published. Bundle:
+kb-get (body-fetch) + kb-graph (rank/lint/suggest, no embeddings) + kb-find de-noise + the
+agent-substrate / grannie-read-port re-truthing + adversarial fixes (kb-get wrong-`--title` mis-fetch +
+root-confinement; fenced `### [ts]` and `↳` false-splits → one shared fence-aware `ledgerHeads`). 108
+tests + all 4 CI checks green. **Local plugin updated 0.1.0→0.5.0** (directory marketplace at this repo;
+RESTART Claude Code to load it). **Cross-OS settled:** rely on CI for the macOS leg (Apple-HW only,
+can't virtualize); the git hooks already reconstruct CI's single-OS checks; no Docker/WSL added.
 
 ## Open frontier
-- [ ] **Ship v0.5.0** — de-noise + kb-get + kb-graph + polish + hardening + re-truthed docs. CHANGELOG +
-  `plugin.json` 0.4.1→0.5.0 + feature branch + PR + tag. Verify the CI gate first (`uv run pre-commit`,
-  `changelog:check`, cross-OS).
-- [ ] **(note in CHANGELOG)** `kb-graph suggest` floods on one broad doc (the design report) — v1
-  heuristic; a per-node cap / length-norm is a later refinement.
-- [ ] **(deferred)** the Norma seam — external grounding; parked, not dropped.
-- [ ] **(gated)** apply migrate→ingest to the REAL Psi + Probatio — commit/stash their WIP first.
+- [ ] **Psi finalize (remove-stale)** — operator-gated, do AFTER Psi's 277-file WIP is parked: drop root
+  `docs/`/`ledger/`/`schema/`/`TELOS.md` + stale root `.promptus/CATALOG.md`/`graph.json`, narrow
+  `.gitignore` → `/.promptus/cache/` so the stores commit. The additive `.promptus/` is already in place
+  + working (doctor: `current`, gate OK, 210 units; zero WIP impact).
+- [ ] **Psi content cleanup** — 85 dangling handles (29 a systematic `psi-` prefix mismatch, fixable; 56
+  undistilled), 25 orphans, 2272 latent links (top pairs apt 0.49–0.59). Research judgment; assist case-by-case.
+- [ ] **Probatio** — same additive→finalize pattern, not yet started (custom layout, ledger+telos in docs/).
+- [ ] **(deferred)** Norma seam (external grounding). **(known)** kb-graph suggest v1 floods on one broad doc.
 
 ## Next actions
-1. Operator: green-light the v0.5.0 ship. Then I branch off `main`, verify the CI gate locally, write the
-   CHANGELOG, open the PR, and show it before pushing.
+1. Psi: on operator go (WIP parked) → run the remove-stale finalize; start the `psi-`-prefix dangling fix.
+2. Probatio when ready (mirror the Psi additive→finalize flow).
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus through **v0.4.1**; **v0.5.0 is staged + uncommitted on `main`**, 108 tests + validator green,
-dogfooded + hardened: kb-find de-noise (v0.4.2), kb-get (body-fetch, fence-aware shared `ledgerHeads`),
-kb-graph (rank/lint/suggest). An adversarial pass fixed 3 real bugs (kb-get wrong-`--title` mis-fetch;
-fenced `### [ts]` and fenced `↳` false-splits). **Architecture is now load-bearing:** Promptus is an
-**agent substrate** — STORE/KEEP/RETRIEVE/GRAPH are agent-operated; **grannie is the ONE human read-port**
-(human-initiated: a person asks `/grannie explain X`; it retrieves + grounds + explains plainly by status);
-the **humanizer is a bundled style toolkit** grannie dials, NOT a verb; the **grounded-writing-reviewer is
-an agent-side audit**. "RENDER for an audience" was retired as a category error — the planned humanizer
-ground-mode already exists, assembled, inside grannie. All docs were re-truthed to this model. NEXT: ship
-v0.5.0 (branch off `main`, verify CI gate, CHANGELOG, PR, tag) on operator go. Deferred: Norma seam. Gated:
-real Psi/Probatio. Read `.promptus/TELOS.md`, then this header, then the Log.
+Promptus **v0.5.0 is RELEASED** (PR #6 → main e031acb, tagged, GitHub release published): kb-get body-fetch
++ kb-graph (rank/lint/suggest, no embeddings) + kb-find de-noise + the agent-substrate/grannie-read-port
+re-truth + adversarial fixes. 108 tests + 4 CI checks green. **Local Claude plugin updated 0.1.0→0.5.0**
+(directory marketplace at this repo; RESTART to load it). **Cross-OS settled:** pre-push already runs CI's
+single-OS gate (it passed on Windows; the bug was Unix-only); macOS only runs on Apple HW so its CI leg
+stays CI-only; no Docker/WSL. **REAL Psi additively migrated** (operator: "append additive first, I will let
+it remove stale"): appended the canonical `.promptus/` layout — gitignored, ZERO impact on Psi's 277 WIP
+files, root originals intact as "stale"; doctor → `current`, 210 units; cleanup surfaced 85 dangling
+handles (29 `psi-`-prefix typos, 56 undistilled), 25 orphans, 2272 latent links. GATED next: Psi finalize
+(remove-stale: drop root originals + narrow `.gitignore`, AFTER WIP parked) + content cleanup (`psi-` prefix
+first); then Probatio. Memory: [[promptus-doctor-and-pending-migration]], [[no-emoji-attribution]]. Read
+`.promptus/TELOS.md`, then this header, then the Log.
 
 <!-- now:end -->
 
@@ -237,5 +237,26 @@ Operator reframe, accepted: the whole of Promptus serves the LLM AGENT — STORE
 
 ### [2026-06-29 16:55:56] RESULT/VALIDATED — Final pre-ship audit: .promptus structure conformant; graph design + suggest ancestor distilled into Knowledge
 Final audit before the v0.5.0 ship, two parts. (1) STRUCTURE: promptus-doctor check reports layout=current, vocab namespaced v3, gate reachable, gitignore correct (only cache/ ignored), all 6 stores present -- Promptus's own .promptus/ conforms to the canonical layout it prescribes; dogfooding integrity holds. (2) KNOWLEDGE COMPLETENESS: the graph layer + kb-get were built this session but their design rationale lived only in ledger events, and the design report + the hipporag lit unit still framed PageRank / the latent-link linter as DEFERRED (the pre-reframe overreach). Closed: re-truthed report.md (agent substrate + grannie read-port; two-tier retrieve; the scriptable graph ships now, embedding-scale defers) and hipporag.md (PPR ships as kb-graph rank); added finding "The scriptable graph layer" (rank = HippoRAG PPR minus vectors, lint, suggest = unlinked-references minus ML) and lit "Unlinked references" (Roam/Obsidian -- the named ancestor of suggest); wired the orphaned design report to the 7 findings it synthesizes. Now 71 units, no unresolved links, orphans down to 2 (standalone memory facts). 108 tests + validator green. The store now holds its own complete, current design history.
+
+### [2026-06-29 18:49:17] RESULT/VALIDATED — Released v0.5.0 (PR #6 merged, tagged, published); local plugin updated 0.1.0->0.5.0
+Released Promptus v0.5.0. PR #6 merged to main (e031acb), tagged v0.5.0, release.yml published the GitHub release (https://github.com/Gavin-Qiao/promptus/releases/tag/v0.5.0). Bundle: kb-get (body-fetch) + kb-graph (rank/lint/suggest) + kb-find de-noise + the agent-substrate / grannie-read-port re-truthing + the adversarial fixes. The cross-OS CI leg earned its keep: the macOS/Linux runners caught kb-get reading outside the project root (a `../etc/hosts` escape that passed on Windows only because the file did not exist there) -> fixed with root confinement. 108 tests + all 4 CI checks green. Local plugin updated 0.1.0->0.5.0 (directory marketplace at the repo; restart to apply). macOS can only be tested on Apple hardware (Apple license), so the Mac leg stays CI-only by design.
+
+### [2026-06-29 19:47:07] RESULT/VALIDATED — Applied v0.5.0 to real Psi additively (.promptus/ appended, zero WIP impact); cleanup surfaced 85 dangling / 25 orphans / 2272 latent
+Applied Promptus v0.5.0 to the REAL Psi additively (operator: "append additive first, I will let it remove stale"). Psi was legacy-root with 277 uncommitted WIP files, so a destructive doctor migrate (which moves/deletes) was off the table. Instead appended the canonical .promptus/ layout: copied TELOS/ledger/docs into .promptus/, wrote the vocab with .promptus/-prefixed store paths. Because Psi .gitignore already ignores /.promptus/, the whole new namespace is invisible to git = ZERO impact on the WIP; the root originals stay as stale. doctor now reports layout=current + gate OK (only the gitignore FAIL remains, intentional -- narrowing it is the operator-gated remove-stale finalize). kb-index: 210 units. v0.5.0 cleanup surfaced real signal: 85 dangling ledger handles (29 with a did-you-mean, e.g. a systematic psi- prefix mismatch where the finding exists without the prefix; 56 undistilled concepts), 25 orphans, 2272 latent-link candidates (top pairs clearly apt, scores 0.49-0.59), load-bearing units (minimum-principle, contour-first-synthesis, positioning). Originals untouched; remove-stale + content cleanup are operator-gated.
+
+### [2026-06-29 19:52:08] DECISION/VALIDATED — Cross-OS strategy: rely on CI for the macOS leg (Apple-HW only); git hooks already reconstruct CI's single-OS checks; no Docker/WSL
+Cross-OS testing strategy settled. CI macOS/Linux leg caught a bug invisible on Windows (kb-get read /etc/hosts via a ../ escape; passed locally only because the file does not exist on Windows) -> fixed with root confinement. Operator asked whether pre-commit/pre-push could catch these before CI. Findings: (1) the pre-push hook ALREADY runs CI single-OS gate -- validate + bun test = CI test+validate job, the pre-commit hook = CI hygiene job -- it passed because it ran on Windows; you cannot catch a Unix-only behaviour from a Windows-only run. (2) macOS can ONLY be tested on Apple hardware (Apple license); Docker/WSL cannot virtualize it -- a real Mac or CI macos-latest runner, full stop. (3) Decision: DO NOT add a local Docker/WSL cross-OS run; rely on CI for the matrix + portability discipline (assert behaviour, never a system file existence). The git hooks already reconstruct CI single-OS checks locally; the only irreducible gap is macOS, which stays CI-only. The fast-local / comprehensive-CI split is the industry standard; catching an OS-edge in CI is the system working, not failing.
+
+### [2026-06-29 20:16:08] DECISION/VALIDATED — Harden kb-graph suggest with mutual-KNN to fix the broad-doc flood
+kb-graph suggest now prunes latent-link pairs to reciprocal best matches (mutual-KNN): a lexical pair surfaces only if each unit is in the other's top-knn most-similar; a shared source bypasses the gate. New --knn flag (default 6). This resolves the v0.5.0 known limitation (one broad note floods the list). A/B on the real corpora: Psi 2272 -> 138 candidates (-94%) with the top apt pairs intact (contour/contour, perception/frontier, tpami/tpami); on Promptus's own corpus graphrag/hipporag and the other good cross-doc links are preserved -- the very links the reverted idf-squared experiment had dropped, so this kills the flood without the precision loss. 109 tests green (added a mutual-KNN prune test). Shipped as v0.5.1. See [[the-scriptable-graph-layer]].
+
+### [2026-06-29 20:42:20] DECISION/VALIDATED — Prior-art consolidation deep-research (mid-2026)
+Ran a four-facet prior-art consolidation deep-research (mid-2026, web-verified) to situate Promptus and harvest adopt-vs-build lessons (goal: usefulness, not novelty). Conclusion: no single system ships the full combination (local markdown + wikilinks + gated epistemic-status vocab + write-time calibration + delegated RAG), so the niche is open in the install-it sense, BUT it is converging fast — ARA shipped file-based status-tagged claims + a maturity tracker (Apr 2026), and the memory-systems survey names uncertainty-aware/hypothesis-ledger memory as THE open frontier. Defensibility = execution + integration, not novelty. The embedding-free bet is validated by 2026 evidence (LIMIT single-vector impossibility; BM25>dense; grep>vectors for agents). Adopt-don't-build: basic-memory plumbing (AGPL caution), Graphiti valid/invalid/superseded supersession model, a reranker as the first synonym-gap patch at scale, Mutual Proximity as the soft upgrade to suggest's mutual-kNN. Build the moat: gate + substrate:status vocab + write-time calibration + grannie. Captured as 7 lit:CITE notes + the finding [[prior-art-landscape-2026]]; adding a Prior-art bibliography to README. See [[prior-art-landscape-2026]].
+
+### [2026-06-29 21:07:53] DECISION/VALIDATED — Adopt Mutual Proximity as suggest --soft (first adopt-harvest)
+Adopted Mutual Proximity (Schnitzer 2012, from [[hubness-and-reciprocal-nearest-neighbours]]) as `kb-graph suggest --soft` — the first adopt-harvest from the prior-art consolidation. Soft mode rescales latent-link pairs by the rank-fraction product instead of hard mutual-kNN pruning: a hub SINKS rather than being cut, no edge is deleted, and reciprocal-best pairs surface at score 1.0. A/B on Psi: hard mutual-kNN = 156 pairs (pruned, cosine-ranked); soft MP = 2994 kept (rescaled, top all 1.0 mutual-best). 110 tests green (added a --soft test). Folded into the unreleased v0.5.1. Hard stays the default (tested, aggressive shortlist); --soft is the non-destructive alternative. See [[the-scriptable-graph-layer]].
+
+### [2026-06-29 21:09:28] DECISION/VALIDATED — Defer the two vocab-touching adopt-harvests (already mostly covered)
+Triaged the two vocab-touching prior-art lessons and chose to DEFER both, per the invariant (don't add vocab on spec). (1) Graphiti's bi-temporal validity (valid_at/invalid_at): Promptus's append-only, timestamped ledger + the supersedes relation ALREADY supports as-of-date reconstruction (read the log up to a timestamp); an explicit invalid_at field would only add queryability, not capability. (2) ARA's maturity tracker (staged->crystallized): Promptus's CONJECTURED->VALIDATED status already encodes most of it; the only real gap is a draft-vs-canonical finding split, partly covered by CONJECTURED. Revisit only if as-of-date queries or a draft/canonical distinction become a felt need. Net: adopt-harvest's real wins were code/docs (suggest --soft Mutual Proximity, the AGENTS.md refresh), not new vocab; basic-memory plumbing is already aligned (md + derived index), KAG's mutual claim<->source index is deferred to the future calibration seam. See [[prior-art-landscape-2026]].
 
 <!-- kb:append-point -->

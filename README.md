@@ -241,6 +241,38 @@ and CI. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the conventions and
 [`RELEASING.md`](RELEASING.md) for how releases are cut; changes are recorded in
 [`CHANGELOG.md`](CHANGELOG.md).
 
+## Prior art & bibliography
+
+Promptus is one point in a fast-moving design space — this is consolidation, **not a claim to
+novelty**. A mid-2026 prior-art pass confirmed that no single system ships the full combination
+(local markdown + `[[wikilinks]]` + a gated `substrate:status` vocabulary the agent *calibrates its
+writing against* + a human read-port + delegated RAG), but the idea is converging fast: the closest
+neighbours each land one axis away, and several pieces of the machinery are better *adopted* than
+rebuilt. The moat Promptus actually builds is the **gate + the controlled epistemic-status vocabulary +
+write-time calibration**. Full synthesis — what to adopt vs. build, and where the no-embeddings bet
+breaks — is in [`.promptus/docs/prior-art-landscape-2026.md`](.promptus/docs/prior-art-landscape-2026.md).
+
+**Agent memory & file-based knowledge stores**
+- [Basic Memory](https://github.com/basicmachines-co/basic-memory) — local-first markdown + SQLite over MCP; the closest *substrate* (but no epistemic-status vocabulary).
+- [Letta](https://github.com/letta-ai/letta) (ex-MemGPT) · [Mem0](https://github.com/mem0ai/mem0) · [Zep / Graphiti](https://github.com/getzep/graphiti) ([paper](https://arxiv.org/abs/2501.13956)) · [A-MEM](https://arxiv.org/abs/2502.12110) — agent-memory frameworks; Graphiti's `valid_at` / `invalid_at` / `superseded` is the one productized fact-lifecycle.
+- [MCP knowledge-graph memory server](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) · [Anthropic memory tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool) — reference file-based agent memory.
+- *"Memory for Autonomous LLM Agents"* ([arXiv:2603.07670](https://arxiv.org/abs/2603.07670)) — survey naming uncertainty-aware "hypothesis-ledger" memory as the open frontier.
+
+**Graph & embedding-free retrieval**
+- [GraphRAG](https://github.com/microsoft/graphrag) / [LazyGraphRAG](https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/) · [HippoRAG 2](https://arxiv.org/abs/2502.14802) · [KAG](https://arxiv.org/abs/2409.13731) (and RAPTOR) — the graph-RAG lineage; `kb-graph rank` is HippoRAG's personalized-PageRank **without** the vectors.
+- [LIMIT](https://arxiv.org/abs/2508.21038) — single-vector retrieval is provably incomplete (the theoretical backstop for "a header beats a vector at this scale").
+- *BM25 > dense on precise corpora* ([arXiv:2604.01733](https://arxiv.org/abs/2604.01733)) · *grep > vector retrieval for agents* ([arXiv:2605.15184](https://arxiv.org/abs/2605.15184)) · [GraphRAG-Bench](https://arxiv.org/abs/2506.05690) — the 2026 evidence behind the no-embeddings bet, and where it breaks.
+
+**Latent links & de-hubbing (`kb-graph suggest`)**
+- Radovanović, Nanopoulos & Ivanović, *"Hubs in Space,"* JMLR 11 (2010) — hubness in high-dimensional similarity (why one broad note floods).
+- Qin et al. (2011) · [Zhong et al. (2017)](https://github.com/zhunzhong07/person-re-ranking) — reciprocal / k-reciprocal nearest neighbours, the mutual-kNN prune `suggest` uses.
+- [Schnitzer et al., *"Local and Global Scaling Reduce Hubs in Space,"* JMLR 13 (2012)](https://jmlr.org/papers/v13/schnitzer12a.html) — Mutual Proximity, the soft-threshold upgrade path.
+
+**Deep-research agents & epistemic grounding**
+- [STORM / Co-STORM](https://github.com/stanford-oval/storm) · [GPT-Researcher](https://github.com/assafelovic/gpt-researcher) · OpenAI / Gemini / Perplexity Deep Research — one-shot report generators (no persistent, status-tagged knowledge web).
+- ARA — *"The Last Human-Written Paper: Agent-Native Research Artifacts"* ([arXiv:2604.24658](https://arxiv.org/abs/2604.24658)) — file-based falsifiable claims carrying epistemic status + a maturity tracker; the closest published prior art to the thesis.
+- Andrej Karpathy's [llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — persistent, LLM-maintained markdown over raw sources; Promptus's kindred pattern (see [Design philosophy](#design-philosophy)).
+
 ## License & attribution
 
 Promptus is free software, licensed under the **GNU General Public License v3.0**
