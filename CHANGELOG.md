@@ -17,6 +17,21 @@ and the project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-06-30
+
+### Added
+
+- **The Telos is injected at every session start — not optional.** The `SessionStart` hook now
+  prepends the project's `.promptus/TELOS.md` (its direction and the rules that never bend) ahead
+  of the ledger NOW-header, as content rather than a "go read it" pointer — so the main session
+  always opens already holding the north star. Bounded by a line cap as a runaway guard, and a
+  strict no-op outside a Promptus repo.
+- **`/checkpoint` runs a drift check against the Telos.** Before the final report, checkpoint weighs
+  the session's recent ledger entries and the NOW-header against the Telos's commitments and
+  invariant; when the work has quietly bent away from them — scope creep, machinery added without a
+  measured threshold, a "never bends" rule contradicted — it surfaces a terse, specific flag at the
+  top of the report for the human steward. Silent when on course.
+
 ## [0.5.1] - 2026-06-29
 
 ### Changed
@@ -307,7 +322,8 @@ Hardening found by dogfooding before release:
   `skills/humanizer` Part I remains under its upstream MIT license (© 2025 Siqi Chen), retained
   in `LICENSE-humanizer`; see `NOTICE` for provenance.
 
-[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Gavin-Qiao/promptus/compare/v0.4.0...v0.4.1
