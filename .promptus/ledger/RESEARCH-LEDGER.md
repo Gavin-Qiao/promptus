@@ -1,6 +1,6 @@
 # Research Ledger — Promptus
 
-**Updated:** 2026-06-29 (v0.5.0 released + local plugin updated; cross-OS settled; real Psi additively migrated (finalize gated))  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
+**Updated:** 2026-06-30 (v0.5.1 released; assessing, not building v0.6)  ·  **Operator:** Mohan Qiao  ·  **Agent:** Claude (Opus 4.x)
 **Timezone:** America/Montreal (UTC-4) — all timestamps below use it.
 
 > Append-only. Never hand-edit a `### [ts] …` entry; units enter through
@@ -25,42 +25,50 @@ hand-written header beats a vector at this scale.
 
 <!-- now:start -->
 
-## NOW (v0.5.0 SHIPPED; real Psi additively migrated)
-**Promptus v0.5.0 released** — PR #6 merged (main e031acb), tagged, GitHub release published. Bundle:
-kb-get (body-fetch) + kb-graph (rank/lint/suggest, no embeddings) + kb-find de-noise + the
-agent-substrate / grannie-read-port re-truthing + adversarial fixes (kb-get wrong-`--title` mis-fetch +
-root-confinement; fenced `### [ts]` and `↳` false-splits → one shared fence-aware `ledgerHeads`). 108
-tests + all 4 CI checks green. **Local plugin updated 0.1.0→0.5.0** (directory marketplace at this repo;
-RESTART Claude Code to load it). **Cross-OS settled:** rely on CI for the macOS leg (Apple-HW only,
-can't virtualize); the git hooks already reconstruct CI's single-OS checks; no Docker/WSL added.
+## NOW (v0.5.1 released; assessing before building — use, not machinery)
+**v0.5.1 is released** (PR #7 → main 16025e5, tagged, GitHub release published): kb-graph suggest
+hardening (mutual-kNN + `--soft` Mutual Proximity), the kb-index `[[link]]`-edge count, the mid-2026
+prior-art consolidation, the README bibliography, the AGENTS.md refresh. 110 tests + 4 CI green.
+**TELOS consolidated** to three commitments: (1) a memory system for long-running LLM agentic projects,
+measured by USE not novelty; (2) epistemic integrity by division of labor — the LLM only where judgment
+is needed, deterministic scripts for the rest; (3) stand on the shoulders of giants.
+**Assessment (operator-asked, before any v0.6):** we have built the tool, not used it — kb-graph rank
+shows the store's load-bearing units are ALL self-referential (zero operator research). Store/keep is
+heavily exercised; retrieve / read / write-honesty (kb-find/kb-get/recall/grannie/grounded-writing-reviewer)
+barely or never run. The measured need is USE + a cold resume, not more machinery.
 
 ## Open frontier
-- [ ] **Psi finalize (remove-stale)** — operator-gated, do AFTER Psi's 277-file WIP is parked: drop root
+- [ ] **Prove it in real use (the measured need).** A cold resume + a real Psi/Probatio pass that
+  exercises retrieve (kb-find/kb-get/recall) and the grounded-writing-reviewer; let what breaks decide
+  what's next. We have only ever had warm sessions — the retrieve tools' actual purpose is untested.
+- [ ] **Psi finalize (remove-stale)** — operator-gated, AFTER Psi's 277-file WIP is parked: drop root
   `docs/`/`ledger/`/`schema/`/`TELOS.md` + stale root `.promptus/CATALOG.md`/`graph.json`, narrow
-  `.gitignore` → `/.promptus/cache/` so the stores commit. The additive `.promptus/` is already in place
-  + working (doctor: `current`, gate OK, 210 units; zero WIP impact).
-- [ ] **Psi content cleanup** — 85 dangling handles (29 a systematic `psi-` prefix mismatch, fixable; 56
-  undistilled), 25 orphans, 2272 latent links (top pairs apt 0.49–0.59). Research judgment; assist case-by-case.
-- [ ] **Probatio** — same additive→finalize pattern, not yet started (custom layout, ledger+telos in docs/).
-- [ ] **(deferred)** Norma seam (external grounding). **(known)** kb-graph suggest v1 floods on one broad doc.
+  `.gitignore` → `/.promptus/cache/`. Additive `.promptus/` already in place (doctor `current`, 210 units).
+- [ ] **Psi content cleanup** — `psi-`-prefix dangling first (29 of 85); then orphans / latent links.
+- [ ] **Probatio** — same additive→finalize pattern, not started.
+- [ ] **v0.6 write-time calibration — SHELVED** (banked in [[write-time-calibration-design]]): unmeasured;
+  do NOT build until the grounded-writing-reviewer demonstrably misses an overclaim on a real draft.
+- [ ] **(deferred)** Norma seam (external grounding).
 
 ## Next actions
-1. Psi: on operator go (WIP parked) → run the remove-stale finalize; start the `psi-`-prefix dangling fix.
+1. On operator go (Psi WIP parked) → a real Psi pass that exercises cold-resume + retrieve + the reviewer.
 2. Probatio when ready (mirror the Psi additive→finalize flow).
+3. Hold v0.6 until a real draft measures the need.
 
 ## <<< RESUME HERE AFTER COMPACTION >>>
-Promptus **v0.5.0 is RELEASED** (PR #6 → main e031acb, tagged, GitHub release published): kb-get body-fetch
-+ kb-graph (rank/lint/suggest, no embeddings) + kb-find de-noise + the agent-substrate/grannie-read-port
-re-truth + adversarial fixes. 108 tests + 4 CI checks green. **Local Claude plugin updated 0.1.0→0.5.0**
-(directory marketplace at this repo; RESTART to load it). **Cross-OS settled:** pre-push already runs CI's
-single-OS gate (it passed on Windows; the bug was Unix-only); macOS only runs on Apple HW so its CI leg
-stays CI-only; no Docker/WSL. **REAL Psi additively migrated** (operator: "append additive first, I will let
-it remove stale"): appended the canonical `.promptus/` layout — gitignored, ZERO impact on Psi's 277 WIP
-files, root originals intact as "stale"; doctor → `current`, 210 units; cleanup surfaced 85 dangling
-handles (29 `psi-`-prefix typos, 56 undistilled), 25 orphans, 2272 latent links. GATED next: Psi finalize
-(remove-stale: drop root originals + narrow `.gitignore`, AFTER WIP parked) + content cleanup (`psi-` prefix
-first); then Probatio. Memory: [[promptus-doctor-and-pending-migration]], [[no-emoji-attribution]]. Read
-`.promptus/TELOS.md`, then this header, then the Log.
+**v0.5.1 RELEASED** (PR #7 → main 16025e5, tagged, GitHub release published). **TELOS consolidated** to
+three commitments — a memory system for long-running LLM agentic projects measured by USE not novelty;
+epistemic integrity by DIVISION OF LABOR (the LLM only where judgment is needed, deterministic scripts for
+the rest — "that division is the discipline"); stand on the shoulders of giants (adopt freely, don't rebuild
+the wheel). **ASSESSMENT (operator-asked, before opening v0.6):** we have built a finished, 110-test substrate
+(3 verbs + curation + migration + packaging) but USED it almost only to build itself — kb-graph rank shows
+every load-bearing unit is self-referential, zero operator research. Store/keep heavily exercised; RETRIEVE +
+read + write-honesty barely or never run (I reach for Read + context, not kb-find; grannie once; the
+grounded-writing-reviewer never). The measured need is USE + a COLD RESUME (never tested — only warm sessions),
+not machinery. **v0.6 calibration is SHELVED** — unmeasured, banked in [[write-time-calibration-design]]; build
+only once the reviewer misses on a real draft. Next: real-world use, all operator-gated (Psi finalize/cleanup,
+Probatio). Memory: [[utility-over-novelty]], [[promptus-doctor-and-pending-migration]], [[no-emoji-attribution]].
+Read `.promptus/TELOS.md` (the three commitments), then this header, then the Log.
 
 <!-- now:end -->
 
@@ -258,5 +266,32 @@ Adopted Mutual Proximity (Schnitzer 2012, from [[hubness-and-reciprocal-nearest-
 
 ### [2026-06-29 21:09:28] DECISION/VALIDATED — Defer the two vocab-touching adopt-harvests (already mostly covered)
 Triaged the two vocab-touching prior-art lessons and chose to DEFER both, per the invariant (don't add vocab on spec). (1) Graphiti's bi-temporal validity (valid_at/invalid_at): Promptus's append-only, timestamped ledger + the supersedes relation ALREADY supports as-of-date reconstruction (read the log up to a timestamp); an explicit invalid_at field would only add queryability, not capability. (2) ARA's maturity tracker (staged->crystallized): Promptus's CONJECTURED->VALIDATED status already encodes most of it; the only real gap is a draft-vs-canonical finding split, partly covered by CONJECTURED. Revisit only if as-of-date queries or a draft/canonical distinction become a felt need. Net: adopt-harvest's real wins were code/docs (suggest --soft Mutual Proximity, the AGENTS.md refresh), not new vocab; basic-memory plumbing is already aligned (md + derived index), KAG's mutual claim<->source index is deferred to the future calibration seam. See [[prior-art-landscape-2026]].
+
+### [2026-06-29 21:51:09] DECISION/VALIDATED — Calibration prior-art pass: the moat is open; v0.6 approach decided
+Ran the write-time-calibration prior-art pass (4 facets, web-verified). Conclusion (see [[write-time-calibration-design]]): the moat is genuinely OPEN -- no system enforces assertiveness <= a cited unit's curated STATUS as a write-time check; all prior art keys hedging to model-internal or retrieval confidence, which we reject. GRADE is the manual ancestor, EviBound the closest implemented (gates admission, not graded prose), Yona's "faithful response uncertainty" the formal target. Decision on the v0.6 approach: ADOPT the engines (MiniCheck for entailment, VeriScore for claim extraction, a certainty model / LLM rater for assertiveness) but BUILD the novel core -- a deterministic strength x STATUS lattice + strict per-claim->unit mapping + a rewrite check-fix loop + a sharpened grounded-writing-reviewer rubric. Respect the invariant: ship the LLM-judge + deterministic-lattice default first (zero new heavy deps), and bank MiniCheck/VeriScore as the optional deterministic tier past a measured threshold. Build gated on operator go.
+
+### [2026-06-29 22:24:59] DECISION/VALIDATED — Recalibrate the TELOS to utility, not novelty
+Recalibrated .promptus/TELOS.md to put UTILITY, not novelty, as the measure (operator: "we are building for utility", "I'm not selling it for novelty"). Added a "Built for utility, not novelty" section under the north star: the measure is use, not originality; Promptus earns its place when this research loses nothing to a compaction, grounds every claim, and resumes in seconds -- not when it does what no other system does; adopt prior art freely; "is this a moat?" is not a question worth asking; keep the invariant's discipline because it makes the work trustworthy and resumable, not because it is rare. This corrects a drift where I framed the prior-art passes and the calibration design around defensibility/being-first rather than usefulness. Saved as durable feedback in global memory (utility-over-novelty). The prior-art findings ([[prior-art-landscape-2026]], [[write-time-calibration-design]]) stand as consolidation, not novelty claims.
+
+### [2026-06-29 22:31:01] DECISION/VALIDATED — Consolidate the TELOS to three commitments
+Consolidated .promptus/TELOS.md to three commitments and sharpened the identity to "the memory system for long-running LLM agentic projects." (1) Memory for long-running agentic work, measured by USE -- continuity (resume in seconds; never relearn the settled, re-derive the found, or contradict the decided); the measure is whether this project stays grounded and resumable, not whether it is unique. (2) Epistemic integrity by DIVISION OF LABOR -- the LLM does only what genuinely needs judgment (write prose, judge relevance, decide what to keep); deterministic scripts do all the rest (timestamp, id, placement, index, link-graph math, the validation gate); minimize what rides on the model and what is left cannot quietly rot -- that division IS the discipline. (3) STAND ON THE SHOULDERS OF GIANTS -- don't rebuild the wheel; adopt prior art freely (respecting the invariant), spend our effort only on the thin part that is genuinely ours. Folds in the earlier utility-not-novelty recalibration. [[write-time-calibration-design]]'s deterministic-lattice + LLM-judge-only-where-needed shape is commitment #2 in action.
+
+### [2026-06-30 00:42:32] MISTAKE/RESOLVED — Store-authoring gotchas: doubled Related footer and a link in prose
+Two authoring mistakes this session, both fixed. (1) kb-add AUTO-APPENDS a "Related:" footer derived from a unit's [[links]] -- I also wrote my own "Related:" line in the body of 8 lit/finding notes, producing doubled footers; stripped the manual ones to match the store convention (footer only). Lesson: don't write a Related line in the body; kb-add owns it. (2) Wrote "the [[link]] graph" as prose in a lit note, so kb-index read it as a wikilink to a nonexistent unit (a dangling handle); fixed to "the wikilink graph". Lesson (recurring): backtick or rephrase wikilink-syntax in prose.
+
+### [2026-06-30 00:42:32] RESULT/VALIDATED — v0.5.1 released
+v0.5.1 shipped: PR #7 merged to main (16025e5), tag v0.5.1 pushed, GitHub release "Promptus v0.5.1" published (not draft). Bundle: kb-graph suggest hardening (mutual-kNN prune + --soft Mutual Proximity), kb-index now reports the [[link]]-edge count (N units / E links / M relations), the mid-2026 prior-art consolidation (7 lit notes + the prior-art-landscape-2026 finding + a README bibliography), and the AGENTS.md refresh. 110 tests + 4 CI checks (pre-commit, test+validate, macOS, Windows) green. Release-process gotcha: the auto-mode classifier BLOCKS an autonomous `gh pr merge` of an agent-authored PR -- it needs an explicit per-PR human go (operator said "you do it").
+
+### [2026-06-30 00:42:32] DECISION/VALIDATED — Shelve v0.6 calibration; the measured need is USE, not machinery
+Assessment before opening v0.6 (operator: "we should not aim for v0.6.0; assess what we have and need, why"). Grounded in kb-graph rank: the store's 12 load-bearing units are ALL Promptus reasoning about itself (header-beats-vector, the-gate, prior-art-landscape-2026, KAG/HippoRAG...) -- ZERO operator research. We have built the tool, not used it. What we have: a finished, shipped, 110-test substrate (3 verbs + curation + migration + packaging); but proof is lopsided -- store/keep (kb-add/kb-index/kb-graph) heavily exercised, while RETRIEVE + read + write-honesty (kb-find/kb-get/recall/grannie/grounded-writing-reviewer) were built but barely or never run this session (I reached for Read + the context window, not kb-find). What we need (measured, not narrative): proof in real use; a COLD RESUME across a session boundary (the retrieve tools' actual purpose, never tested -- we have only had warm sessions); the recorded open frontier is all gated real-world work (Psi/Probatio), not features. DECISION: shelve v0.6 calibration -- it is unmeasured (it surfaced from a prior-art pass, not from pain), and we have never even run the grounded-writing-reviewer that does the soft version; building it now is machinery-on-spec, which the consolidated TELOS forbids. Next is USE: this checkpoint, then (operator-gated) a real Psi/Probatio pass that exercises cold-resume + retrieve + the reviewer, and let what breaks define what is next. [[write-time-calibration-design]] is banked, not abandoned.
+
+### [2026-06-30 01:56:06] DECISION/VALIDATED — v0.5.2 plan — make the Telos non-optional (session-start injection) + a checkpoint drift check
+v0.5.2 (operator-directed): make the Telos NOT optional, and catch drift at checkpoint.
+
+(1) Session-start injection. The SessionStart hook now injects the whole Telos as content, ahead of the ledger NOW-header — every main session opens already holding the north star and the rules that never bend, instead of a "read TELOS.md before acting" pointer. Capped at 160 lines as a runaway guard; still a no-op outside a Promptus repo. New telosPath + pure telosBlock helpers in hooks/_lib.ts.
+
+(2) Checkpoint drift check. /checkpoint gains a judgement step (no script, no deps): weigh the session's recent ledger entries + the NOW-header against the Telos commitments + invariant, and surface a terse flag at the TOP of the report when the work has bent away — scope creep, machinery added without a measured threshold, novelty chased over utility, a never-bends rule contradicted; silent on course. Institutionalizes the novelty-vs-utility catch the operator made by hand across v0.5.x.
+
+Scope: main session only (subagents do not fire SessionStart). 112 tests green (+2 for telosBlock), validate-plugin green. The version bump 0.5.1 to 0.5.2 and the CHANGELOG [Unreleased] to [0.5.2] rename happen at the release cut (no commit/push until asked). The earlier cross-repo telos-as-graph-node gap is now moot — you hold the Telos, you do not navigate to it.
 
 <!-- kb:append-point -->
