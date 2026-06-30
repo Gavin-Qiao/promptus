@@ -29,3 +29,23 @@ export function ledgerPath(root: string): string | null {
 export function isPromptusRepo(root: string): boolean {
   return existsSync(join(root, ".promptus", "schema", "kb-vocab.json"));
 }
+
+export function telosPath(root: string): string | null {
+  const p = join(root, ".promptus", "TELOS.md");
+  return existsSync(p) ? p : null;
+}
+
+/**
+ * The Telos block to inject at session start. The Telos is short by design, so it is injected
+ * whole — capped at `cap` lines as a runaway guard, with a pointer to the full file when truncated.
+ */
+export function telosBlock(text: string, cap = 160): string {
+  const lines = text.split(/\r?\n/);
+  if (lines.length > cap) {
+    return (
+      lines.slice(0, cap).join("\n").trimEnd() +
+      "\n\n(Telos truncated — read the full .promptus/TELOS.md)"
+    );
+  }
+  return lines.join("\n").trim();
+}
