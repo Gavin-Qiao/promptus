@@ -164,3 +164,43 @@ test("kb-graph suggest: pairs two units citing the same source, even with little
   expect(pair).not.toBe("");                          // shared source links them despite disjoint prose
   expect(pair).toContain("shared source arXiv:5555"); // and the reason is named
 });
+
+test("kb-graph suggest --knn: mutual-KNN prunes a broad doc that is no focused doc's best match", () => {
+  // Two tight clusters (each pair shares a distinctive term) plus a `broad` doc that touches BOTH
+  // clusters faintly. broad clears the cosine floor against every leaf — so on a tiny corpus it
+  // floods in — but it is no leaf's *best* match (each leaf's best is its cluster partner). The
+  // mutual-KNN gate (reciprocal top-k) is what removes it, which is the real-corpus flood fix.
+  const root = scaffold();
+  finding(root, "topic a one", [], "alphaterm alphaterm alphaterm distincta distincta foo");
+  finding(root, "topic a two", [], "alphaterm alphaterm alphaterm distincta distincta bar");
+  finding(root, "topic b one", [], "betaterm betaterm betaterm distinctb distinctb baz");
+  finding(root, "topic b two", [], "betaterm betaterm betaterm distinctb distinctb qux");
+  finding(root, "broad", [], "alphaterm alphaterm betaterm betaterm gamma delta");
+  index(root);
+  // default knn (6): the corpus is tiny, every node sees all its neighbours, so broad still floods in.
+  const wide = graph(root, ["suggest"]).stdout;
+  expect(wide).toContain("broad"); // without the gate, the broad doc pairs with every leaf
+  // knn=1: a pair survives only when each is the other's single best match. broad tops neither
+  // cluster, so it is pruned entirely; the within-cluster pairs (mutual-best) survive.
+  const tight = graph(root, ["suggest", "--knn", "1"]).stdout;
+  expect(tight).not.toContain("broad");                 // the flood source is gone
+  expect(tight).toContain("topic-a-one ⟷ topic-a-two"); // the genuine cluster link survives
+  expect(tight).toContain("topic-b-one ⟷ topic-b-two");
+});
+
+test("kb-graph suggest --soft: Mutual Proximity ranks the genuine cluster pair above the broad hub", () => {
+  // Same scaffold as the mutual-KNN test. --soft keeps every edge (no hard prune) but RESCALES by
+  // rank-fraction, so the broad hub — high similarity to all, but top of none — sinks below the
+  // within-cluster pairs (which are each other's best). The #1 suggestion must be a real cluster pair.
+  const root = scaffold();
+  finding(root, "topic a one", [], "alphaterm alphaterm alphaterm distincta distincta foo");
+  finding(root, "topic a two", [], "alphaterm alphaterm alphaterm distincta distincta bar");
+  finding(root, "topic b one", [], "betaterm betaterm betaterm distinctb distinctb baz");
+  finding(root, "topic b two", [], "betaterm betaterm betaterm distinctb distinctb qux");
+  finding(root, "broad", [], "alphaterm alphaterm betaterm betaterm gamma delta");
+  index(root);
+  const out = graph(root, ["suggest", "--soft"]).stdout;
+  const top = out.split(/\r?\n/).find((l) => /^\s*1\./.test(l)) ?? "";
+  expect(top).not.toContain("broad");                                            // the hub is rescaled down, not #1
+  expect(top).toMatch(/topic-a-one ⟷ topic-a-two|topic-b-one ⟷ topic-b-two/);   // a within-cluster pair leads
+});
